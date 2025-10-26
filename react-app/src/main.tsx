@@ -20,7 +20,8 @@ import { ContactPage } from './pages/ContactPage';
 import { CartPage } from './pages/CartPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
-
+import { ProductDetailPage } from './pages/ProductDetailPage';
+import { BlogDetailPage } from './pages/BlogDetailPage';
 import { AuthProvider } from './hooks/AuthContext';
 import { CartProvider } from './hooks/CartContext';
 
@@ -31,8 +32,10 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: 'products', element: <ProductsPage /> },
+      { path: 'products/:productId', element: <ProductDetailPage /> },
       { path: 'about', element: <AboutPage /> },
       { path: 'blog', element: <BlogPage /> },
+      { path: 'blog/:blogId', element: <BlogDetailPage /> },
       { path: 'contact', element: <ContactPage /> },
       { path: 'cart', element: <CartPage /> },
       { path: 'login', element: <LoginPage /> },

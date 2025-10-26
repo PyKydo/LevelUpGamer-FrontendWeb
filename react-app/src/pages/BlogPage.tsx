@@ -25,6 +25,7 @@ export const BlogPage = () => {
         {posts.map((post) => (
           <div className="col-md-6 col-lg-4" key={post.id}>
             <BlogCard 
+              id={post.id}
               img={post.image}
               title={post.title}
               excerpt={post.summary}

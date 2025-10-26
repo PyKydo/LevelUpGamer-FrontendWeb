@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart';
 
 interface ProductCardProps {
@@ -12,7 +13,6 @@ interface ProductCardProps {
 
 export const ProductCard = ({ id, name, category, image, description, price, originalPrice }: ProductCardProps) => {
   const { addToCart } = useCart();
-  const productLink = `/shop/product-detail/${id}`;
 
   const handleAddToCart = () => {
     const itemToAdd = { id, name, price, image };
@@ -23,13 +23,13 @@ export const ProductCard = ({ id, name, category, image, description, price, ori
   return (
     <div className="card product-card h-100">
       <div className="card-badge position-absolute">{category}</div>
-      <a href={productLink} className="text-decoration-none text-dark">
+      <Link to={`/products/${id}`} className="text-decoration-none text-dark">
         <img src={image} className="card-img-top product-img" alt={name} />
-      </a>
+      </Link>
       <div className="card-body d-flex flex-column">
-        <a href={productLink} className="text-decoration-none text-dark">
+        <Link to={`/products/${id}`} className="text-decoration-none text-dark">
           <h5 className="card-title product-title">{name}</h5>
-        </a>
+        </Link>
         <p className="card-text product-description">{description}</p>
         <div className="product-price mt-auto">
           <span className="price">${price.toLocaleString('es-CL')}</span>

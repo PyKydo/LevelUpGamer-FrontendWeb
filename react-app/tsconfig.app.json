@@ -22,5 +22,10 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "src/main.tsx", "src/global.d.ts"]
+  "include": [
+    "src",
+    "src/main.tsx",
+    "src/global.d.ts",
+    "src/components/common/ProductCard.tsx"
+  ]
 }

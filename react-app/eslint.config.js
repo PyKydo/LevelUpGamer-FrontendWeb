@@ -23,10 +23,9 @@ export default tseslint.config(
         ...globals.browser,
         ...globals.node,
       },
-      parserOptions: {
-        project: ['./tsconfig.json', './tsconfig.node.json'],
-      },
-    },
+                parserOptions: {
+                  project: ['./tsconfig.eslint.json'],
+                },    },
     rules: {
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': 'warn',
