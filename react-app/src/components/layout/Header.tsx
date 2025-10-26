@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom';
+import { useCart } from '../../hooks/useCart';
 
 export const Header = () => {
+  const { totalItems } = useCart();
+
   return (
     <header className="bg-dark shadow-sm">
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark py-3">
@@ -45,7 +48,7 @@ export const Header = () => {
               aria-label="Carrito de Compras"
             >
               <span className="bi bi-cart"></span>
-              <span className="badge rounded-pill" id="cart-count">0</span>
+              <span className="badge rounded-pill" id="cart-count">{totalItems}</span>
             </button>
           </Link>
           <Link to="/login" className="ms-auto d-none d-lg-block">

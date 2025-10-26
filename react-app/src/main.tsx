@@ -20,6 +20,8 @@ import { ContactPage } from './pages/ContactPage';
 import { CartPage } from './pages/CartPage';
 import { LoginPage } from './pages/LoginPage';
 
+import { CartProvider } from './hooks/CartContext';
+
 const router = createBrowserRouter([
   {
     path: '/',
@@ -38,6 +40,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <CartProvider>
+      <RouterProvider router={router} />
+    </CartProvider>
   </StrictMode>,
 );
