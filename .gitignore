@@ -41,10 +41,6 @@ img/products/.cache/
 *.bak
 
 
-
-GEMINI.md
-
 docs/
 backups/
-
-remove_comments.py
+help/
