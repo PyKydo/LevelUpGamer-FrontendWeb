@@ -24,10 +24,9 @@ export const Header = () => {
       setSuggestions([]);
       return;
     }
-
     const filtered = productsData.filter(p => 
       p.name.toLowerCase().includes(searchTerm.toLowerCase())
-    ).slice(0, 5); // Limitar a 5 sugerencias
+    ).slice(0, 5);
     setSuggestions(filtered as Product[]);
   }, [searchTerm]);
 
@@ -59,7 +58,41 @@ export const Header = () => {
   return (
     <header className="bg-dark shadow-sm">
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark py-3">
-        {/* ... Código del navbar sin cambios ... */}
+        <div className="container-fluid">
+          <Link className="navbar-brand d-flex align-items-center gap-2" to="/">
+            <img className="logo" src="/img/logo.png" alt="Logo Level-Up Gamer" />
+          </Link>
+          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span className="navbar-toggler-icon"></span>
+          </button>
+          <div className="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul className="navbar-nav mx-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-2 gap-2 gap-md-3">
+              <li className="nav-item"><Link to="/" className="nav-link home-item">Inicio</Link></li>
+              <li className="nav-item"><Link to="/products" className="nav-link products-item">Productos</Link></li>
+              <li className="nav-item"><Link to="/about" className="nav-link about-item">Nosotros</Link></li>
+              <li className="nav-item"><Link to="/blog" className="nav-link blogs-item">Blogs</Link></li>
+              <li className="nav-item"><Link to="/contact" className="nav-link contact-item">Contacto</Link></li>
+            </ul>
+          </div>
+          <Link to="/cart" className="d-none d-lg-block me-2">
+            <button type="button" className="btn btn-accent login-signup-btn" aria-label="Carrito de Compras">
+              <span className="bi bi-cart"></span>
+              <span className="badge rounded-pill" id="cart-count">{totalItems}</span>
+            </button>
+          </Link>
+          {user ? (
+            <div className="d-none d-lg-flex align-items-center">
+              <span className="navbar-text me-3">Hola, {user.username}</span>
+              <button onClick={logout} className="btn btn-outline-danger">Cerrar Sesión</button>
+            </div>
+          ) : (
+            <Link to="/login" className="ms-auto d-none d-lg-block">
+              <button type="button" className="btn btn-accent login-signup-btn" aria-label="Registro / Iniciar Sesión">
+                <span className="bi bi-person-circle"></span>
+              </button>
+            </Link>
+          )}
+        </div>
       </nav>
       <div className="subheader py-3 bg-dark">
         <div className="container-fluid">
