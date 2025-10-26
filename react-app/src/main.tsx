@@ -19,6 +19,7 @@ import { BlogPage } from './pages/BlogPage';
 import { ContactPage } from './pages/ContactPage';
 import { CartPage } from './pages/CartPage';
 import { LoginPage } from './pages/LoginPage';
+import { RegisterPage } from './pages/RegisterPage';
 
 import { CartProvider } from './hooks/CartContext';
 
@@ -34,6 +35,7 @@ const router = createBrowserRouter([
       { path: 'contact', element: <ContactPage /> },
       { path: 'cart', element: <CartPage /> },
       { path: 'login', element: <LoginPage /> },
+      { path: 'register', element: <RegisterPage /> },
     ],
   },
 ]);
