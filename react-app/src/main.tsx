@@ -1,11 +1,17 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import './index.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
-const Placeholder = () => <div>Welcome to the React App!</div>;
+// Estilos globales
+import './assets/styles/main.css';
+import './assets/styles/layout.css';
+import './assets/styles/components.css';
+
+import { App } from './App';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Placeholder />
+    <App />
   </StrictMode>,
 );
