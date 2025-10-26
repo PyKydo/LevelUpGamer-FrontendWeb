@@ -1,0 +1,1 @@
+export const BlogPage = () => <div>Página de Blog</div>;

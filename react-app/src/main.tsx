@@ -8,10 +8,36 @@ import './assets/styles/main.css';
 import './assets/styles/layout.css';
 import './assets/styles/components.css';
 
-import { App } from './App';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+
+// Layout y Páginas
+import { Layout } from './components/layout/Layout';
+import { HomePage } from './pages/HomePage';
+import { ProductsPage } from './pages/ProductsPage';
+import { AboutPage } from './pages/AboutPage';
+import { BlogPage } from './pages/BlogPage';
+import { ContactPage } from './pages/ContactPage';
+import { CartPage } from './pages/CartPage';
+import { LoginPage } from './pages/LoginPage';
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Layout />,
+    children: [
+      { index: true, element: <HomePage /> },
+      { path: 'products', element: <ProductsPage /> },
+      { path: 'about', element: <AboutPage /> },
+      { path: 'blog', element: <BlogPage /> },
+      { path: 'contact', element: <ContactPage /> },
+      { path: 'cart', element: <CartPage /> },
+      { path: 'login', element: <LoginPage /> },
+    ],
+  },
+]);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <RouterProvider router={router} />
   </StrictMode>,
 );

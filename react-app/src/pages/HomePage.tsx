@@ -1,0 +1,1 @@
+export const HomePage = () => <div>Página de Inicio</div>;

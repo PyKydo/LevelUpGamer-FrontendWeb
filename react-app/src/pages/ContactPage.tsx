@@ -1,0 +1,1 @@
+export const ContactPage = () => <div>Página de Contacto</div>;

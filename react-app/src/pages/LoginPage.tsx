@@ -1,0 +1,1 @@
+export const LoginPage = () => <div>Página de Login</div>;

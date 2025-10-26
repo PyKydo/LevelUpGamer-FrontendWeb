@@ -1,11 +1,13 @@
+import { Link } from 'react-router-dom';
+
 export const Header = () => {
   return (
     <header className="bg-dark shadow-sm">
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark py-3">
         <div className="container-fluid">
-          <a className="navbar-brand d-flex align-items-center gap-2" href="/">
+          <Link className="navbar-brand d-flex align-items-center gap-2" to="/">
             <img className="logo" src="/img/logo.png" alt="Logo Level-Up Gamer" />
-          </a>
+          </Link>
           <button
             className="navbar-toggler"
             type="button"
@@ -20,23 +22,23 @@ export const Header = () => {
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             <ul className="navbar-nav mx-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-2 gap-2 gap-md-3">
               <li className="nav-item">
-                <a href="/index.html" className="nav-link home-item">Inicio</a>
+                <Link to="/" className="nav-link home-item">Inicio</Link>
               </li>
               <li className="nav-item">
-                <a href="/views/shop/products.html" className="nav-link products-item">Productos</a>
+                <Link to="/products" className="nav-link products-item">Productos</Link>
               </li>
               <li className="nav-item">
-                <a href="/views/about.html" className="nav-link about-item">Nosotros</a>
+                <Link to="/about" className="nav-link about-item">Nosotros</Link>
               </li>
               <li className="nav-item">
-                <a href="/views/blog.html" className="nav-link blogs-item">Blogs</a>
+                <Link to="/blog" className="nav-link blogs-item">Blogs</Link>
               </li>
               <li className="nav-item">
-                <a href="/views/contact.html" className="nav-link contact-item">Contacto</a>
+                <Link to="/contact" className="nav-link contact-item">Contacto</Link>
               </li>
             </ul>
           </div>
-          <a href="/views/shop/cart.html" className="d-none d-lg-block me-2">
+          <Link to="/cart" className="d-none d-lg-block me-2">
             <button
               type="button"
               className="btn btn-accent login-signup-btn"
@@ -45,8 +47,8 @@ export const Header = () => {
               <span className="bi bi-cart"></span>
               <span className="badge rounded-pill" id="cart-count">0</span>
             </button>
-          </a>
-          <a href="/views/auth/login.html" className="ms-auto d-none d-lg-block">
+          </Link>
+          <Link to="/login" className="ms-auto d-none d-lg-block">
             <button
               type="button"
               className="btn btn-accent login-signup-btn"
@@ -54,7 +56,7 @@ export const Header = () => {
             >
               <span className="bi bi-person-circle"></span>
             </button>
-          </a>
+          </Link>
         </div>
       </nav>
       <div className="subheader py-3 bg-dark">
