@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ProductCard } from '../components/common/ProductCard';
 import productsData from '../data/products.json';
 
@@ -16,13 +17,17 @@ interface Product {
 
 export const ProductsPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get('q') || '';
+  const [searchTerm, setSearchTerm] = useState(query);
 
   useEffect(() => {
-    // En una aplicación real, aquí se haría una llamada a una API.
-    // Por ahora, cargamos los datos desde el archivo JSON importado.
     setProducts(productsData as Product[]);
   }, []);
+
+  useEffect(() => {
+    setSearchTerm(query);
+  }, [query]);
 
   const filteredProducts = products.filter(product => 
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -43,19 +48,25 @@ export const ProductsPage = () => {
         </div>
       </div>
       <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        {filteredProducts.map((product) => (
-          <div className="col" key={product.code}>
-            <ProductCard 
-              id={product.code}
-              name={product.name}
-              description={product.description}
-              price={product.price}
-              originalPrice={product.originalPrice}
-              category={product.category}
-              image={`/img/products/${product.image}`}
-            />
+        {filteredProducts.length > 0 ? (
+          filteredProducts.map((product) => (
+            <div className="col" key={product.code}>
+              <ProductCard 
+                id={product.code}
+                name={product.name}
+                description={product.description}
+                price={product.price}
+                originalPrice={product.originalPrice}
+                category={product.category}
+                image={`/img/products/${product.image}`}
+              />
+            </div>
+          ))
+        ) : (
+          <div className="col-12">
+            <p className="text-center">No se encontraron productos para "{searchTerm}".</p>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

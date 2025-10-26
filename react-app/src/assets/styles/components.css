@@ -449,6 +449,15 @@ textarea::placeholder {
   font-size: 0.9rem; 
 }
 
-#search-results .list-group-item small {
-  font-size: 0.75rem; 
+.search-container-wrapper .list-group-item:last-child {
+  border-bottom-left-radius: var(--input-radius);
+  border-bottom-right-radius: var(--input-radius);
+}
+
+.search-bar.suggestions-open {
+  border-bottom-left-radius: 0;
+}
+
+.search-btn.suggestions-open {
+  border-bottom-right-radius: 0;
 }

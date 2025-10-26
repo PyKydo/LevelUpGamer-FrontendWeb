@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import usersData from '../data/users.json';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const validateEmail = (email: string) => {
     if (!email) return false;
     const emailRegex = /^\S+@\S+\.\S+$/;
     if (!emailRegex.test(email)) return false;
-
     const allowedDomains = ['@duoc.cl', '@profesor.duoc.cl', '@gmail.com'];
     return allowedDomains.some(domain => email.endsWith(domain));
   };
@@ -28,10 +30,16 @@ export const LoginPage = () => {
       return;
     }
 
-    // Simulación de inicio de sesión exitoso
-    localStorage.setItem('currentUserEmail', email);
-    alert('Inicio de sesión exitoso (simulado).');
-    navigate('/'); // Redirige al home
+    // Simulación de autenticación
+    const foundUser = usersData.find(user => user.email === email && user.password === password);
+
+    if (foundUser) {
+      login(foundUser);
+      alert('Inicio de sesión exitoso.');
+      navigate('/'); // Redirige al home
+    } else {
+      alert('Correo o contraseña incorrectos.');
+    }
   };
 
   return (

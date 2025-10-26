@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { ProductCard } from '../components/common/ProductCard';
 import productsData from '../data/products.json';
 
@@ -14,20 +15,45 @@ interface Product {
 }
 
 export const HomePage = () => {
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    // Seleccionamos algunos productos para destacar (ej. los primeros 4)
-    setFeaturedProducts((productsData as Product[]).slice(0, 4));
+    setProducts(productsData as Product[]);
   }, []);
+
+  const carouselProducts = products.slice(0, 3);
+  const featuredProducts = products.slice(3, 7);
 
   return (
     <div className="container my-5">
-      <div className="text-center mb-5">
-        <h1>Bienvenidos a Level-Up Gamer</h1>
-        <p className="lead">Tu tienda de confianza para todo lo relacionado con gaming en Chile.</p>
+      {/* Carrusel de Productos */}
+      <div id="productCarousel" className="carousel slide mb-5" data-bs-ride="carousel">
+        <div className="carousel-inner">
+          {carouselProducts.map((product, index) => (
+            <div className={`carousel-item ${index === 0 ? 'active' : ''}`} key={product.code}>
+              <div className="d-flex justify-content-center align-items-center" style={{ height: '400px', backgroundColor: 'var(--bs-gray-800)' }}>
+                <Link to={`/products?q=${product.name}`} className="d-block h-100 w-100 text-decoration-none carousel-image-wrapper">
+                  <img src={`/img/products/${product.image}`} className="d-block h-100 w-100" style={{ objectFit: 'contain' }} alt={product.name} />
+                </Link>
+                <div className="carousel-caption d-none d-md-block">
+                  <h5>{product.name}</h5>
+                  <p>${product.price.toLocaleString('es-CL')}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <button className="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+          <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span className="visually-hidden">Previous</span>
+        </button>
+        <button className="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+          <span className="carousel-control-next-icon" aria-hidden="true"></span>
+          <span className="visually-hidden">Next</span>
+        </button>
       </div>
-      
+
+      {/* Productos Destacados */}
       <h2 className="mb-4">Productos Destacados</h2>
       <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
         {featuredProducts.map((product) => (

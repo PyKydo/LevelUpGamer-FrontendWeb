@@ -21,6 +21,7 @@ import { CartPage } from './pages/CartPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 
+import { AuthProvider } from './hooks/AuthContext';
 import { CartProvider } from './hooks/CartContext';
 
 const router = createBrowserRouter([
@@ -42,8 +43,10 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <CartProvider>
-      <RouterProvider router={router} />
-    </CartProvider>
+    <AuthProvider>
+      <CartProvider>
+        <RouterProvider router={router} />
+      </CartProvider>
+    </AuthProvider>
   </StrictMode>,
 );
