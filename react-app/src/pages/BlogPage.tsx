@@ -8,7 +8,9 @@ interface Blog {
   image: string;
   alt: string;
   summary: string;
-  content: string;
+  author: string;
+  date: string;
+  content_path: string;
 }
 
 export const BlogPage = () => {
