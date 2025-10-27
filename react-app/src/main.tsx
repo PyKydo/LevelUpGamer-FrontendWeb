@@ -23,8 +23,8 @@ import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { ProductDetailPage } from './pages/ProductDetailPage';
 import { BlogDetailPage } from './pages/BlogDetailPage';
-import { AuthProvider } from './hooks/AuthContext';
-import { CartProvider } from './hooks/CartContext';
+import { AuthProvider } from './hooks/AuthProvider';
+import { CartProvider } from './hooks/CartProvider';
 
 const router = createBrowserRouter([
   {
