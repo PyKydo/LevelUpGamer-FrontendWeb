@@ -20,9 +20,14 @@ export const ProductCard = ({ id, name, category, image, description, price, ori
     alert(`'${name}' ha sido añadido al carrito.`);
   };
 
+  // Helper para convertir la categoría en un nombre de clase CSS
+  const categoryToClassName = (category: string) => {
+    return `badge-${category.toLowerCase().replace(/\s+/g, '-')}`;
+  };
+
   return (
     <div className="card product-card h-100">
-      <div className="card-badge position-absolute">{category}</div>
+      <div className={`card-badge position-absolute ${categoryToClassName(category)}`}>{category}</div>
       <Link to={`/products/${id}`} className="text-decoration-none text-dark">
         <img src={image} className="card-img-top product-img" alt={name} />
       </Link>

@@ -20,7 +20,7 @@ export const BlogPage = () => {
 
   return (
     <main className="container py-5">
-      <h1 className="mb-4 text-center">Nuestro Blog</h1>
+      <h1 className="mb-4 text-center">Blogs</h1>
       <div className="row g-4">
         {posts.map((post) => (
           <div className="col-md-6 col-lg-4" key={post.id}>

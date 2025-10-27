@@ -16,8 +16,11 @@ export const Header = () => {
   const { user, logout } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [suggestions, setSuggestions] = useState<Product[]>([]);
+  const [isNavCollapsed, setIsNavCollapsed] = useState(true);
   const navigate = useNavigate();
   const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
 
   useEffect(() => {
     if (searchTerm.trim() === '') {
@@ -62,10 +65,17 @@ export const Header = () => {
           <Link className="navbar-brand d-flex align-items-center gap-2" to="/">
             <img className="logo" src="/img/logo.png" alt="Logo Level-Up Gamer" />
           </Link>
-          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <button
+            className="navbar-toggler"
+            type="button"
+            aria-controls="navbarSupportedContent"
+            aria-expanded={!isNavCollapsed}
+            aria-label="Toggle navigation"
+            onClick={handleNavCollapse}
+          >
             <span className="navbar-toggler-icon"></span>
           </button>
-          <div className="collapse navbar-collapse" id="navbarSupportedContent">
+          <div className={`collapse navbar-collapse ${!isNavCollapsed ? 'show' : ''}`} id="navbarSupportedContent">
             <ul className="navbar-nav mx-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-2 gap-2 gap-md-3">
               <li className="nav-item"><Link to="/" className="nav-link home-item">Inicio</Link></li>
               <li className="nav-item"><Link to="/products" className="nav-link products-item">Productos</Link></li>

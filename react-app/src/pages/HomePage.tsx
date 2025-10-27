@@ -31,13 +31,13 @@ export const HomePage = () => {
         <div className="carousel-inner">
           {carouselProducts.map((product, index) => (
             <div className={`carousel-item ${index === 0 ? 'active' : ''}`} key={product.code}>
-              <div className="d-flex justify-content-center align-items-center" style={{ height: '400px', backgroundColor: 'var(--bs-gray-800)' }}>
+              <div className="d-flex justify-content-center align-items-center" style={{ height: '400px', backgroundColor: 'white' }}>
                 <Link to={`/products?q=${product.name}`} className="d-block h-100 w-100 text-decoration-none carousel-image-wrapper">
                   <img src={`/img/products/${product.image}`} className="d-block h-100 w-100" style={{ objectFit: 'contain' }} alt={product.name} />
                 </Link>
-                <div className="carousel-caption d-none d-md-block">
-                  <h5>{product.name}</h5>
-                  <p>${product.price.toLocaleString('es-CL')}</p>
+                <div className="carousel-caption-strip text-center d-none d-md-block">
+                  <h5 className="mb-2">{product.name}</h5>
+                  <p className="mb-0"><span className="carousel-price-tag">${product.price.toLocaleString('es-CL')}</span></p>
                 </div>
               </div>
             </div>

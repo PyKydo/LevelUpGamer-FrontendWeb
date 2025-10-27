@@ -153,6 +153,14 @@ textarea::placeholder {
   color: var(--btn-color);
 }
 
+.product-card .product-img {
+  transition: transform var(--transition-fast) ease;
+}
+
+.product-card:hover .product-img {
+  transform: scale(1.05);
+}
+
 
 .blog-card {
   border: 1px solid var(--border-color);
@@ -348,14 +356,30 @@ textarea::placeholder {
   background-color: #FF69B4; 
 }
 
+/* Estilos para la franja de información del carrusel */
+.carousel-caption-strip {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  z-index: 2; /* Asegura que la franja esté sobre el filtro oscuro */
+}
+
+/* Estilo para la etiqueta de precio en el carrusel */
+.carousel-price-tag {
+  background-color: var(--btn-color);
+  color: #000000; /* Texto oscuro para contraste con el fondo verde */
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--border-radius);
+  font-weight: bold;
+}
+
 #productCarousel {
   border-radius: var(--card-radius);
   overflow: hidden;
-}
-
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-  filter: invert(100%); 
 }
 
 .carousel-caption-overlay {
@@ -435,6 +459,7 @@ textarea::placeholder {
 #search-results {
   top: 100%; 
   left: 0;
+  z-index: 1050; /* Añadido para que se muestre por encima de otros elementos */
   background-color: var(--card-bg); 
   border: 1px solid var(--border-color);
   border-top: none;
@@ -460,4 +485,87 @@ textarea::placeholder {
 
 .search-btn.suggestions-open {
   border-bottom-right-radius: 0;
+}
+
+/* Ancho global para formularios de autenticación y contacto */
+.form-signin {
+  max-width: 550px;
+  margin: auto;
+}
+
+/* Corregir color de labels en formularios flotantes */
+.form-signin .form-floating > label {
+  color: var(--secondary-color);
+}
+
+/* Estilos para selectores en formularios oscuros */
+.form-signin .form-select {
+  background-color: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--primary-color);
+  border-radius: var(--input-radius); /* Añadido para consistencia */
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23d3d3d3' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+
+.form-signin .form-select:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 0.2rem rgba(30, 144, 255, 0.25);
+}
+
+/* Corrige el fondo del label flotante para textareas en tema oscuro */
+.form-floating > textarea:focus ~ label::after,
+.form-floating > textarea:not(:placeholder-shown) ~ label::after {
+  background-color: var(--input-bg) !important;
+}
+
+/* Corrige el fondo blanco del autocompletado del navegador en tema oscuro */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+textarea:-webkit-autofill:active {
+    -webkit-text-fill-color: var(--primary-color) !important;
+    -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Cambia el color del icono del calendario en inputs de tipo fecha para tema oscuro */
+/* Animación para el menú desplegable de la barra de navegación (versión corregida) */
+@media (max-width: 991.98px) {
+  .navbar-collapse.collapse {
+    display: block;
+    overflow: hidden;
+    transition: max-height 0.35s ease-in-out, visibility 0s 0.35s;
+    max-height: 0;
+    visibility: hidden; /* Oculta completamente el contenido */
+  }
+
+  .navbar-collapse.collapse.show {
+    max-height: 500px; /* Aumentado para asegurar que todo el contenido quepa */
+    visibility: visible;
+    transition-delay: 0s;
+  }
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+/* Estilo para imagen de detalle de blog */
+.blog-detail-img {
+  aspect-ratio: 16 / 9;
+  }
+
+/* Transición y cambio de color para los íconos del carrusel */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  transition: filter 0.35s ease; /* Transición suave para el cambio de color */
+}
+
+#productCarousel:hover .carousel-control-prev-icon,
+#productCarousel:hover .carousel-control-next-icon {
+  filter: invert(1); /* Se vuelven blancos al pasar el cursor sobre el carrusel */
 }

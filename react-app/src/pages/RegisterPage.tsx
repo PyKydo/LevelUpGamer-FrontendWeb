@@ -1,7 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-// Helper functions de validación (extraídas de validation.js)
+// Augment the global Window interface for JSONP callbacks
+declare global {
+  interface Window {
+    [key: string]: unknown;
+  }
+}
+
+// Helper functions de validación
 const validateEmail = (email: string) => {
     if (!email) return false;
     const emailRegex = /^\S+@\S+\.\S+$/;
@@ -9,7 +16,6 @@ const validateEmail = (email: string) => {
     const allowedDomains = ['@duoc.cl', '@profesor.duoc.cl', '@gmail.com'];
     return allowedDomains.some(domain => email.endsWith(domain));
 };
-
 const validateAge = (birthdateString: string) => {
     if (!birthdateString) return false;
     const birthdate = new Date(birthdateString);
@@ -21,13 +27,12 @@ const validateAge = (birthdateString: string) => {
     }
     return age >= 18;
 };
-
 const validateRun = (run: string) => {
     if (!run) return false;
     run = run.replace(/[^0-9kK]/g, '').toUpperCase();
     if (!/^([0-9]{7,8})([0-9K])$/.test(run)) return false;
-    let cuerpo = run.slice(0, -1);
-    let dv = run.slice(-1);
+    const cuerpo = run.slice(0, -1);
+    const dv = run.slice(-1);
     let suma = 0;
     let multiplo = 2;
     for (let i = cuerpo.length - 1; i >= 0; i--) {
@@ -39,11 +44,13 @@ const validateRun = (run: string) => {
         }
     }
     let dvEsperado = 11 - (suma % 11);
-    if (dvEsperado === 11) dvEsperado = 0;
-    else if (dvEsperado === 10) dvEsperado = 'K'.charCodeAt(0);
-    return dv === String.fromCharCode(dvEsperado);
+    if (dvEsperado === 11) {
+        dvEsperado = 0;
+    } else if (dvEsperado === 10) {
+        dvEsperado = 'K'.charCodeAt(0);
+    }
+    return dv === String.fromCharCode(dvEsperado as number);
 };
-
 const validateLength = (value: string, min: number, max: number) => {
     if (!value) return false;
     return value.length >= min && value.length <= max;
@@ -54,16 +61,28 @@ interface Region {
   codigo: string;
   nombre: string;
 }
-
 interface Commune {
   codigo: string;
   nombre: string;
 }
 
+// Helper para realizar peticiones JSONP de forma genérica
+const loadJSONP = <T,>(url: string, callback: (data: T) => void) => {
+  const callbackName = `jsonp_callback_${Math.round(100000 * Math.random())}`;
+  window[callbackName] = (data: T) => {
+    delete window[callbackName];
+    document.body.removeChild(script);
+    callback(data);
+  };
+
+  const script = document.createElement('script');
+  script.src = `${url}${url.includes('?') ? '&' : '?'}callback=${callbackName}`;
+  document.body.appendChild(script);
+};
+
 export const RegisterPage = () => {
   const navigate = useNavigate();
 
-  // Estados para el formulario
   const [formData, setFormData] = useState({
     name: '',
     lastName: '',
@@ -77,35 +96,25 @@ export const RegisterPage = () => {
     commune: ''
   });
 
-  // Estados para las listas de la API
   const [regions, setRegions] = useState<Region[]>([]);
   const [communes, setCommunes] = useState<Commune[]>([]);
   const [loadingCommunes, setLoadingCommunes] = useState(false);
 
-  // Cargar regiones al montar el componente
   useEffect(() => {
-    fetch('https://apis.digital.gob.cl/dpa/regiones')
-      .then(response => response.json())
-      .then((data: Region[]) => setRegions(data))
-      .catch(error => console.error('Error fetching regions:', error));
+    loadJSONP<Region[]>('https://apis.digital.gob.cl/dpa/regiones', (data) => {
+      setRegions(data);
+    });
   }, []);
 
-  // Cargar comunas cuando cambia la región
   useEffect(() => {
     if (formData.region) {
       setLoadingCommunes(true);
-      setCommunes([]); // Limpiar comunas anteriores
-      setFormData(prev => ({ ...prev, commune: '' })); // Resetear comuna seleccionada
-      fetch(`https://apis.digital.gob.cl/dpa/regiones/${formData.region}/comunas`)
-        .then(response => response.json())
-        .then((data: Commune[]) => {
-          setCommunes(data);
-          setLoadingCommunes(false);
-        })
-        .catch(error => {
-          console.error('Error fetching communes:', error);
-          setLoadingCommunes(false);
-        });
+      setCommunes([]);
+      setFormData(prev => ({ ...prev, commune: '' }));
+      loadJSONP<Commune[]>(`https://apis.digital.gob.cl/dpa/regiones/${formData.region}/comunas`, (data) => {
+        setCommunes(data);
+        setLoadingCommunes(false);
+      });
     }
   }, [formData.region]);
 
@@ -171,7 +180,7 @@ export const RegisterPage = () => {
               <form id="register-form" onSubmit={handleSubmit}>
                 <div className="logo-container text-center mb-3">
                   <Link to="/">
-                    <img className="logo-img" src="/img/logo.png" alt="Logo Level-Up Gamer" />
+                    <img className="logo-img" src="/img/logo.png" alt="Logo Level-Up Gamer" width="72" />
                   </Link>
                 </div>
                 <h1 className="h3 mb-3 fw-normal text-center">Crea una Cuenta</h1>

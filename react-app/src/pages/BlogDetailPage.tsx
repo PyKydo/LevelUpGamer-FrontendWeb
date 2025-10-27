@@ -29,7 +29,7 @@ export const BlogDetailPage = () => {
       <div className="row justify-content-center">
         <div className="col-lg-8">
           <h1 className="mb-4">{post.title}</h1>
-          <img src={post.image} className="img-fluid rounded shadow-sm mb-4 w-100" alt={post.alt} />
+          <img src={post.image} className="img-fluid rounded shadow-sm mb-4 blog-detail-img" alt={post.alt} />
           <p className="lead">{post.content}</p>
         </div>
       </div>

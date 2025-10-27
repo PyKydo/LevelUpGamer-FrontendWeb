@@ -55,6 +55,7 @@ export const LoginPage = () => {
                       className="logo-img"
                       src="/img/logo.png"
                       alt="Logo Level-Up Gamer"
+                      width="72"
                     />
                   </Link>
                 </div>

@@ -1,73 +1,53 @@
 import { useCart } from '../hooks/useCart';
+import { CartItemRow } from '../components/common/CartItemRow';
 
 export const CartPage = () => {
-  const { cart, removeFromCart } = useCart();
+  const { cart } = useCart();
 
   const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
-
-  // Lógica de descuento (placeholder por ahora)
-  const discount = 0; 
+  const discount = 0; // Placeholder
   const finalTotal = subtotal - discount;
 
   return (
     <main className="container my-5">
       <h1 className="mb-4 text-center">Mi Carrito de Compras</h1>
-      <div className="card shadow-sm mb-4">
-        <div className="card-body">
-          <div className="table-responsive">
-            <table className="table table-dark table-striped table-hover align-middle rounded-table">
-              <thead>
-                <tr>
-                  <th>Imagen</th>
-                  <th>Producto</th>
-                  <th>Precio Unitario</th>
-                  <th>Cantidad</th>
-                  <th>Subtotal</th>
-                  <th>Acción</th>
-                </tr>
-              </thead>
-              <tbody id="cart-items">
-                {cart.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="text-center">El carrito está vacío.</td>
-                  </tr>
-                ) : (
-                  cart.map(item => (
-                    <tr key={item.id}>
-                      <td><img src={item.image} alt={item.name} style={{ width: '50px' }} /></td>
-                      <td>{item.name}</td>
-                      <td>${item.price.toLocaleString('es-CL')}</td>
-                      <td>{item.quantity}</td>
-                      <td>${(item.price * item.quantity).toLocaleString('es-CL')}</td>
-                      <td>
-                        <button className="btn btn-danger btn-sm" onClick={() => removeFromCart(item.id)}>
-                          Eliminar
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td colSpan={5} className="text-end"><strong>Subtotal:</strong></td>
-                  <td>${subtotal.toLocaleString('es-CL')}</td>
-                </tr>
-                <tr>
-                  <td colSpan={5} className="text-end"><strong>Descuento:</strong></td>
-                  <td>-${discount.toLocaleString('es-CL')}</td>
-                </tr>
-                <tr>
-                  <td colSpan={5} className="text-end"><strong>Total Final:</strong></td>
-                  <td>${finalTotal.toLocaleString('es-CL')}</td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-          <div className="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-            <button className="btn btn-primary btn-lg" disabled={cart.length === 0}>
-              Proceder al Pago
-            </button>
+      <div className="row">
+        <div className="col-lg-8">
+          {cart.length === 0 ? (
+            <div className="card bg-dark text-white shadow-sm">
+              <div className="card-body text-center p-5">
+                <p className="lead mb-0">El carrito está vacío.</p>
+              </div>
+            </div>
+          ) : (
+            cart.map(item => (
+              <CartItemRow key={item.id} item={item} />
+            ))
+          )}
+        </div>
+        <div className="col-lg-4">
+          <div className="card bg-dark text-white shadow-sm">
+            <div className="card-body">
+              <h5 className="card-title mb-4">Resumen del Pedido</h5>
+              <div className="d-flex justify-content-between mb-2">
+                <span>Subtotal:</span>
+                <span>${subtotal.toLocaleString('es-CL')}</span>
+              </div>
+              <div className="d-flex justify-content-between mb-3">
+                <span>Descuento:</span>
+                <span>-${discount.toLocaleString('es-CL')}</span>
+              </div>
+              <hr className="my-3" />
+              <div className="d-flex justify-content-between fw-bold fs-5">
+                <span>Total Final:</span>
+                <span>${finalTotal.toLocaleString('es-CL')}</span>
+              </div>
+              <div className="d-grid mt-4">
+                <button className="btn btn-primary btn-lg" disabled={cart.length === 0}>
+                  Proceder al Pago
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
