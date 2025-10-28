@@ -27,6 +27,8 @@ import { CartProvider } from './hooks/CartProvider';
 import { NotificationProvider } from './hooks/NotificationProvider';
 import './assets/styles/components/notification.css';
 
+import { SearchProvider } from './hooks/SearchProvider';
+
 const router = createBrowserRouter([
   {
     path: '/',
@@ -52,7 +54,9 @@ createRoot(document.getElementById('root')!).render(
     <AuthProvider>
       <CartProvider>
         <NotificationProvider>
-          <RouterProvider router={router} />
+          <SearchProvider>
+            <RouterProvider router={router} />
+          </SearchProvider>
         </NotificationProvider>
       </CartProvider>
     </AuthProvider>

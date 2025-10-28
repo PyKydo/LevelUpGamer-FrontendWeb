@@ -2,20 +2,18 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ProductCard } from '../components/common/ProductCard';
 import { getProducts, type Product } from '../helpers/api.helper';
+import { useSearch } from '../hooks/useSearch';
 
 export const ProductsPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchParams] = useSearchParams();
-  const query = searchParams.get('q') || '';
-  const [searchTerm, setSearchTerm] = useState(query);
+  const { searchTerm, setSearchTerm } = useSearch();
 
   useEffect(() => {
     setProducts(getProducts());
-  }, []);
-
-  useEffect(() => {
+    const query = searchParams.get('q') || '';
     setSearchTerm(query);
-  }, [query]);
+  }, [searchParams, setSearchTerm]);
 
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()),

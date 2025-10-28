@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { useCart } from '../../hooks/useCart';
 import { useAuth } from '../../hooks/useAuth';
+import { useSearch } from '../../hooks/useSearch';
 import productsData from '../../data/products.json';
 
 interface Product {
@@ -14,7 +15,7 @@ interface Product {
 export const Header = () => {
   const { totalItems } = useCart();
   const { user, logout } = useAuth();
-  const [searchTerm, setSearchTerm] = useState('');
+  const { searchTerm, setSearchTerm } = useSearch();
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [isNavCollapsed, setIsNavCollapsed] = useState(true);
   const navigate = useNavigate();
