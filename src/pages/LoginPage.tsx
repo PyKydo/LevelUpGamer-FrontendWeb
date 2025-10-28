@@ -13,7 +13,7 @@ export const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!validateEmail(email)) {
@@ -28,19 +28,14 @@ export const LoginPage = () => {
       return;
     }
 
-    try {
-      const foundUser = await authenticateUser(email, password);
+    const foundUser = authenticateUser(email, password);
 
-      if (foundUser) {
-        login(foundUser);
-        alert('Inicio de sesión exitoso.');
-        navigate('/'); // Redirige al home
-      } else {
-        alert('Correo o contraseña incorrectos.');
-      }
-    } catch (error) {
-      console.error('Login failed:', error);
-      alert('Ocurrió un error durante el inicio de sesión.');
+    if (foundUser) {
+      login(foundUser);
+      alert('Inicio de sesión exitoso.');
+      navigate('/');
+    } else {
+      alert('Correo o contraseña incorrectos.');
     }
   };
 
@@ -103,7 +98,7 @@ export const LoginPage = () => {
 
                 <p className="mt-4 text-center">
                   ¿No tienes una cuenta?
-                  <Link to="/register" className="text-primary">
+                  <Link to="/register" className="text-primary ms-2">
                     Regístrate aquí
                   </Link>
                 </p>

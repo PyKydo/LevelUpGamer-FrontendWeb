@@ -8,15 +8,7 @@ export const HomePage = () => {
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const data = await getProducts();
-        setProducts(data);
-      } catch (error) {
-        console.error('Failed to fetch products:', error);
-      }
-    };
-    fetchProducts();
+    setProducts(getProducts());
   }, []);
 
   const carouselProducts = products.slice(0, 3);

@@ -6,15 +6,7 @@ export const BlogPage = () => {
   const [posts, setPosts] = useState<Blog[]>([]);
 
   useEffect(() => {
-    const fetchBlogPosts = async () => {
-      try {
-        const data = await getBlogPosts();
-        setPosts(data);
-      } catch (error) {
-        console.error('Failed to fetch blog posts:', error);
-      }
-    };
-    fetchBlogPosts();
+    setPosts(getBlogPosts());
   }, []);
 
   return (

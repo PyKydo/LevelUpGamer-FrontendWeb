@@ -15,22 +15,18 @@ export const BlogDetailPage = () => {
 
   useEffect(() => {
     if (blogId) {
-      const fetchPostDetails = async () => {
-        try {
-          const foundPost = await getBlogPostById(blogId);
-          setPost(foundPost || null);
+      const foundPost = getBlogPostById(blogId);
+      setPost(foundPost || null);
 
-          if (foundPost && foundPost.content_path) {
-            const content = await getBlogContent(foundPost.content_path);
+      if (foundPost && foundPost.content_path) {
+        getBlogContent(foundPost.content_path)
+          .then(content => {
             setMarkdownContent(content);
-          }
-        } catch (error) {
-          console.error('Failed to fetch blog details:', error);
-          setPost(null);
-        }
-      };
-
-      fetchPostDetails();
+          })
+          .catch(error => {
+            console.error('No se ha podido obtener el contenido del blog:', error);
+          });
+      }
     }
   }, [blogId]);
 

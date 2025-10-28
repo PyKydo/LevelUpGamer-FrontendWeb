@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 
 interface BlogCardProps {
-  id: string; // Añadir id para el enlace
+  id: string; 
   img: string;
   title: string;
   excerpt: string;

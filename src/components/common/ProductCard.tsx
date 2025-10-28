@@ -20,7 +20,6 @@ export const ProductCard = ({ id, name, category, image, description, price, ori
     alert(`'${name}' ha sido añadido al carrito.`);
   };
 
-  // Helper para convertir la categoría en un nombre de clase CSS
   const categoryToClassName = (category: string) => {
     return `badge-${category.toLowerCase().replace(/\s+/g, '-')}`;
   };

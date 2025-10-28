@@ -11,16 +11,8 @@ export const ProductDetailPage = () => {
 
   useEffect(() => {
     if (productId) {
-      const fetchProduct = async () => {
-        try {
-          const foundProduct = await getProductById(productId);
-          setProduct(foundProduct || null);
-        } catch (error) {
-          console.error('Failed to fetch product:', error);
-          setProduct(null);
-        }
-      };
-      fetchProduct();
+      const foundProduct = getProductById(productId);
+      setProduct(foundProduct || null);
     }
   }, [productId]);
 

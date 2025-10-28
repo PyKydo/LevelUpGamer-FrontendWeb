@@ -7,7 +7,7 @@ export const CartPage = () => {
   const { cart } = useCart();
 
   const subtotal = calculateSubtotal(cart);
-  const discount = 0; // Placeholder for future implementation
+  const discount = 0;
   const finalTotal = calculateTotal(subtotal, discount);
 
   return (

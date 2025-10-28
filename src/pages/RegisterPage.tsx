@@ -40,8 +40,7 @@ export const RegisterPage = () => {
         const data = await getRegions();
         setRegions(data);
       } catch (error) {
-        console.error('Failed to fetch regions:', error);
-        // Handle error appropriately
+        console.error('No se ha podido obtener la región:', error);
       }
     };
     fetchRegions();
@@ -57,8 +56,7 @@ export const RegisterPage = () => {
           const data = await getCommunesByRegion(formData.region);
           setCommunes(data);
         } catch (error) {
-          console.error('Failed to fetch communes:', error);
-          // Handle error appropriately
+          console.error('No se ha podido obtener las comunas:', error);
         } finally {
           setLoadingCommunes(false);
         }
@@ -293,7 +291,7 @@ export const RegisterPage = () => {
 
                 <p className="mt-4 text-center">
                   ¿Ya tienes una cuenta?
-                  <Link to="/login" className="text-primary">
+                  <Link to="/login" className="text-primary ms-2">
                     Inicia sesión aquí
                   </Link>
                 </p>

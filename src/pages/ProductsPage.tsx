@@ -10,15 +10,7 @@ export const ProductsPage = () => {
   const [searchTerm, setSearchTerm] = useState(query);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const data = await getProducts();
-        setProducts(data);
-      } catch (error) {
-        console.error('Failed to fetch products:', error);
-      }
-    };
-    fetchProducts();
+    setProducts(getProducts());
   }, []);
 
   useEffect(() => {

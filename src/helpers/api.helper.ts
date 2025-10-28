@@ -1,3 +1,7 @@
+import productsData from '../data/products.json';
+import blogsData from '../data/blogs.json';
+import usersData from '../data/users.json';
+
 export interface Product {
   code: string;
   name: string;
@@ -42,26 +46,33 @@ export interface Commune {
 }
 
 
-export const getProducts = async (): Promise<Product[]> => {
-  const response = await fetch('/data/products.json');
-  if (!response.ok) throw new Error('Failed to fetch products');
-  return await response.json();
+export const getProducts = (): Product[] => {
+  return productsData as Product[];
 };
 
-export const getProductById = async (id: string): Promise<Product | undefined> => {
-  const products = await getProducts();
-  return products.find(p => p.code === id);
+export const getProductById = (id: string): Product | undefined => {
+  return productsData.find((p) => p.code === id) as Product | undefined;
 };
 
-export const getBlogPosts = async (): Promise<Blog[]> => {
-  const response = await fetch('/data/blogs.json');
-  if (!response.ok) throw new Error('Failed to fetch blogs');
-  return await response.json();
+export const getBlogPosts = (): Blog[] => {
+  return blogsData as Blog[];
 };
 
-export const getBlogPostById = async (id: string): Promise<Blog | undefined> => {
-  const posts = await getBlogPosts();
-  return posts.find(p => p.id === id);
+export const getBlogPostById = (id: string): Blog | undefined => {
+  return blogsData.find((p) => p.id === id) as Blog | undefined;
+};
+
+export const authenticateUser = (email: string, password: string): User | undefined => {
+  const user = (usersData as UserWithPassword[]).find(
+    (u) => u.email === email && u.password === password
+  );
+
+  if (user) {
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
+  }
+
+  return undefined;
 };
 
 export const getBlogContent = async (path: string): Promise<string> => {
@@ -72,33 +83,13 @@ export const getBlogContent = async (path: string): Promise<string> => {
   return await response.text();
 };
 
-export const authenticateUser = async (email: string, password: string): Promise<User | undefined> => {
-  const response = await fetch('/data/users.json');
-  if (!response.ok) throw new Error('Failed to fetch users');
-  const users: UserWithPassword[] = await response.json();
-  
-  const user = users.find(u => u.email === email && u.password === password);
-  
-  if (user) {
-    return {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      role: user.role,
-    };
-  }
-  
-  return undefined;
-};
-
-
 declare global {
   interface Window {
     [key: string]: unknown;
   }
 }
 
-const loadJSONP = <T,>(url: string): Promise<T> => {
+export const loadJSONP = <T,>(url: string): Promise<T> => {
   return new Promise((resolve, reject) => {
     const callbackName = `jsonp_callback_${Math.round(100000 * Math.random())}`;
     const script = document.createElement('script');
@@ -125,5 +116,7 @@ export const getRegions = (): Promise<Region[]> => {
 };
 
 export const getCommunesByRegion = (regionCode: string): Promise<Commune[]> => {
-  return loadJSONP<Commune[]>(`https://apis.digital.gob.cl/dpa/regiones/${regionCode}/comunas`);
+  return loadJSONP<Commune[]>(
+    `https://apis.digital.gob.cl/dpa/regiones/${regionCode}/comunas`
+  );
 };
