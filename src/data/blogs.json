@@ -7,7 +7,7 @@
     "summary": "Descubre nuestra selección de los títulos más destacados del año y por qué deberías jugarlos.",
     "date": "2025-10-22",
     "author": "Matías Gutiérrez",
-    "content_path": "/src/data/blogs/post-1.md"
+    "content_path": "/data/blogs/post-1.md"
   },
   {
     "id": "post-2",
@@ -17,7 +17,7 @@
     "summary": "Consejos prácticos para subir de nivel y dominar los juegos de disparos en línea.",
     "date": "2025-09-15",
     "author": "Victor Mena",
-    "content_path": "/src/data/blogs/post-2.md"
+    "content_path": "/data/blogs/post-2.md"
   },
   {
     "id": "post-3",
@@ -27,6 +27,6 @@
     "summary": "Descubre los gadgets y accesorios más innovadores para gamers que llegan este año.",
     "date": "2025-08-01",
     "author": "David Larenas",
-    "content_path": "/src/data/blogs/post-3.md"
+    "content_path": "/data/blogs/post-3.md"
   }
 ]
