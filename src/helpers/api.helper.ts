@@ -1,6 +1,7 @@
 import productsData from '../data/products.json';
 import blogsData from '../data/blogs.json';
-import usersData from '../data/users.json';
+import { getLocalStorageItem } from './storage.helper';
+import type { UserWithPassword } from '../hooks/AuthContext';
 
 export interface Product {
   code: string;
@@ -31,9 +32,17 @@ export interface User {
   role: string;
 }
 
-interface UserWithPassword extends User {
-  password: string;
+export interface Region {
+  codigo: string;
+  nombre: string;
 }
+
+export interface Commune {
+  codigo: string;
+  nombre: string;
+}
+
+
 
 export interface Region {
   codigo: string;
@@ -63,7 +72,8 @@ export const getBlogPostById = (id: string): Blog | undefined => {
 };
 
 export const authenticateUser = (email: string, password: string): User | undefined => {
-  const user = (usersData as UserWithPassword[]).find(
+  const users = getLocalStorageItem<UserWithPassword[]>('users') || [];
+  const user = users.find(
     (u) => u.email === email && u.password === password
   );
 

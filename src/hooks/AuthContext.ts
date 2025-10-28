@@ -8,6 +8,10 @@ export interface User {
   role: string;
 }
 
+export interface UserWithPassword extends User {
+  password: string;
+}
+
 export interface AuthContextType {
   user: User | null;
   login: (userData: User) => void;

@@ -40,7 +40,7 @@ describe('ProductCard', () => {
   });
 
   it('debería llamar a addToCart cuando se hace clic en el botón', () => {
-    window.alert = vi.fn(); // Mock alert
+    window.alert = vi.fn(); 
     render(
       <MemoryRouter>
         <CartContext.Provider value={mockCartContext}>

@@ -6,19 +6,28 @@ import {
   setLocalStorageItem,
   removeLocalStorageItem,
 } from '../helpers/storage.helper';
+import usersData from '../data/users.json';
 
-const STORAGE_KEY = 'currentUser';
+const CURRENT_USER_STORAGE_KEY = 'currentUser';
+const USERS_STORAGE_KEY = 'users';
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(() =>
-    getLocalStorageItem<User>(STORAGE_KEY),
+    getLocalStorageItem<User>(CURRENT_USER_STORAGE_KEY),
   );
 
   useEffect(() => {
+    const usersInStorage = getLocalStorageItem<User[]>(USERS_STORAGE_KEY);
+    if (!usersInStorage || usersInStorage.length === 0) {
+      setLocalStorageItem(USERS_STORAGE_KEY, usersData);
+    }
+  }, []);
+
+  useEffect(() => {
     if (user) {
-      setLocalStorageItem(STORAGE_KEY, user);
+      setLocalStorageItem(CURRENT_USER_STORAGE_KEY, user);
     } else {
-      removeLocalStorageItem(STORAGE_KEY);
+      removeLocalStorageItem(CURRENT_USER_STORAGE_KEY);
     }
   }, [user]);
 

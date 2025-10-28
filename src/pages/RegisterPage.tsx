@@ -7,8 +7,10 @@ import {
   validateLength,
   validatePassword,
 } from '../helpers/validation.helper';
-import { getCommunesByRegion, type Region, type Commune, } from '../helpers/api.helper';
+import { getRegions, getCommunesByRegion, type Region, type Commune, } from '../helpers/api.helper';
 import { useNotification } from '../hooks/useNotification';
+import { getLocalStorageItem, setLocalStorageItem } from '../helpers/storage.helper';
+import type { UserWithPassword } from '../hooks/AuthContext';
 
 export const RegisterPage = () => {
   const navigate = useNavigate();
@@ -118,7 +120,19 @@ export const RegisterPage = () => {
       return;
     }
 
-    showNotification('Registro exitoso (simulado).', 'success');
+    const users = getLocalStorageItem<UserWithPassword[]>('users') || [];
+    const newUser: UserWithPassword = {
+      id: `user${Date.now()}`,
+      username: `${formData.name} ${formData.lastName}`,
+      email: formData.email,
+      password: formData.password,
+      role: 'customer',
+    };
+
+    users.push(newUser);
+    setLocalStorageItem('users', users);
+
+    showNotification('Registro exitoso.', 'success');
     navigate('/login');
   };
 
