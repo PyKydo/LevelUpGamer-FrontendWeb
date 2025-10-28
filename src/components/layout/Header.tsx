@@ -92,8 +92,14 @@ export const Header = () => {
           </Link>
           {user ? (
             <div className="d-none d-lg-flex align-items-center">
-              <span className="navbar-text me-3">Hola, {user.username}</span>
-              <button onClick={logout} className="btn btn-outline-danger">Cerrar Sesión</button>
+              <Link to="/profile" className="me-2">
+                <button type="button" className="btn btn-accent login-signup-btn" aria-label="Perfil de Usuario">
+                  <span className="bi bi-person-circle"></span>
+                </button>
+              </Link>
+              <button onClick={logout} className="btn btn-danger" aria-label="Cerrar Sesión">
+                <i className="bi bi-box-arrow-right"></i>
+              </button>
             </div>
           ) : (
             <Link to="/login" className="ms-auto d-none d-lg-block">

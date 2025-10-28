@@ -3,14 +3,16 @@ import { ProductCard } from './ProductCard';
 import { describe, it, expect, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { CartContext } from '../../hooks/CartContext';
+import { NotificationProvider } from '../../hooks/NotificationProvider';
 
 const mockProduct = {
-  id: '1',
+  code: '1',
   name: 'Test Product',
   category: 'Test Category',
   image: 'test.jpg',
   description: 'Test Description',
   price: 1000,
+  stock: 10,
 };
 
 describe('ProductCard', () => {
@@ -21,14 +23,17 @@ describe('ProductCard', () => {
     removeFromCart: vi.fn(),
     clearCart: vi.fn(),
     subtotal: 0,
+    updateQuantity: vi.fn(),
   };
 
   it('debería mostrar el nombre y el precio del producto', () => {
     render(
       <MemoryRouter>
-        <CartContext.Provider value={mockCartContext}>
-          <ProductCard {...mockProduct} />
-        </CartContext.Provider>
+        <NotificationProvider>
+          <CartContext.Provider value={mockCartContext}>
+            <ProductCard product={mockProduct} />
+          </CartContext.Provider>
+        </NotificationProvider>
       </MemoryRouter>
     );
 
@@ -40,12 +45,14 @@ describe('ProductCard', () => {
   });
 
   it('debería llamar a addToCart cuando se hace clic en el botón', () => {
-    window.alert = vi.fn(); 
+    window.alert = vi.fn();
     render(
       <MemoryRouter>
-        <CartContext.Provider value={mockCartContext}>
-          <ProductCard {...mockProduct} />
-        </CartContext.Provider>
+        <NotificationProvider>
+          <CartContext.Provider value={mockCartContext}>
+            <ProductCard product={mockProduct} />
+          </CartContext.Provider>
+        </NotificationProvider>
       </MemoryRouter>
     );
 

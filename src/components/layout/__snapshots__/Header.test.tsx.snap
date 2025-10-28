@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Header Component > debería coincidir con el snapshot 1`] = `
+exports[`Header > debería coincidir con el snapshot 1`] = `
 <div>
   <header
     class="bg-dark shadow-sm"

@@ -55,6 +55,19 @@ describe('Ayudantes de API', () => {
   });
 
   describe('autenticar Usuario', () => {
+    beforeEach(() => {
+      const users = [
+        {
+          id: '1',
+          username: 'admin',
+          email: 'admin@levelup.cl',
+          password: 'admin123',
+          role: 'admin',
+        },
+      ];
+      window.localStorage.setItem('users', JSON.stringify(users));
+    });
+
     it('debería devolver un usuario sin la contraseña si todo está bien', () => {
       const user = api.authenticateUser('admin@levelup.cl', 'admin123');
       expect(user).toBeDefined();

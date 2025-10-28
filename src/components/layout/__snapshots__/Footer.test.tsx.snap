@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Footer Component > debería coincidir con el snapshot 1`] = `
+exports[`Footer > debería coincidir con el snapshot 1`] = `
 <div>
   <footer
     class="bg-dark text-white py-5 shadow-sm"
