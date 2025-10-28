@@ -36,6 +36,7 @@ Thumbs.db
 
 # Docs
 docs/
+proyecto-guia/
 
 # Archivos generados de TypeScript
 **/*.d.ts

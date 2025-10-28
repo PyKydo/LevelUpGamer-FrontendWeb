@@ -2,22 +2,22 @@
   {
     "id": "user001",
     "username": "admin",
-    "email": "admin@levelup.cl",
+    "email": "admin@gmail.com",
     "password": "admin123",
     "role": "admin"
   },
   {
     "id": "user002",
-    "username": "john.doe",
-    "email": "john.doe@example.com",
-    "password": "password123",
+    "username": "david.larenas",
+    "email": "david.larenas@profesor.duoc.cl",
+    "password": "david123",
     "role": "customer"
   },
   {
     "id": "user003",
-    "username": "jane.smith",
-    "email": "jane.smith@duoc.cl",
-    "password": "securepass",
+    "username": "matias.gutierrez",
+    "email": "matias.gutierrez@duoc.cl",
+    "password": "matias123",
     "role": "customer"
   }
 ]

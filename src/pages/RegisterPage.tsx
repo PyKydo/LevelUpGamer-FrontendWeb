@@ -7,15 +7,12 @@ import {
   validateLength,
   validatePassword,
 } from '../helpers/validation.helper';
-import {
-  getRegions,
-  getCommunesByRegion,
-  type Region,
-  type Commune,
-} from '../helpers/api.helper';
+import { getCommunesByRegion, type Region, type Commune, } from '../helpers/api.helper';
+import { useNotification } from '../hooks/useNotification';
 
 export const RegisterPage = () => {
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -41,6 +38,7 @@ export const RegisterPage = () => {
         setRegions(data);
       } catch (error) {
         console.error('No se ha podido obtener la región:', error);
+        showNotification('Error al cargar las regiones.', 'error');
       }
     };
     fetchRegions();
@@ -57,6 +55,7 @@ export const RegisterPage = () => {
           setCommunes(data);
         } catch (error) {
           console.error('No se ha podido obtener las comunas:', error);
+          showNotification('Error al cargar las comunas.', 'error');
         } finally {
           setLoadingCommunes(false);
         }
@@ -76,49 +75,50 @@ export const RegisterPage = () => {
     e.preventDefault();
 
     if (!validateLength(formData.name, { min: 1, max: 50 })) {
-      alert('El nombre es requerido y no debe exceder los 50 caracteres.');
+      showNotification('El nombre es requerido y no debe exceder los 50 caracteres.', 'error');
       return;
     }
     if (!validateLength(formData.lastName, { min: 1, max: 100 })) {
-      alert('Los apellidos son requeridos y no deben exceder los 100 caracteres.');
+      showNotification('Los apellidos son requeridos y no deben exceder los 100 caracteres.', 'error');
       return;
     }
     if (!validateRun(formData.run)) {
-      alert('El RUN ingresado no es válido.');
+      showNotification('El RUN ingresado no es válido.', 'error');
       return;
     }
     if (!validateEmail(formData.email)) {
-      alert(
+      showNotification(
         'Correo inválido. Solo se permiten correos de @duoc.cl, @profesor.duoc.cl o @gmail.com.',
+        'error'
       );
       return;
     }
     if (!validatePassword(formData.password, { min: 4, max: 10 })) {
-      alert('La contraseña debe tener entre 4 y 10 caracteres.');
+      showNotification('La contraseña debe tener entre 4 y 10 caracteres.', 'error');
       return;
     }
     if (formData.password !== formData.confirmPassword) {
-      alert('Las contraseñas no coinciden.');
+      showNotification('Las contraseñas no coinciden.', 'error');
       return;
     }
     if (!validateAge(formData.birthdate)) {
-      alert('Debes ser mayor de 18 años para registrarte.');
+      showNotification('Debes ser mayor de 18 años para registrarte.', 'error');
       return;
     }
     if (!formData.region) {
-      alert('Debe seleccionar una región.');
+      showNotification('Debe seleccionar una región.', 'error');
       return;
     }
     if (!formData.commune) {
-      alert('Debe seleccionar una comuna.');
+      showNotification('Debe seleccionar una comuna.', 'error');
       return;
     }
     if (!validateLength(formData.address, { min: 1, max: 300 })) {
-      alert('La dirección es requerida y no debe exceder los 300 caracteres.');
+      showNotification('La dirección es requerida y no debe exceder los 300 caracteres.', 'error');
       return;
     }
 
-    alert('Registro exitoso (simulado).');
+    showNotification('Registro exitoso (simulado).', 'success');
     navigate('/login');
   };
 

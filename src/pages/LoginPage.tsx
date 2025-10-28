@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useNotification } from '../hooks/useNotification';
 import { authenticateUser } from '../helpers/api.helper';
 import {
   validateEmail,
@@ -12,19 +13,21 @@ export const LoginPage = () => {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { showNotification } = useNotification();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!validateEmail(email)) {
-      alert(
+      showNotification(
         'Correo inválido. Solo se permiten correos de @duoc.cl, @profesor.duoc.cl o @gmail.com.',
+        'error'
       );
       return;
     }
 
     if (!validatePassword(password, { min: 4, max: 10 })) {
-      alert('La contraseña debe tener entre 4 y 10 caracteres.');
+      showNotification('La contraseña debe tener entre 4 y 10 caracteres.', 'error');
       return;
     }
 
@@ -32,10 +35,10 @@ export const LoginPage = () => {
 
     if (foundUser) {
       login(foundUser);
-      alert('Inicio de sesión exitoso.');
+      showNotification('Inicio de sesión exitoso.', 'success');
       navigate('/');
     } else {
-      alert('Correo o contraseña incorrectos.');
+      showNotification('Correo o contraseña incorrectos.', 'error');
     }
   };
 

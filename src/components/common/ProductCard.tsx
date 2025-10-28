@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart';
+import { useNotification } from '../../hooks/useNotification';
 
 interface ProductCardProps {
   id: string;
@@ -13,11 +14,12 @@ interface ProductCardProps {
 
 export const ProductCard = ({ id, name, category, image, description, price, originalPrice }: ProductCardProps) => {
   const { addToCart } = useCart();
+  const { showNotification } = useNotification();
 
   const handleAddToCart = () => {
-    const itemToAdd = { id, name, price, image };
+    const itemToAdd = { id, name, price, image, quantity: 1 };
     addToCart(itemToAdd);
-    alert(`'${name}' ha sido añadido al carrito.`);
+    showNotification(`'${name}' ha sido añadido al carrito.`, 'success');
   };
 
   const categoryToClassName = (category: string) => {

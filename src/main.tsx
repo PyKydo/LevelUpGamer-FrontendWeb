@@ -23,6 +23,8 @@ import { ProductDetailPage } from './pages/ProductDetailPage';
 import { BlogDetailPage } from './pages/BlogDetailPage';
 import { AuthProvider } from './hooks/AuthProvider';
 import { CartProvider } from './hooks/CartProvider';
+import { NotificationProvider } from './hooks/NotificationProvider';
+import './assets/styles/components/notification.css';
 
 const router = createBrowserRouter([
   {
@@ -47,7 +49,9 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
       <CartProvider>
-        <RouterProvider router={router} />
+        <NotificationProvider>
+          <RouterProvider router={router} />
+        </NotificationProvider>
       </CartProvider>
     </AuthProvider>
   </StrictMode>,

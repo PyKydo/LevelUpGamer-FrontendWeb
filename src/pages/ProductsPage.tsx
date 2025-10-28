@@ -24,17 +24,7 @@ export const ProductsPage = () => {
   return (
     <div className="container py-5">
       <h1 className="text-center mb-4">Catálogo de Productos</h1>
-      <div className="row mb-4">
-        <div className="col-md-6 mx-auto">
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Buscar producto..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-      </div>
+
       <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (

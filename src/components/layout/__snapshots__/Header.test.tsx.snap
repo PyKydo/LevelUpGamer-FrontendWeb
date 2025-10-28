@@ -1,0 +1,182 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Header Component > debería coincidir con el snapshot 1`] = `
+<div>
+  <header
+    class="bg-dark shadow-sm"
+  >
+    <nav
+      class="navbar navbar-expand-lg navbar-dark bg-dark py-3"
+    >
+      <div
+        class="container-fluid"
+      >
+        <a
+          class="navbar-brand d-flex align-items-center gap-2"
+          data-discover="true"
+          href="/"
+        >
+          <img
+            alt="Logo Level-Up Gamer"
+            class="logo"
+            src="/img/logo.png"
+          />
+        </a>
+        <button
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+          class="navbar-toggler"
+          type="button"
+        >
+          <span
+            class="navbar-toggler-icon"
+          />
+        </button>
+        <div
+          class="collapse navbar-collapse "
+          id="navbarSupportedContent"
+        >
+          <ul
+            class="navbar-nav mx-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-2 gap-2 gap-md-3"
+          >
+            <li
+              class="nav-item"
+            >
+              <a
+                class="nav-link home-item"
+                data-discover="true"
+                href="/"
+              >
+                Inicio
+              </a>
+            </li>
+            <li
+              class="nav-item"
+            >
+              <a
+                class="nav-link products-item"
+                data-discover="true"
+                href="/products"
+              >
+                Productos
+              </a>
+            </li>
+            <li
+              class="nav-item"
+            >
+              <a
+                class="nav-link about-item"
+                data-discover="true"
+                href="/about"
+              >
+                Nosotros
+              </a>
+            </li>
+            <li
+              class="nav-item"
+            >
+              <a
+                class="nav-link blogs-item"
+                data-discover="true"
+                href="/blog"
+              >
+                Blogs
+              </a>
+            </li>
+            <li
+              class="nav-item"
+            >
+              <a
+                class="nav-link contact-item"
+                data-discover="true"
+                href="/contact"
+              >
+                Contacto
+              </a>
+            </li>
+          </ul>
+        </div>
+        <a
+          class="d-none d-lg-block me-2"
+          data-discover="true"
+          href="/cart"
+        >
+          <button
+            aria-label="Carrito de Compras"
+            class="btn btn-accent login-signup-btn"
+            type="button"
+          >
+            <span
+              class="bi bi-cart"
+            />
+            <span
+              class="badge rounded-pill"
+              id="cart-count"
+            >
+              0
+            </span>
+          </button>
+        </a>
+        <a
+          class="ms-auto d-none d-lg-block"
+          data-discover="true"
+          href="/login"
+        >
+          <button
+            aria-label="Registro / Iniciar Sesión"
+            class="btn btn-accent login-signup-btn"
+            type="button"
+          >
+            <span
+              class="bi bi-person-circle"
+            />
+          </button>
+        </a>
+      </div>
+    </nav>
+    <div
+      class="subheader py-3 bg-dark"
+    >
+      <div
+        class="container-fluid"
+      >
+        <form
+          class="row justify-content-center align-items-center gx-2"
+          role="search"
+        >
+          <div
+            class="col-12 col-md-8 col-lg-6 d-flex justify-content-center"
+          >
+            <div
+              class="search-container-wrapper search-group"
+            >
+              <div
+                class="input-group w-100"
+              >
+                <input
+                  aria-label="Buscar"
+                  autocomplete="off"
+                  class="form-control search-bar bg-white text-dark border border-secondary "
+                  placeholder="Buscar"
+                  type="text"
+                  value=""
+                />
+                <button
+                  aria-label="Buscar"
+                  class="btn btn-primary search-btn border border-secondary "
+                  type="submit"
+                >
+                  <span
+                    class="bi bi-search"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </header>
+</div>
+`;

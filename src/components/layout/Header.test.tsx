@@ -1,0 +1,54 @@
+import { render, screen } from '@testing-library/react';
+import { Header } from './Header';
+import { describe, it, expect, vi } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
+import { CartContext } from '../../hooks/CartContext';
+import { AuthContext } from '../../hooks/AuthContext';
+
+describe('Header', () => {
+  const mockCartContext = {
+    cartItems: [],
+    totalItems: 0,
+    addToCart: vi.fn(),
+    removeFromCart: vi.fn(),
+    clearCart: vi.fn(),
+    subtotal: 0,
+  };
+
+  const mockAuthContext = {
+    user: null,
+    login: vi.fn(),
+    logout: vi.fn(),
+  };
+
+  it('debería mostrar el logo y los enlaces de navegación', () => {
+    render(
+      <MemoryRouter>
+        <AuthContext.Provider value={mockAuthContext}>
+          <CartContext.Provider value={mockCartContext}>
+            <Header />
+          </CartContext.Provider>
+        </AuthContext.Provider>
+      </MemoryRouter>
+    );
+
+    const logoElement = screen.getByAltText(/Logo Level-Up Gamer/i);
+    expect(logoElement).toBeDefined();
+
+    const productsLink = screen.getByText(/Productos/i);
+    expect(productsLink).toBeDefined();
+  });
+
+  it('debería coincidir con el snapshot', () => {
+    const { container } = render(
+      <MemoryRouter>
+        <AuthContext.Provider value={mockAuthContext}>
+          <CartContext.Provider value={mockCartContext}>
+            <Header />
+          </CartContext.Provider>
+        </AuthContext.Provider>
+      </MemoryRouter>
+    );
+    expect(container).toMatchSnapshot();
+  });
+});

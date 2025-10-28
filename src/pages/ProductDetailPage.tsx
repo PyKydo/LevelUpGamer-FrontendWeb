@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useCart } from '../hooks/useCart';
+import { useNotification } from '../hooks/useNotification';
 import { getProductById, type Product } from '../helpers/api.helper';
 import { formatCurrency } from '../helpers/formatting.helper';
 
@@ -8,6 +9,7 @@ export const ProductDetailPage = () => {
   const { productId } = useParams<{ productId: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const { addToCart } = useCart();
+  const { showNotification } = useNotification();
 
   useEffect(() => {
     if (productId) {
@@ -25,7 +27,7 @@ export const ProductDetailPage = () => {
       image: `/img/products/${product.image}`,
     };
     addToCart(itemToAdd);
-    alert(`'${product.name}' ha sido añadido al carrito.`);
+    showNotification(`'${product.name}' ha sido añadido al carrito.`, 'success');
   };
 
   if (!product) {
