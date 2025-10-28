@@ -1,24 +1,22 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ProductCard } from '../components/common/ProductCard';
-import productsData from '../data/products.json';
-
-interface Product {
-  code: string;
-  name: string;
-  description: string;
-  price: number;
-  originalPrice?: number;
-  stock: number;
-  category: string;
-  image: string;
-}
+import { getProducts, type Product } from '../helpers/api.helper';
+import { formatCurrency } from '../helpers/formatting.helper';
 
 export const HomePage = () => {
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    setProducts(productsData as Product[]);
+    const fetchProducts = async () => {
+      try {
+        const data = await getProducts();
+        setProducts(data);
+      } catch (error) {
+        console.error('Failed to fetch products:', error);
+      }
+    };
+    fetchProducts();
   }, []);
 
   const carouselProducts = products.slice(0, 3);
@@ -27,28 +25,66 @@ export const HomePage = () => {
   return (
     <div className="container my-5">
       {/* Carrusel de Productos */}
-      <div id="productCarousel" className="carousel slide mb-5" data-bs-ride="carousel">
+      <div
+        id="productCarousel"
+        className="carousel slide mb-5"
+        data-bs-ride="carousel"
+      >
         <div className="carousel-inner">
           {carouselProducts.map((product, index) => (
-            <div className={`carousel-item ${index === 0 ? 'active' : ''}`} key={product.code}>
-              <div className="d-flex justify-content-center align-items-center" style={{ height: '400px', backgroundColor: 'white' }}>
-                <Link to={`/products?q=${product.name}`} className="d-block h-100 w-100 text-decoration-none carousel-image-wrapper">
-                  <img src={`/img/products/${product.image}`} className="d-block h-100 w-100" style={{ objectFit: 'contain' }} alt={product.name} />
+            <div
+              className={`carousel-item ${index === 0 ? 'active' : ''}`}
+              key={product.code}
+            >
+              <div
+                className="d-flex justify-content-center align-items-center"
+                style={{ height: '400px', backgroundColor: 'white' }}
+              >
+                <Link
+                  to={`/products?q=${product.name}`}
+                  className="d-block h-100 w-100 text-decoration-none carousel-image-wrapper"
+                >
+                  <img
+                    src={`/img/products/${product.image}`}
+                    className="d-block h-100 w-100"
+                    style={{ objectFit: 'contain' }}
+                    alt={product.name}
+                  />
                 </Link>
                 <div className="carousel-caption-strip text-center d-none d-md-block">
                   <h5 className="mb-2">{product.name}</h5>
-                  <p className="mb-0"><span className="carousel-price-tag">${product.price.toLocaleString('es-CL')}</span></p>
+                  <p className="mb-0">
+                    <span className="carousel-price-tag">
+                      {formatCurrency(product.price)}
+                    </span>
+                  </p>
                 </div>
               </div>
             </div>
           ))}
         </div>
-        <button className="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
-          <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+        <button
+          className="carousel-control-prev"
+          type="button"
+          data-bs-target="#productCarousel"
+          data-bs-slide="prev"
+        >
+          <span
+            className="carousel-control-prev-icon"
+            aria-hidden="true"
+          ></span>
           <span className="visually-hidden">Previous</span>
         </button>
-        <button className="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
-          <span className="carousel-control-next-icon" aria-hidden="true"></span>
+        <button
+          className="carousel-control-next"
+          type="button"
+          data-bs-target="#productCarousel"
+          data-bs-slide="next"
+        >
+          <span
+            className="carousel-control-next-icon"
+            aria-hidden="true"
+          ></span>
           <span className="visually-hidden">Next</span>
         </button>
       </div>
@@ -58,7 +94,7 @@ export const HomePage = () => {
       <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
         {featuredProducts.map((product) => (
           <div className="col" key={product.code}>
-            <ProductCard 
+            <ProductCard
               id={product.code}
               name={product.name}
               description={product.description}

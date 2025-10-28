@@ -1,21 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
 import { CartContext } from './CartContext';
 import type { CartContextType, CartItem, CartProviderProps } from './CartContext';
+import {
+  getLocalStorageItem,
+  setLocalStorageItem,
+} from '../helpers/storage.helper';
 
 const STORAGE_KEY = 'cart';
 
 export const CartProvider = ({ children }: CartProviderProps) => {
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    try {
-      const localCart = window.localStorage.getItem(STORAGE_KEY);
-      return localCart ? (JSON.parse(localCart) as CartItem[]) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [cart, setCart] = useState<CartItem[]>(
+    () => getLocalStorageItem<CartItem[]>(STORAGE_KEY, []) || []
+  );
 
   useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+    setLocalStorageItem(STORAGE_KEY, cart);
   }, [cart]);
 
   const addToCart: CartContextType['addToCart'] = (item) => {
@@ -40,9 +39,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   const increaseQuantity: CartContextType['increaseQuantity'] = (id) => {
     setCart((prevCart) =>
       prevCart.map((item) =>
-        item.id === id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item,
+        item.id === id ? { ...item, quantity: item.quantity + 1 } : item,
       ),
     );
   };

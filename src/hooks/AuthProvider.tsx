@@ -1,24 +1,24 @@
 import { useEffect, useState } from 'react';
 import { AuthContext } from './AuthContext';
 import type { AuthProviderProps, AuthContextType, User } from './AuthContext';
+import {
+  getLocalStorageItem,
+  setLocalStorageItem,
+  removeLocalStorageItem,
+} from '../helpers/storage.helper';
 
 const STORAGE_KEY = 'currentUser';
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User | null>(() => {
-    try {
-      const storedUser = window.localStorage.getItem(STORAGE_KEY);
-      return storedUser ? (JSON.parse(storedUser) as User) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [user, setUser] = useState<User | null>(() =>
+    getLocalStorageItem<User>(STORAGE_KEY),
+  );
 
   useEffect(() => {
     if (user) {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+      setLocalStorageItem(STORAGE_KEY, user);
     } else {
-      window.localStorage.removeItem(STORAGE_KEY);
+      removeLocalStorageItem(STORAGE_KEY);
     }
   }, [user]);
 

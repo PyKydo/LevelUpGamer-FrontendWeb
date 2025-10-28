@@ -1,23 +1,20 @@
 import { useState, useEffect } from 'react';
 import { BlogCard } from '../components/common/BlogCard';
-import blogsData from '../data/blogs.json';
-
-interface Blog {
-  id: string;
-  title: string;
-  image: string;
-  alt: string;
-  summary: string;
-  author: string;
-  date: string;
-  content_path: string;
-}
+import { getBlogPosts, type Blog } from '../helpers/api.helper';
 
 export const BlogPage = () => {
   const [posts, setPosts] = useState<Blog[]>([]);
 
   useEffect(() => {
-    setPosts(blogsData as Blog[]);
+    const fetchBlogPosts = async () => {
+      try {
+        const data = await getBlogPosts();
+        setPosts(data);
+      } catch (error) {
+        console.error('Failed to fetch blog posts:', error);
+      }
+    };
+    fetchBlogPosts();
   }, []);
 
   return (
@@ -26,7 +23,7 @@ export const BlogPage = () => {
       <div className="row g-4">
         {posts.map((post) => (
           <div className="col-md-6 col-lg-4" key={post.id}>
-            <BlogCard 
+            <BlogCard
               id={post.id}
               img={post.image}
               title={post.title}

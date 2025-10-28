@@ -1,19 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ProductCard } from '../components/common/ProductCard';
-import productsData from '../data/products.json';
-
-// Definir el tipo para un producto, basado en la estructura del JSON
-interface Product {
-  code: string;
-  name: string;
-  description: string;
-  price: number;
-  originalPrice?: number;
-  stock: number;
-  category: string;
-  image: string;
-}
+import { getProducts, type Product } from '../helpers/api.helper';
 
 export const ProductsPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -22,15 +10,23 @@ export const ProductsPage = () => {
   const [searchTerm, setSearchTerm] = useState(query);
 
   useEffect(() => {
-    setProducts(productsData as Product[]);
+    const fetchProducts = async () => {
+      try {
+        const data = await getProducts();
+        setProducts(data);
+      } catch (error) {
+        console.error('Failed to fetch products:', error);
+      }
+    };
+    fetchProducts();
   }, []);
 
   useEffect(() => {
     setSearchTerm(query);
   }, [query]);
 
-  const filteredProducts = products.filter(product => 
-    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -38,7 +34,7 @@ export const ProductsPage = () => {
       <h1 className="text-center mb-4">Catálogo de Productos</h1>
       <div className="row mb-4">
         <div className="col-md-6 mx-auto">
-          <input 
+          <input
             type="text"
             className="form-control"
             placeholder="Buscar producto..."
@@ -51,7 +47,7 @@ export const ProductsPage = () => {
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
             <div className="col" key={product.code}>
-              <ProductCard 
+              <ProductCard
                 id={product.code}
                 name={product.name}
                 description={product.description}
@@ -64,7 +60,9 @@ export const ProductsPage = () => {
           ))
         ) : (
           <div className="col-12">
-            <p className="text-center">No se encontraron productos para "{searchTerm}".</p>
+            <p className="text-center">
+              No se encontraron productos para "{searchTerm}".
+            </p>
           </div>
         )}
       </div>

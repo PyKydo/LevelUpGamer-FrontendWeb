@@ -1,12 +1,14 @@
 import { useCart } from '../hooks/useCart';
 import { CartItemRow } from '../components/common/CartItemRow';
+import { formatCurrency } from '../helpers/formatting.helper';
+import { calculateSubtotal, calculateTotal } from '../helpers/cart.helper';
 
 export const CartPage = () => {
   const { cart } = useCart();
 
-  const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
-  const discount = 0; // Placeholder
-  const finalTotal = subtotal - discount;
+  const subtotal = calculateSubtotal(cart);
+  const discount = 0; // Placeholder for future implementation
+  const finalTotal = calculateTotal(subtotal, discount);
 
   return (
     <main className="container my-5">
@@ -20,9 +22,7 @@ export const CartPage = () => {
               </div>
             </div>
           ) : (
-            cart.map(item => (
-              <CartItemRow key={item.id} item={item} />
-            ))
+            cart.map((item) => <CartItemRow key={item.id} item={item} />)
           )}
         </div>
         <div className="col-lg-4">
@@ -31,19 +31,22 @@ export const CartPage = () => {
               <h5 className="card-title mb-4">Resumen del Pedido</h5>
               <div className="d-flex justify-content-between mb-2">
                 <span>Subtotal:</span>
-                <span>${subtotal.toLocaleString('es-CL')}</span>
+                <span>{formatCurrency(subtotal)}</span>
               </div>
               <div className="d-flex justify-content-between mb-3">
                 <span>Descuento:</span>
-                <span>-${discount.toLocaleString('es-CL')}</span>
+                <span>-{formatCurrency(discount)}</span>
               </div>
               <hr className="my-3" />
               <div className="d-flex justify-content-between fw-bold fs-5">
                 <span>Total Final:</span>
-                <span>${finalTotal.toLocaleString('es-CL')}</span>
+                <span>{formatCurrency(finalTotal)}</span>
               </div>
               <div className="d-grid mt-4">
-                <button className="btn btn-primary btn-lg" disabled={cart.length === 0}>
+                <button
+                  className="btn btn-primary btn-lg"
+                  disabled={cart.length === 0}
+                >
                   Proceder al Pago
                 </button>
               </div>

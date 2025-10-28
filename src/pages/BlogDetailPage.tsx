@@ -1,42 +1,45 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import blogsData from '../data/blogs.json';
-
-interface Blog {
-  id: string;
-  title: string;
-  image: string;
-  alt: string;
-  summary: string;
-  author: string;
-  date: string;
-  content_path: string;
-}
+import {
+  getBlogPostById,
+  getBlogContent,
+  type Blog,
+} from '../helpers/api.helper';
+import { formatDate } from '../helpers/formatting.helper';
 
 export const BlogDetailPage = () => {
   const { blogId } = useParams<{ blogId: string }>();
   const [post, setPost] = useState<Blog | null>(null);
   const [markdownContent, setMarkdownContent] = useState('');
 
-  // Efecto para encontrar los metadatos del post
   useEffect(() => {
-    const foundPost = blogsData.find(p => p.id === blogId) as Blog | undefined;
-    setPost(foundPost || null);
+    if (blogId) {
+      const fetchPostDetails = async () => {
+        try {
+          const foundPost = await getBlogPostById(blogId);
+          setPost(foundPost || null);
+
+          if (foundPost && foundPost.content_path) {
+            const content = await getBlogContent(foundPost.content_path);
+            setMarkdownContent(content);
+          }
+        } catch (error) {
+          console.error('Failed to fetch blog details:', error);
+          setPost(null);
+        }
+      };
+
+      fetchPostDetails();
+    }
   }, [blogId]);
 
-  // Efecto para cargar el contenido del archivo .md cuando se encuentra el post
-  useEffect(() => {
-    if (post && post.content_path) {
-      fetch(post.content_path)
-        .then(response => response.text())
-        .then(text => setMarkdownContent(text))
-        .catch(error => console.error('Error fetching blog content:', error));
-    }
-  }, [post]);
-
   if (!post) {
-    return <div className="container my-5 text-center"><h2>Entrada de blog no encontrada</h2></div>;
+    return (
+      <div className="container my-5 text-center">
+        <h2>Entrada de blog no encontrada</h2>
+      </div>
+    );
   }
 
   return (
@@ -45,7 +48,7 @@ export const BlogDetailPage = () => {
         <div className="col-lg-8">
           <h1 className="mb-3">{post.title}</h1>
           <div className="text-muted mb-3">
-            <span>Por {post.author}</span> | <span>{new Date(post.date).toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+            <span>Por {post.author}</span> | <span>{formatDate(post.date)}</span>
           </div>
           <div className="blog-detail-img-wrapper mb-4">
             <img src={post.image} className="img-fluid" alt={post.alt} />

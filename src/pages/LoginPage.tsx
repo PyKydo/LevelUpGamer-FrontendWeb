@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import usersData from '../data/users.json';
+import { authenticateUser } from '../helpers/api.helper';
+import {
+  validateEmail,
+  validatePassword,
+} from '../helpers/validation.helper';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -9,36 +13,34 @@ export const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const validateEmail = (email: string) => {
-    if (!email) return false;
-    const emailRegex = /^\S+@\S+\.\S+$/;
-    if (!emailRegex.test(email)) return false;
-    const allowedDomains = ['@duoc.cl', '@profesor.duoc.cl', '@gmail.com'];
-    return allowedDomains.some(domain => email.endsWith(domain));
-  };
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!validateEmail(email)) {
-      alert('Correo inválido. Solo se permiten correos de @duoc.cl, @profesor.duoc.cl o @gmail.com.');
+      alert(
+        'Correo inválido. Solo se permiten correos de @duoc.cl, @profesor.duoc.cl o @gmail.com.',
+      );
       return;
     }
 
-    if (password.length < 4 || password.length > 10) {
+    if (!validatePassword(password, { min: 4, max: 10 })) {
       alert('La contraseña debe tener entre 4 y 10 caracteres.');
       return;
     }
 
-    // Simulación de autenticación
-    const foundUser = usersData.find(user => user.email === email && user.password === password);
+    try {
+      const foundUser = await authenticateUser(email, password);
 
-    if (foundUser) {
-      login(foundUser);
-      alert('Inicio de sesión exitoso.');
-      navigate('/'); // Redirige al home
-    } else {
-      alert('Correo o contraseña incorrectos.');
+      if (foundUser) {
+        login(foundUser);
+        alert('Inicio de sesión exitoso.');
+        navigate('/'); // Redirige al home
+      } else {
+        alert('Correo o contraseña incorrectos.');
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+      alert('Ocurrió un error durante el inicio de sesión.');
     }
   };
 

@@ -36,3 +36,6 @@ Thumbs.db
 
 # Docs
 docs/
+
+# Archivos generados de TypeScript
+**/*.d.ts
