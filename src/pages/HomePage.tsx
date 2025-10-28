@@ -86,15 +86,7 @@ export const HomePage = () => {
       <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
         {featuredProducts.map((product) => (
           <div className="col" key={product.code}>
-            <ProductCard
-              id={product.code}
-              name={product.name}
-              description={product.description}
-              price={product.price}
-              originalPrice={product.originalPrice}
-              category={product.category}
-              image={`/img/products/${product.image}`}
-            />
+            <ProductCard product={product} />
           </div>
         ))}
       </div>

@@ -3,9 +3,10 @@ import { CartPage } from './CartPage';
 import { describe, it, expect, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { CartContext } from '../hooks/CartContext';
+import type { CartItem } from '../hooks/CartContext';
 
 vi.mock('../components/common/CartItemRow', () => ({
-  CartItemRow: ({ item }) => <div data-testid="cart-item-row">{item.name}</div>,
+  CartItemRow: ({ item }: { item: CartItem }) => <div data-testid="cart-item-row">{item.name}</div>,
 }));
 
 describe('CartPage Component', () => {
@@ -15,6 +16,8 @@ describe('CartPage Component', () => {
       totalItems: 0,
       addToCart: vi.fn(),
       removeFromCart: vi.fn(),
+      increaseQuantity: vi.fn(),
+      decreaseQuantity: vi.fn(),
       clearCart: vi.fn(),
       subtotal: 0,
     };
@@ -40,6 +43,8 @@ describe('CartPage Component', () => {
       totalItems: 2,
       addToCart: vi.fn(),
       removeFromCart: vi.fn(),
+      increaseQuantity: vi.fn(),
+      decreaseQuantity: vi.fn(),
       clearCart: vi.fn(),
       subtotal: 2500,
     };

@@ -27,5 +27,10 @@
     "src/main.tsx",
     "src/global.d.ts",
     "src/components/common/ProductCard.tsx"
+  ],
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/setupTests.ts"
   ]
 }

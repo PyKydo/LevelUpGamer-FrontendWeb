@@ -1,23 +1,20 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart';
 import { useNotification } from '../../hooks/useNotification';
+import type { Product } from '../../helpers/api.helper';
 
 interface ProductCardProps {
-  id: string;
-  name: string;
-  category: string;
-  image: string;
-  description: string;
-  price: number;
-  originalPrice?: number;
+  product: Product;
 }
 
-export const ProductCard = ({ id, name, category, image, description, price, originalPrice }: ProductCardProps) => {
+export const ProductCard = ({ product }: ProductCardProps) => {
   const { addToCart } = useCart();
   const { showNotification } = useNotification();
 
+  const { code, name, category, image, description, price, originalPrice } = product;
+
   const handleAddToCart = () => {
-    const itemToAdd = { id, name, price, image, quantity: 1 };
+    const itemToAdd = { id: code, name, price, image, quantity: 1 };
     addToCart(itemToAdd);
     showNotification(`'${name}' ha sido añadido al carrito.`, 'success');
   };
@@ -29,11 +26,11 @@ export const ProductCard = ({ id, name, category, image, description, price, ori
   return (
     <div className="card product-card h-100">
       <div className={`card-badge position-absolute ${categoryToClassName(category)}`}>{category}</div>
-      <Link to={`/products/${id}`} className="text-decoration-none text-dark">
-        <img src={image} className="card-img-top product-img" alt={name} />
+      <Link to={`/products/${code}`} className="text-decoration-none text-dark">
+        <img src={`/img/products/${image}`} className="card-img-top product-img" alt={name} />
       </Link>
       <div className="card-body d-flex flex-column">
-        <Link to={`/products/${id}`} className="text-decoration-none text-dark">
+        <Link to={`/products/${code}`} className="text-decoration-none text-dark">
           <h5 className="card-title product-title">{name}</h5>
         </Link>
         <p className="card-text product-description">{description}</p>

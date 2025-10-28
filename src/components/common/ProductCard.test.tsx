@@ -17,13 +17,13 @@ const mockProduct = {
 
 describe('ProductCard', () => {
   const mockCartContext = {
-    cartItems: [],
-    totalItems: 0,
+    cart: [],
     addToCart: vi.fn(),
     removeFromCart: vi.fn(),
+    increaseQuantity: vi.fn(),
+    decreaseQuantity: vi.fn(),
     clearCart: vi.fn(),
-    subtotal: 0,
-    updateQuantity: vi.fn(),
+    totalItems: 0,
   };
 
   it('debería mostrar el nombre y el precio del producto', () => {

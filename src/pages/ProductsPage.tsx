@@ -29,15 +29,7 @@ export const ProductsPage = () => {
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
             <div className="col" key={product.code}>
-              <ProductCard
-                id={product.code}
-                name={product.name}
-                description={product.description}
-                price={product.price}
-                originalPrice={product.originalPrice}
-                category={product.category}
-                image={`/img/products/${product.image}`}
-              />
+              <ProductCard product={product} />
             </div>
           ))
         ) : (

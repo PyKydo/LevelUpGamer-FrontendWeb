@@ -7,12 +7,13 @@ import { AuthContext } from '../../hooks/AuthContext';
 
 describe('Header', () => {
   const mockCartContext = {
-    cartItems: [],
-    totalItems: 0,
+    cart: [],
     addToCart: vi.fn(),
     removeFromCart: vi.fn(),
+    increaseQuantity: vi.fn(),
+    decreaseQuantity: vi.fn(),
     clearCart: vi.fn(),
-    subtotal: 0,
+    totalItems: 0,
   };
 
   const mockAuthContext = {
