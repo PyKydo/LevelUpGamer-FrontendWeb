@@ -1,13 +1,20 @@
 import { useCart } from '../hooks/useCart';
+import { useAuth } from '../hooks/useAuth';
 import { CartItemRow } from '../components/common/CartItemRow';
 import { formatCurrency } from '../helpers/formatting.helper';
 import { calculateSubtotal, calculateTotal } from '../helpers/cart.helper';
 
 export const CartPage = () => {
   const { cart } = useCart();
+  const { user } = useAuth();
 
   const subtotal = calculateSubtotal(cart);
-  const discount = 0;
+
+  const isDuocEmail =
+    user?.email.endsWith('@duoc.cl') ||
+    user?.email.endsWith('@profesor.duoc.cl');
+  const discount = isDuocEmail ? subtotal * 0.2 : 0;
+
   const finalTotal = calculateTotal(subtotal, discount);
 
   return (

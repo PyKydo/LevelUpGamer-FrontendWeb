@@ -105,7 +105,7 @@ export const LoginPage = () => {
                     Regístrate aquí
                   </Link>
                 </p>
-                <p className="mt-4 mb-4 text-body-secondary text-center">© 2025</p>
+                <p className="mt-4 mb-4 text-center copyright-text">© 2025</p>
               </form>
             </div>
           </div>

@@ -230,3 +230,8 @@ main {
   object-fit: contain;
   flex-shrink: 0;
 }
+
+.copyright-text {
+  text-align: center;
+  color: var(--secondary-color);
+}

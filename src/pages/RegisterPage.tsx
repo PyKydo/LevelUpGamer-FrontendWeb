@@ -10,6 +10,7 @@ import {
 import { getRegions, getCommunesByRegion, type Region, type Commune, } from '../helpers/api.helper';
 import { useNotification } from '../hooks/useNotification';
 import { getLocalStorageItem, setLocalStorageItem } from '../helpers/storage.helper';
+import { simpleHash } from '../helpers/security.helper';
 import type { UserWithPassword } from '../hooks/AuthContext';
 
 export const RegisterPage = () => {
@@ -125,7 +126,7 @@ export const RegisterPage = () => {
       id: `user${Date.now()}`,
       username: `${formData.name} ${formData.lastName}`,
       email: formData.email,
-      password: formData.password,
+      password: simpleHash(formData.password),
       role: 'customer',
     };
 
@@ -309,9 +310,7 @@ export const RegisterPage = () => {
                     Inicia sesión aquí
                   </Link>
                 </p>
-                <p className="mt-4 mb-3 text-body-secondary text-center">
-                  © 2025
-                </p>
+                <p className="mt-4 mb-3 text-center copyright-text">© 2025</p>
               </form>
             </div>
           </div>

@@ -83,6 +83,17 @@ export const Header = () => {
               <li className="nav-item"><Link to="/about" className="nav-link about-item">Nosotros</Link></li>
               <li className="nav-item"><Link to="/blog" className="nav-link blogs-item">Blogs</Link></li>
               <li className="nav-item"><Link to="/contact" className="nav-link contact-item">Contacto</Link></li>
+
+              {/* Mobile only links */}
+              <li className="nav-item d-lg-none"><Link to="/cart" className="nav-link">Carrito ({totalItems})</Link></li>
+              {user ? (
+                <>
+                  <li className="nav-item d-lg-none"><Link to="/profile" className="nav-link">Perfil</Link></li>
+                  <li className="nav-item d-lg-none"><button onClick={logout} className="nav-link btn btn-link">Cerrar Sesión</button></li>
+                </>
+              ) : (
+                <li className="nav-item d-lg-none"><Link to="/login" className="nav-link">Iniciar Sesión / Registro</Link></li>
+              )}
             </ul>
           </div>
           <Link to="/cart" className="d-none d-lg-block me-2">

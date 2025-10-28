@@ -1,6 +1,7 @@
 import productsData from '../data/products.json';
 import blogsData from '../data/blogs.json';
 import { getLocalStorageItem } from './storage.helper';
+import { simpleHash } from './security.helper';
 import type { UserWithPassword } from '../hooks/AuthContext';
 
 export interface Product {
@@ -73,8 +74,9 @@ export const getBlogPostById = (id: string): Blog | undefined => {
 
 export const authenticateUser = (email: string, password: string): User | undefined => {
   const users = getLocalStorageItem<UserWithPassword[]>('users') || [];
+  const hashedPassword = simpleHash(password);
   const user = users.find(
-    (u) => u.email === email && u.password === password
+    (u) => u.email === email && u.password === hashedPassword
   );
 
   if (user) {
