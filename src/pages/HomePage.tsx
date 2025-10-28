@@ -33,7 +33,7 @@ export const HomePage = () => {
                 style={{ height: '400px', backgroundColor: 'white' }}
               >
                 <Link
-                  to={`/products?q=${product.name}`}
+                  to={`/products/${product.code}`}
                   className="d-block h-100 w-100 text-decoration-none carousel-image-wrapper"
                 >
                   <img

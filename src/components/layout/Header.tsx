@@ -142,7 +142,7 @@ export const Header = () => {
                     {suggestions.map(product => (
                       <Link 
                         key={product.code} 
-                        to={`/products?q=${product.name}`}
+                        to={`/products/${product.code}`}
                         className="list-group-item list-group-item-action bg-dark text-white border-secondary"
                         onClick={handleSuggestionClick}
                       >
