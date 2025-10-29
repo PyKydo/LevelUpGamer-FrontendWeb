@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 export const Footer = () => {
   return (
     <footer className="bg-dark text-white py-5 shadow-sm">
@@ -7,11 +9,11 @@ export const Footer = () => {
             <h5 className="mb-3">Enlaces Rápidos</h5>
             <ul className="list-unstyled">
               <li>
-                <a href="/views/shop/products.html" className="text-white">Productos</a>
+                <Link to="/products" className="text-white text-decoration-none">Productos</Link>
               </li>
-              <li><a href="/views/about.html" className="text-white">Nosotros</a></li>
-              <li><a href="/views/blog.html" className="text-white">Blog</a></li>
-              <li><a href="/views/contact.html" className="text-white">Contacto</a></li>
+              <li><Link to="/about" className="text-white text-decoration-none">Nosotros</Link></li>
+              <li><Link to="/blog" className="text-white text-decoration-none">Blog</Link></li>
+              <li><Link to="/contact" className="text-white text-decoration-none">Contacto</Link></li>
             </ul>
           </div>
           <div className="col-md-4 mb-4 mb-md-0 text-center">
