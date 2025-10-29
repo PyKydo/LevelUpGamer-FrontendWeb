@@ -16,7 +16,6 @@ export const HomePage = () => {
 
   return (
     <div className="container my-5">
-      {/* Carrusel de Productos */}
       <div
         id="productCarousel"
         className="carousel slide mb-5"
@@ -81,7 +80,6 @@ export const HomePage = () => {
         </button>
       </div>
 
-      {/* Productos Destacados */}
       <h2 className="mb-4">Productos Destacados</h2>
       <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
         {featuredProducts.map((product) => (

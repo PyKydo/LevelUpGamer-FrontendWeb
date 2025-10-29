@@ -70,7 +70,6 @@ describe('Ayudantes de API', () => {
       expect(user).toBeUndefined();
     });
 
-    // Caso de usuario inexistente se cubre implícitamente por el anterior
   });
 
   describe('obtener Contenido del Blog', () => {

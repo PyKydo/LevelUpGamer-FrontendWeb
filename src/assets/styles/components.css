@@ -383,7 +383,6 @@ textarea:disabled {
   background-color: #ff69b4;
 }
 
-/* Estilos para la franja de información del carrusel */
 .carousel-caption-strip {
   position: absolute;
   right: 0;
@@ -392,13 +391,12 @@ textarea:disabled {
   padding: 1rem;
   background-color: rgba(0, 0, 0, 0.6);
   color: white;
-  z-index: 2; /* Asegura que la franja esté sobre el filtro oscuro */
+  z-index: 2;
 }
 
-/* Estilo para la etiqueta de precio en el carrusel */
 .carousel-price-tag {
   background-color: var(--btn-color);
-  color: #000000; /* Texto oscuro para contraste con el fondo verde */
+  color: #000000; 
   padding: 0.3rem 0.6rem;
   border-radius: var(--border-radius);
   font-weight: bold;
@@ -486,7 +484,7 @@ textarea:disabled {
 #search-results {
   top: 100%;
   left: 0;
-  z-index: 1050; /* Añadido para que se muestre por encima de otros elementos */
+  z-index: 1050; 
   background-color: var(--card-bg);
   border: 1px solid var(--border-color);
   border-top: none;
@@ -514,13 +512,11 @@ textarea:disabled {
   border-bottom-right-radius: 0;
 }
 
-/* Ancho global para formularios de autenticación y contacto */
 .form-signin {
   max-width: 550px;
   margin: auto;
 }
 
-/* Corregir color de labels en formularios flotantes */
 .form-signin .form-floating > label {
   color: var(--secondary-color);
 }
@@ -545,12 +541,11 @@ textarea:disabled {
   opacity: 0.65;
 }
 
-/* Estilos para selectores en formularios oscuros */
 .form-signin .form-select {
   background-color: var(--input-bg);
   border-color: var(--input-border);
   color: var(--primary-color);
-  border-radius: var(--input-radius); /* Añadido para consistencia */
+  border-radius: var(--input-radius); 
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23d3d3d3' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
 }
 
@@ -559,13 +554,11 @@ textarea:disabled {
   box-shadow: 0 0 0 0.2rem rgba(30, 144, 255, 0.25);
 }
 
-/* Corrige el fondo del label flotante para textareas en tema oscuro */
 .form-floating > textarea:focus ~ label::after,
 .form-floating > textarea:not(:placeholder-shown) ~ label::after {
   background-color: var(--input-bg) !important;
 }
 
-/* Corrige el fondo blanco del autocompletado del navegador en tema oscuro */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
@@ -579,19 +572,17 @@ textarea:-webkit-autofill:active {
   transition: background-color 5000s ease-in-out 0s;
 }
 
-/* Cambia el color del icono del calendario en inputs de tipo fecha para tema oscuro */
-/* Animación para el menú desplegable de la barra de navegación (versión corregida) */
 @media (max-width: 991.98px) {
   .navbar-collapse.collapse {
     display: block;
     overflow: hidden;
     transition: max-height 0.35s ease-in-out, visibility 0s 0.35s;
     max-height: 0;
-    visibility: hidden; /* Oculta completamente el contenido */
+    visibility: hidden; 
   }
 
   .navbar-collapse.collapse.show {
-    max-height: 500px; /* Aumentado para asegurar que todo el contenido quepa */
+    max-height: 500px; 
     visibility: visible;
     transition-delay: 0s;
   }
@@ -601,7 +592,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
 }
 
-/* Estilo para contenedor de imagen de detalle de blog */
 .blog-detail-img-wrapper {
   position: relative;
   aspect-ratio: 16 / 9;
@@ -616,15 +606,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   object-fit: cover;
 }
 
-/* Transición y cambio de color para los íconos del carrusel */
 .carousel-control-prev-icon,
 .carousel-control-next-icon {
-  transition: filter 0.35s ease; /* Transición suave para el cambio de color */
+  transition: filter 0.35s ease; 
 }
 
 #productCarousel:hover .carousel-control-prev-icon,
 #productCarousel:hover .carousel-control-next-icon {
   filter: invert(
     1
-  ); /* Se vuelven blancos al pasar el cursor sobre el carrusel */
+  ); 
 }
