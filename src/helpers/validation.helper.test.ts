@@ -22,6 +22,7 @@ describe('Ayudantes de Validación', () => {
   describe('validar Email', () => {
     it('debería ser válido con dominio permitido', () => {
       expect(validateEmail('test@duoc.cl')).toBe(true);
+      expect(validateEmail('test@duocuc.cl')).toBe(true);
       expect(validateEmail('test@gmail.com')).toBe(true);
     });
 

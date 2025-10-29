@@ -27,10 +27,8 @@ export const CartPage = () => {
       return;
     }
 
-    // Simulate successful payment
     showNotification('¡Pago realizado exitosamente! Gracias por tu compra.', 'success');
     
-    // Clear the cart (which will also clear localStorage automatically)
     clearCart();
   };
 

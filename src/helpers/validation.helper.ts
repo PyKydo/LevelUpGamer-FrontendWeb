@@ -1,4 +1,3 @@
-// uso del modulo 11 (algoritmo de validación del digito verificador)
 export const validateModule11 = (body: string, checkDigit: string): boolean => {
   let sum = 0;
   let multiple = 2;
@@ -39,31 +38,20 @@ export const validateEmail = (email: string): boolean => {
   if (!email) return false;
   const emailRegex = /^\S+@\S+\.\S+$/;
   if (!emailRegex.test(email)) return false;
-  const allowedDomains = ['@duoc.cl', '@profesor.duoc.cl', '@gmail.com'];
+  const allowedDomains = ['@duoc.cl', '@profesor.duoc.cl', '@duocuc.cl', '@gmail.com'];
   return allowedDomains.some(domain => email.endsWith(domain));
 };
 
 export const validatePassword = (password: string, options: { min: number; max?: number; strict?: boolean }): boolean => {
   if (!password) return false;
-  
-  // Check minimum length
   if (password.length < options.min) return false;
-  
-  // Check maximum length if provided
   if (options.max && password.length > options.max) return false;
-  
-  // If not strict mode, only validate length
   if (options.strict === false) {
     return true;
   }
   
-  // Strict validation: Check for at least one uppercase letter
   if (!/[A-Z]/.test(password)) return false;
-  
-  // Check for at least one lowercase letter
   if (!/[a-z]/.test(password)) return false;
-  
-  // Check for at least one number
   if (!/[0-9]/.test(password)) return false;
   
   return true;
