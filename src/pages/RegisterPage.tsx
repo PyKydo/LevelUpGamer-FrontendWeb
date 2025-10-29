@@ -45,7 +45,7 @@ export const RegisterPage = () => {
       }
     };
     fetchRegions();
-  }, []);
+  }, [showNotification]);
 
   useEffect(() => {
     if (formData.region) {
@@ -65,7 +65,7 @@ export const RegisterPage = () => {
       };
       fetchCommunes();
     }
-  }, [formData.region]);
+  }, [formData.region, showNotification]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -124,8 +124,14 @@ export const RegisterPage = () => {
     const users = getLocalStorageItem<UserWithPassword[]>('users') || [];
     const newUser: UserWithPassword = {
       id: `user${Date.now()}`,
-      username: `${formData.name} ${formData.lastName}`,
+      name: formData.name,
+      lastName: formData.lastName,
       email: formData.email,
+      run: formData.run,
+      birthdate: formData.birthdate,
+      address: formData.address,
+      region: formData.region,
+      commune: formData.commune,
       password: simpleHash(formData.password),
       role: 'customer',
     };

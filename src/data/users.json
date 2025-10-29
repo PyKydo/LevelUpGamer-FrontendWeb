@@ -1,23 +1,41 @@
 [
   {
     "id": "user001",
-    "username": "admin",
+    "name": "Admin",
+    "lastName": "User",
     "email": "admin@gmail.com",
-    "password": "admin123",
+    "run": "11.111.111-1",
+    "birthdate": "1990-01-01",
+    "address": "Admin Address 123",
+    "region": "13",
+    "commune": "13101",
+    "password": "MzIxbmltZGE=",
     "role": "admin"
   },
   {
     "id": "user002",
-    "username": "david.larenas",
+    "name": "David",
+    "lastName": "Larenas",
     "email": "david.larenas@profesor.duoc.cl",
-    "password": "david123",
+    "run": "22.222.222-2",
+    "birthdate": "1985-05-10",
+    "address": "Profesor Address 456",
+    "region": "13",
+    "commune": "13101",
+    "password": "MzIxZGl2YWQ=",
     "role": "customer"
   },
   {
     "id": "user003",
-    "username": "matias.gutierrez",
+    "name": "Matias",
+    "lastName": "Gutierrez",
     "email": "matias.gutierrez@duoc.cl",
-    "password": "matias123",
+    "run": "33.333.333-3",
+    "birthdate": "2000-10-20",
+    "address": "Duoc Address 789",
+    "region": "13",
+    "commune": "13101",
+    "password": "MzIxc2FpdGFt",
     "role": "customer"
   }
 ]

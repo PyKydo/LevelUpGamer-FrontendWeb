@@ -3,8 +3,14 @@ import type { ReactNode } from 'react';
 
 export interface User {
   id: string;
-  username: string;
+  name: string;
+  lastName: string;
   email: string;
+  run: string;
+  birthdate: string;
+  address: string;
+  region: string;
+  commune: string;
   role: string;
 }
 

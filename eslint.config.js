@@ -6,7 +6,7 @@ import globals from 'globals';
 
 export default tseslint.config(
   {
-    ignores: ['dist', 'node_modules', 'eslint.config.js', '**/*.d.ts'],
+    ignores: ['dist', 'node_modules', 'eslint.config.js', '**/*.d.ts', 'proyecto-guia/**'],
   },
   {
     files: ['**/*.{js,mjs,cjs,jsx,mjsx,ts,tsx,mtsx}'],
@@ -23,9 +23,10 @@ export default tseslint.config(
         ...globals.browser,
         ...globals.node,
       },
-                parserOptions: {
-                  project: ['./tsconfig.eslint.json'],
-                },    },
+      parserOptions: {
+        project: ['./tsconfig.eslint.json'],
+      },
+    },
     rules: {
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': 'warn',

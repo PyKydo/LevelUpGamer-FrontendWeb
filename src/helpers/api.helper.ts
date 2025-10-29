@@ -2,7 +2,7 @@ import productsData from '../data/products.json';
 import blogsData from '../data/blogs.json';
 import { getLocalStorageItem } from './storage.helper';
 import { simpleHash } from './security.helper';
-import type { UserWithPassword } from '../hooks/AuthContext';
+import type { User, UserWithPassword } from '../hooks/AuthContext';
 
 export interface Product {
   code: string;
@@ -26,13 +26,6 @@ export interface Blog {
   content_path: string;
 }
 
-export interface User {
-  id: string;
-  username: string;
-  email: string;
-  role: string;
-}
-
 export interface Region {
   codigo: string;
   nombre: string;
@@ -43,17 +36,6 @@ export interface Commune {
   nombre: string;
 }
 
-
-
-export interface Region {
-  codigo: string;
-  nombre: string;
-}
-
-export interface Commune {
-  codigo: string;
-  nombre: string;
-}
 
 
 export const getProducts = (): Product[] => {
@@ -80,7 +62,8 @@ export const authenticateUser = (email: string, password: string): User | undefi
   );
 
   if (user) {
-    const { password, ...userWithoutPassword } = user;
+    const { password: _removedPassword, ...userWithoutPassword } = user;
+    void _removedPassword;
     return userWithoutPassword;
   }
 

@@ -10,17 +10,26 @@ export const ProfilePage = () => {
   const { user, login } = useAuth();
   const { showNotification } = useNotification();
 
-  const [username, setUsername] = useState(user?.username || '');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    name: user?.name || '',
+    lastName: user?.lastName || '',
+    address: user?.address || '',
+    password: '',
+  });
 
   if (!user) {
     return <Navigate to="/login" />;
   }
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!username.trim()) {
-      showNotification('El nombre de usuario no puede estar vacío.', 'error');
+    if (!formData.name.trim() || !formData.lastName.trim()) {
+      showNotification('El nombre y el apellido no pueden estar vacíos.', 'error');
       return;
     }
 
@@ -28,18 +37,26 @@ export const ProfilePage = () => {
     const userIndex = users.findIndex((u) => u.id === user.id);
 
     if (userIndex !== -1) {
-      const updatedUser = { ...users[userIndex], username };
-      if (password) {
-        updatedUser.password = simpleHash(password);
+      const updatedUser = {
+        ...users[userIndex],
+        name: formData.name,
+        lastName: formData.lastName,
+        address: formData.address,
+      };
+
+      if (formData.password) {
+        updatedUser.password = simpleHash(formData.password);
       }
+
       users[userIndex] = updatedUser;
       setLocalStorageItem('users', users);
 
-      const { password: _, ...userToLogin } = updatedUser;
-      login(userToLogin);
+  const { password: _removedPassword, ...userToLogin } = updatedUser;
+  void _removedPassword;
+  login(userToLogin);
 
       showNotification('Perfil actualizado correctamente.', 'success');
-      setPassword('');
+      setFormData((prev) => ({ ...prev, password: '' }));
     }
   };
 
@@ -49,42 +66,84 @@ export const ProfilePage = () => {
         <div className="col-md-8">
           <div className="card p-4">
             <div className="card-body">
-              <h2 className="card-title text-center mb-4">Perfil de Usuario</h2>
-              <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                  <label htmlFor="username" className="form-label"><strong>Nombre de usuario:</strong></label>
-                  <input
-                    type="text"
-                    id="username"
-                    className="form-control"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                  />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="email" className="form-label"><strong>Email:</strong></label>
-                  <input
-                    type="email"
-                    id="email"
-                    className="form-control"
-                    value={user.email}
-                    disabled
-                  />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="password" class="form-label"><strong>Nueva Contraseña (dejar en blanco para no cambiar):</strong></label>
-                  <input
-                    type="password"
-                    id="password"
-                    className="form-control"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-                <div className="d-grid">
-                  <button type="submit" className="btn btn-primary">Guardar Cambios</button>
-                </div>
-              </form>
+              <div className="form-signin">
+                <h2 className="card-title text-center mb-4">Perfil de Usuario</h2>
+                <form onSubmit={handleSubmit}>
+                                  <div className="row">
+                                    <div className="col-md-6 mb-3">
+                                      <div className="form-floating">
+                                        <input
+                                          type="text"
+                                          id="name"
+                                          name="name"
+                                          className="form-control"
+                                          value={formData.name}
+                                          onChange={handleChange}
+                                          placeholder="Nombre"
+                                        />
+                                        <label htmlFor="name">Nombre</label>
+                                      </div>
+                                    </div>
+                                    <div className="col-md-6 mb-3">
+                                      <div className="form-floating">
+                                        <input
+                                          type="text"
+                                          id="lastName"
+                                          name="lastName"
+                                          className="form-control"
+                                          value={formData.lastName}
+                                          onChange={handleChange}
+                                          placeholder="Apellido"
+                                        />
+                                        <label htmlFor="lastName">Apellido</label>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="mb-3">
+                                    <div className="form-floating">
+                                      <input
+                                        type="email"
+                                        id="email"
+                                        className="form-control"
+                                        value={user.email}
+                                        disabled
+                                        placeholder="Email"
+                                      />
+                                      <label htmlFor="email">Email</label>
+                                    </div>
+                                  </div>
+                                  <div className="mb-3">
+                                    <div className="form-floating">
+                                      <input
+                                        type="text"
+                                        id="address"
+                                        name="address"
+                                        className="form-control"
+                                        value={formData.address}
+                                        onChange={handleChange}
+                                        placeholder="Dirección"
+                                      />
+                                      <label htmlFor="address">Dirección</label>
+                                    </div>
+                                  </div>
+                                  <div className="mb-3">
+                                    <div className="form-floating">
+                                      <input
+                                        type="password"
+                                        id="password"
+                                        name="password"
+                                        className="form-control"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        placeholder="Nueva Contraseña"
+                                      />
+                                      <label htmlFor="password">Nueva Contraseña (dejar en blanco para no cambiar)</label>
+                                    </div>
+                                  </div>                  <div className="d-grid">
+                    <button type="submit" className="btn btn-primary">Guardar Cambios</button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>
