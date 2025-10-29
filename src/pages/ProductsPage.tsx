@@ -53,38 +53,50 @@ export const ProductsPage = () => {
 
       <div className="row mb-4 g-3">
         <div className="col-md-4">
-          <select
-            className="form-select"
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-          >
-            <option value="">Todas las categorías</option>
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
+          <div className="form-floating">
+            <select
+              className="form-select"
+              id="category"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              <option value="">Todas las categorías</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+            <label htmlFor="category">Categoría</label>
+          </div>
         </div>
         <div className="col-md-4">
-          <input
-            type="number"
-            name="min"
-            className="form-control"
-            placeholder="Precio Mínimo"
-            value={priceRange.min}
-            onChange={handlePriceChange}
-          />
+          <div className="form-floating">
+            <input
+              type="number"
+              name="min"
+              id="minPrice"
+              className="form-control"
+              placeholder="Precio Mínimo"
+              value={priceRange.min}
+              onChange={handlePriceChange}
+            />
+            <label htmlFor="minPrice">Precio Mínimo</label>
+          </div>
         </div>
         <div className="col-md-4">
-          <input
-            type="number"
-            name="max"
-            className="form-control"
-            placeholder="Precio Máximo"
-            value={priceRange.max}
-            onChange={handlePriceChange}
-          />
+          <div className="form-floating">
+            <input
+              type="number"
+              name="max"
+              id="maxPrice"
+              className="form-control"
+              placeholder="Precio Máximo"
+              value={priceRange.max}
+              onChange={handlePriceChange}
+            />
+            <label htmlFor="maxPrice">Precio Máximo</label>
+          </div>
         </div>
       </div>
 

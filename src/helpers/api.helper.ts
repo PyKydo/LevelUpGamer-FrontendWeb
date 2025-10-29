@@ -57,9 +57,16 @@ export const getBlogPostById = (id: string): Blog | undefined => {
 export const authenticateUser = (email: string, password: string): User | undefined => {
   const users = getLocalStorageItem<UserWithPassword[]>('users') || [];
   const hashedPassword = simpleHash(password);
-  const user = users.find(
-    (u) => u.email === email && u.password === hashedPassword
-  );
+  const user = users.find((u) => {
+    if (u.email !== email) {
+      return false;
+    }
+
+    const isHashedMatch = u.password === hashedPassword;
+    const isPlainMatch = u.password === password;
+
+    return isHashedMatch || isPlainMatch;
+  });
 
   if (user) {
     const { password: _removedPassword, ...userWithoutPassword } = user;

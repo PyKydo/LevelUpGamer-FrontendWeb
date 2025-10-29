@@ -96,8 +96,8 @@ export const RegisterPage = () => {
       );
       return;
     }
-    if (!validatePassword(formData.password, { min: 4, max: 10 })) {
-      showNotification('La contraseña debe tener entre 4 y 10 caracteres.', 'error');
+    if (!validatePassword(formData.password, { min: 8, strict: true })) {
+      showNotification('La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas y números.', 'error');
       return;
     }
     if (formData.password !== formData.confirmPassword) {

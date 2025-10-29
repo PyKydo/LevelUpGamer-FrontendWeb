@@ -4,6 +4,9 @@ import { describe, it, expect, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { CartContext } from '../hooks/CartContext';
 import type { CartItem } from '../hooks/CartContext';
+import { AuthContext } from '../hooks/AuthContext';
+import type { User } from '../hooks/AuthContext';
+import { NotificationProvider } from '../hooks/NotificationProvider';
 
 vi.mock('../components/common/CartItemRow', () => ({
   CartItemRow: ({ item }: { item: CartItem }) => <div data-testid="cart-item-row">{item.name}</div>,
@@ -22,11 +25,21 @@ describe('CartPage Component', () => {
       subtotal: 0,
     };
 
+    const mockAuthContext = {
+      user: null,
+      login: vi.fn(),
+      logout: vi.fn(),
+    };
+
     render(
       <MemoryRouter>
-        <CartContext.Provider value={mockCartContext}>
-          <CartPage />
-        </CartContext.Provider>
+        <NotificationProvider>
+          <AuthContext.Provider value={mockAuthContext}>
+            <CartContext.Provider value={mockCartContext}>
+              <CartPage />
+            </CartContext.Provider>
+          </AuthContext.Provider>
+        </NotificationProvider>
       </MemoryRouter>
     );
 
@@ -49,11 +62,34 @@ describe('CartPage Component', () => {
       subtotal: 2500,
     };
 
+    const mockUser: User = {
+      id: 'user-1',
+      name: 'John',
+      lastName: 'Doe',
+      email: 'user@example.com',
+      run: '12345678-9',
+      birthdate: '1990-01-01',
+      address: '123 Main St',
+      region: 'RM',
+      commune: 'SCL',
+      role: 'customer',
+    };
+
+    const mockAuthContext = {
+      user: mockUser,
+      login: vi.fn(),
+      logout: vi.fn(),
+    };
+
     render(
       <MemoryRouter>
-        <CartContext.Provider value={mockCartContext}>
-          <CartPage />
-        </CartContext.Provider>
+        <NotificationProvider>
+          <AuthContext.Provider value={mockAuthContext}>
+            <CartContext.Provider value={mockCartContext}>
+              <CartPage />
+            </CartContext.Provider>
+          </AuthContext.Provider>
+        </NotificationProvider>
       </MemoryRouter>
     );
 

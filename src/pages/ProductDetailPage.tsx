@@ -24,7 +24,7 @@ export const ProductDetailPage = () => {
       id: product.code,
       name: product.name,
       price: product.price,
-      image: `/img/products/${product.image}`,
+      image: product.image,
     };
     addToCart(itemToAdd);
     showNotification(`'${product.name}' ha sido añadido al carrito.`, 'success');

@@ -47,10 +47,11 @@
 }
 
 .form-signin .form-floating .form-control:disabled {
-  background-color: var(--input-bg-disabled);
-  color: var(--secondary-color);
-  opacity: 0.7;
+  background-color: var(--input-bg-disabled) !important;
+  color: var(--secondary-color) !important;
+  border-color: var(--input-border-disabled) !important;
   cursor: not-allowed;
+  opacity: 1 !important;
 }
 
 .form-signin .form-floating .form-control:disabled + label {

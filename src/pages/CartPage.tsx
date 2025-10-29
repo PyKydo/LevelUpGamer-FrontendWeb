@@ -1,12 +1,16 @@
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../hooks/useAuth';
+import { useNotification } from '../hooks/useNotification';
 import { CartItemRow } from '../components/common/CartItemRow';
 import { formatCurrency } from '../helpers/formatting.helper';
 import { calculateSubtotal, calculateTotal } from '../helpers/cart.helper';
 
 export const CartPage = () => {
-  const { cart } = useCart();
+  const navigate = useNavigate();
+  const { cart, clearCart } = useCart();
   const { user } = useAuth();
+  const { showNotification } = useNotification();
 
   const subtotal = calculateSubtotal(cart);
 
@@ -16,6 +20,19 @@ export const CartPage = () => {
   const discount = isDuocEmail ? subtotal * 0.2 : 0;
 
   const finalTotal = calculateTotal(subtotal, discount);
+
+  const handleCheckout = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    // Simulate successful payment
+    showNotification('¡Pago realizado exitosamente! Gracias por tu compra.', 'success');
+    
+    // Clear the cart (which will also clear localStorage automatically)
+    clearCart();
+  };
 
   return (
     <main className="container my-5">
@@ -32,7 +49,7 @@ export const CartPage = () => {
             cart.map((item) => <CartItemRow key={item.id} item={item} />)
           )}
         </div>
-        <div className="col-lg-4">
+        <div className="col-lg-4 mt-4 mt-lg-0">
           <div className="card bg-dark text-white shadow-sm">
             <div className="card-body">
               <h5 className="card-title mb-4">Resumen del Pedido</h5>
@@ -53,6 +70,7 @@ export const CartPage = () => {
                 <button
                   className="btn btn-primary btn-lg"
                   disabled={cart.length === 0}
+                  onClick={handleCheckout}
                 >
                   Proceder al Pago
                 </button>

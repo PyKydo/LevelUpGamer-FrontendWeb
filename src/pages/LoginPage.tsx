@@ -26,8 +26,8 @@ export const LoginPage = () => {
       return;
     }
 
-    if (!validatePassword(password, { min: 4, max: 10 })) {
-      showNotification('La contraseña debe tener entre 4 y 10 caracteres.', 'error');
+    if (!validatePassword(password, { min: 8, strict: false })) {
+      showNotification('La contraseña debe tener al menos 8 caracteres.', 'error');
       return;
     }
 

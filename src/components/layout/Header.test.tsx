@@ -4,6 +4,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { CartContext } from '../../hooks/CartContext';
 import { AuthContext } from '../../hooks/AuthContext';
+import { SearchContext } from '../../hooks/SearchContext';
 
 describe('Header', () => {
   const mockCartContext = {
@@ -22,12 +23,19 @@ describe('Header', () => {
     logout: vi.fn(),
   };
 
+  const mockSearchContext = {
+    searchTerm: '',
+    setSearchTerm: vi.fn(),
+  };
+
   it('debería mostrar el logo y los enlaces de navegación', () => {
     render(
       <MemoryRouter>
         <AuthContext.Provider value={mockAuthContext}>
           <CartContext.Provider value={mockCartContext}>
-            <Header />
+            <SearchContext.Provider value={mockSearchContext}>
+              <Header />
+            </SearchContext.Provider>
           </CartContext.Provider>
         </AuthContext.Provider>
       </MemoryRouter>
@@ -45,7 +53,9 @@ describe('Header', () => {
       <MemoryRouter>
         <AuthContext.Provider value={mockAuthContext}>
           <CartContext.Provider value={mockCartContext}>
-            <Header />
+            <SearchContext.Provider value={mockSearchContext}>
+              <Header />
+            </SearchContext.Provider>
           </CartContext.Provider>
         </AuthContext.Provider>
       </MemoryRouter>

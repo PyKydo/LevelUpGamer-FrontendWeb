@@ -95,6 +95,30 @@ exports[`Header > debería coincidir con el snapshot 1`] = `
                 Contacto
               </a>
             </li>
+            <li
+              class="nav-item d-lg-none"
+            >
+              <a
+                class="nav-link"
+                data-discover="true"
+                href="/cart"
+              >
+                Carrito (
+                0
+                )
+              </a>
+            </li>
+            <li
+              class="nav-item d-lg-none"
+            >
+              <a
+                class="nav-link"
+                data-discover="true"
+                href="/login"
+              >
+                Iniciar Sesión / Registro
+              </a>
+            </li>
           </ul>
         </div>
         <a

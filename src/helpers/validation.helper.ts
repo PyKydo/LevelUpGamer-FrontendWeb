@@ -43,9 +43,30 @@ export const validateEmail = (email: string): boolean => {
   return allowedDomains.some(domain => email.endsWith(domain));
 };
 
-export const validatePassword = (password: string, options: { min: number; max: number }): boolean => {
+export const validatePassword = (password: string, options: { min: number; max?: number; strict?: boolean }): boolean => {
   if (!password) return false;
-  return password.length >= options.min && password.length <= options.max;
+  
+  // Check minimum length
+  if (password.length < options.min) return false;
+  
+  // Check maximum length if provided
+  if (options.max && password.length > options.max) return false;
+  
+  // If not strict mode, only validate length
+  if (options.strict === false) {
+    return true;
+  }
+  
+  // Strict validation: Check for at least one uppercase letter
+  if (!/[A-Z]/.test(password)) return false;
+  
+  // Check for at least one lowercase letter
+  if (!/[a-z]/.test(password)) return false;
+  
+  // Check for at least one number
+  if (!/[0-9]/.test(password)) return false;
+  
+  return true;
 };
 
 export const validateAge = (birthdateString: string, minAge: number = 18): boolean => {

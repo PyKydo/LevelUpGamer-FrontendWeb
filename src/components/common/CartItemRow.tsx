@@ -1,12 +1,5 @@
 import { useCart } from '../../hooks/useCart';
-
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  quantity: number;
-}
+import type { CartItem } from '../../hooks/CartContext';
 
 interface CartItemCardProps {
   item: CartItem;

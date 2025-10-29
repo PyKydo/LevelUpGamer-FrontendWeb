@@ -7,7 +7,7 @@ import { simpleHash } from '../helpers/security.helper';
 import type { UserWithPassword } from '../hooks/AuthContext';
 
 export const ProfilePage = () => {
-  const { user, login } = useAuth();
+  const { user, login, logout } = useAuth();
   const { showNotification } = useNotification();
 
   const [formData, setFormData] = useState({
@@ -64,10 +64,10 @@ export const ProfilePage = () => {
     <main className="container my-5">
       <div className="row justify-content-center">
         <div className="col-md-8">
-          <div className="card p-4">
+          <div className="card bg-dark text-white p-4 shadow-sm">
             <div className="card-body">
               <div className="form-signin">
-                <h2 className="card-title text-center mb-4">Perfil de Usuario</h2>
+                <h2 className="card-title text-center mb-4 text-white">Perfil de Usuario</h2>
                 <form onSubmit={handleSubmit}>
                                   <div className="row">
                                     <div className="col-md-6 mb-3">
@@ -139,9 +139,11 @@ export const ProfilePage = () => {
                                       />
                                       <label htmlFor="password">Nueva Contraseña (dejar en blanco para no cambiar)</label>
                                     </div>
-                                  </div>                  <div className="d-grid">
-                    <button type="submit" className="btn btn-primary">Guardar Cambios</button>
-                  </div>
+                                  </div>
+                                  <div className="d-grid gap-2">
+                                    <button type="submit" className="btn btn-primary">Guardar Cambios</button>
+                                    <button type="button" className="btn btn-danger" onClick={logout}>Cerrar Sesión</button>
+                                  </div>
                 </form>
               </div>
             </div>
