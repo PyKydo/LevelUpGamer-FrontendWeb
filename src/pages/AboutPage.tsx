@@ -80,7 +80,7 @@ export const AboutPage = () => {
           <div className="col-lg-4 col-md-12 mb-4">
             <div className="team-member text-center">
               <img
-                src="https://plus.unsplash.com/premium_photo-1689568158814-3b8e9c1a9618?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8cGVyc29uYXxlbnwwfHwwfHx8MA%3D%3D"
+                src="https://assets.realmadrid.com/is/image/realmadrid/1330603286208?$Mobile$&fit=wrap&wid=312"
                 alt="David Larenas - Marketing Director"
                 className="img-fluid"
               />
