@@ -3,10 +3,10 @@
 exports[`Header > debería coincidir con el snapshot 1`] = `
 <div>
   <header
-    class="bg-dark shadow-sm"
+    class="bg-dark shadow-sm _header_2c3315"
   >
     <nav
-      class="navbar navbar-expand-lg navbar-dark bg-dark py-3"
+      class="navbar navbar-expand-lg navbar-dark bg-dark py-3 _navbar_2c3315"
     >
       <div
         class="container-fluid"
