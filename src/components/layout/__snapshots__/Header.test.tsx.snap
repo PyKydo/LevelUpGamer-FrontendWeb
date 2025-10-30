@@ -18,7 +18,7 @@ exports[`Header > debería coincidir con el snapshot 1`] = `
         >
           <img
             alt="Logo Level-Up Gamer"
-            class="logo"
+            class="_logo_2c3315"
             src="/img/logo.png"
           />
         </a>
@@ -173,7 +173,7 @@ exports[`Header > debería coincidir con el snapshot 1`] = `
             class="col-12 col-md-8 col-lg-6 d-flex justify-content-center"
           >
             <div
-              class="search-container-wrapper search-group"
+              class="search-container-wrapper search-group _searchContainerWrapper_2c3315 _searchGroup_2c3315"
             >
               <div
                 class="input-group w-100"
@@ -181,14 +181,14 @@ exports[`Header > debería coincidir con el snapshot 1`] = `
                 <input
                   aria-label="Buscar"
                   autocomplete="off"
-                  class="form-control search-bar bg-white text-dark border border-secondary "
+                  class="form-control search-bar bg-white text-dark border border-secondary _searchBar_2c3315  "
                   placeholder="Buscar"
                   type="text"
                   value=""
                 />
                 <button
                   aria-label="Buscar"
-                  class="btn btn-primary search-btn border border-secondary "
+                  class="btn btn-primary search-btn border border-secondary _searchBtn_2c3315  "
                   type="submit"
                 >
                   <span
