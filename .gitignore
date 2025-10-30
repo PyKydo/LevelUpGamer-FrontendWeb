@@ -40,3 +40,4 @@ proyecto-guia/
 
 # Archivos generados de TypeScript
 **/*.d.ts
+!src/global.d.ts
