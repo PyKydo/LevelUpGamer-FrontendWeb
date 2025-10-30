@@ -3,7 +3,7 @@ export const simpleHash = (value: string): string => {
   try {
     return btoa(value.split('').reverse().join(''));
   } catch (e) {
-    console.error('Failed to hash value', e);
+    console.error('Fallo el hasheo', e);
     return value;
   }
 };
