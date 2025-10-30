@@ -1,0 +1,20 @@
+.footerLogo {
+  transition: transform 0.3s ease;
+}
+
+.footerLogo:hover {
+  transform: scale(1.05);
+}
+
+.footer {
+  text-align: center;
+}
+
+.footer h5::after {
+  left: 25%;
+  width: 50%;
+}
+
+.socialIcons {
+  justify-content: center;
+}

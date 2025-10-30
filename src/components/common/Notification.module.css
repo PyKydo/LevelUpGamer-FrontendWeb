@@ -12,10 +12,10 @@
   transition: opacity 0.3s, transform 0.3s;
 }
 
-.notification-success {
+.success {
   background-color: #28a745;
 }
 
-.notification-error {
+.error {
   background-color: #dc3545;
 }

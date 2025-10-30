@@ -25,7 +25,6 @@ import { ProfilePage } from './pages/ProfilePage';
 import { AuthProvider } from './hooks/AuthProvider';
 import { CartProvider } from './hooks/CartProvider';
 import { NotificationProvider } from './hooks/NotificationProvider';
-import './assets/styles/components/notification.css';
 
 import { SearchProvider } from './hooks/SearchProvider';
 

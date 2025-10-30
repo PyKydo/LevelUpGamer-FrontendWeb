@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import styles from './Notification.module.css';
 
 interface NotificationProps {
   message: string;
@@ -23,7 +24,7 @@ export const Notification = ({ message, type, onClose }: NotificationProps) => {
   if (!visible) return null;
 
   return (
-    <div className={`notification notification-${type}`}>
+    <div className={`${styles.notification} ${type === 'success' ? styles.success : styles.error}`}>
       {message}
     </div>
   );

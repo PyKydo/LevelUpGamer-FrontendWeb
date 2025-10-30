@@ -1,63 +1,53 @@
 :root {
-  
   --primary-color: #ffffff;
   --secondary-color: #d3d3d3;
   --background-color: #000000;
   --header-color: #1c1c1c;
   --border-color: #444444;
 
-  
   --btn-color: #39ff14;
   --accent-color: #1e90ff;
   --hover-color: #20cb01;
 
-  
   --danger-color: #ff1744;
   --success-color: #00e676;
   --warning-color: #ffc107;
   --info-color: #00bcd4;
   --disabled-color: #888888;
 
-  
   --input-bg: #222222;
   --input-border: #666666;
   --input-bg-disabled: #2a2a2a;
   --input-border-disabled: #888888;
   --card-bg: #1c1c1c;
   --shadow-color: rgba(30, 144, 255, 0.15);
+  --card-shadow: 0 2px 8px var(--shadow-color);
 
-  
   --font-stack: "Roboto", sans-serif;
   --heading-font: "Orbitron", sans-serif;
 
-  
   --navbar-height: 64px;
   --logo-size: 72px;
   --container-max-width: 1200px;
   --section-padding: 48px;
 
-  
   --input-radius: 12px;
   --card-radius: 18px;
   --border-radius: 16px;
 
-  
   --transition-fast: 0.2s;
   --transition-slow: 0.4s;
 
-  
   --font-size-base: 1rem;
   --font-size-lg: 1.25rem;
   --font-size-sm: 0.875rem;
 
-  
   --breakpoint-xs: 575.98px;
   --breakpoint-sm: 767.98px;
   --breakpoint-md: 991.98px;
   --breakpoint-lg: 1199.98px;
   --breakpoint-xl: 1399.98px;
 }
-
 
 * {
   box-sizing: border-box;
@@ -72,7 +62,6 @@ body {
   margin: 0;
   padding: 0;
 }
-
 
 h1,
 h2,
@@ -108,7 +97,6 @@ p {
   margin-bottom: 1rem;
   color: var(--secondary-color);
 }
-
 
 .text-primary {
   color: var(--btn-color) !important;

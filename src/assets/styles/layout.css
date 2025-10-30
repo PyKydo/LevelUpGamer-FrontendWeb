@@ -1,32 +1,6 @@
-header {
-  background-color: var(--header-color);
-  box-shadow: var(--card-shadow);
-  min-height: var(--navbar-height);
-}
+/* logo styles moved to Header.module.css */
 
-nav.navbar {
-  padding: 18px 24px !important;
-}
-
-.logo {
-  width: var(--logo-size);
-  margin-right: 30px;
-}
-
-.logotype {
-  height: 30px;
-  width: auto;
-  margin-left: 8px;
-}
-
-
-.search-group {
-  min-width: 180px;
-  max-width: 500px;
-  width: 100%;
-  margin: 0 auto;
-}
-
+/* search group moved to Header.module.css */
 
 #admin-wrapper {
   display: flex;
@@ -63,7 +37,6 @@ nav.navbar {
   margin-bottom: 1.5rem;
 }
 
-
 @media (max-width: 991.98px) {
   nav.navbar {
     padding: 18px 12px !important;
@@ -93,18 +66,5 @@ nav.navbar {
 @media (max-width: 575.98px) {
   .logotype {
     height: 24px;
-  }
-
-  footer {
-    text-align: center;
-  }
-
-  footer h5::after {
-    left: 25%;
-    width: 50%;
-  }
-
-  footer .social-icons {
-    justify-content: center;
   }
 }

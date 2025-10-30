@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import styles from './ProductCard.module.css';
 import { useCart } from '../../hooks/useCart';
 import { useNotification } from '../../hooks/useNotification';
 import type { Product } from '../../helpers/api.helper';
@@ -20,21 +21,32 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   };
 
   const categoryToClassName = (category: string) => {
-    return `badge-${category.toLowerCase().replace(/\s+/g, '-')}`;
+    const key = category.toLowerCase().replace(/\s+/g, '-');
+    switch (key) {
+      case 'juegos-de-mesa': return styles.badgeJuegosDeMesa;
+      case 'accesorios': return styles.badgeAccesorios;
+      case 'consolas': return styles.badgeConsolas;
+      case 'computadores-gamers': return styles.badgeComputadoresGamers;
+      case 'sillas-gamers': return styles.badgeSillasGamers;
+      case 'mouse': return styles.badgeMouse;
+      case 'mousepad': return styles.badgeMousepad;
+      case 'poleras-personalizadas': return styles.badgePolerasPersonalizadas;
+      default: return '';
+    }
   };
 
   return (
-    <div className="card product-card h-100">
-      <div className={`card-badge position-absolute ${categoryToClassName(category)}`}>{category}</div>
+    <div className={`card h-100 ${styles.productCard}`}>
+      <div className={`${styles.cardBadge} position-absolute ${categoryToClassName(category)}`}>{category}</div>
       <Link to={`/products/${code}`} className="text-decoration-none text-dark">
-        <img src={`/img/products/${image}`} className="card-img-top product-img" alt={name} />
+        <img src={`/img/products/${image}`} className={`card-img-top ${styles.productImg}`} alt={name} />
       </Link>
       <div className="card-body d-flex flex-column">
         <Link to={`/products/${code}`} className="text-decoration-none text-dark">
           <h5 className="card-title product-title">{name}</h5>
         </Link>
-        <p className="card-text product-description">{description}</p>
-        <div className="product-price mt-auto">
+        <p className={`card-text ${styles.productDescription}`}>{description}</p>
+        <div className={`${styles.productPrice} mt-auto`}>
           <span className="price">${price.toLocaleString('es-CL')}</span>
           {originalPrice && (
             <span className="original-price text-decoration-line-through text-muted ms-2">

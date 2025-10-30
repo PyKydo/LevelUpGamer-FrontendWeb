@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
+import styles from './Header.module.css';
 import { useCart } from '../../hooks/useCart';
 import { useAuth } from '../../hooks/useAuth';
 import { useSearch } from '../../hooks/useSearch';
@@ -60,11 +61,11 @@ export const Header = () => {
   };
 
   return (
-    <header className="bg-dark shadow-sm">
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark py-3">
+    <header className={`bg-dark shadow-sm ${styles.header}`}>
+      <nav className={`navbar navbar-expand-lg navbar-dark bg-dark py-3 ${styles.navbar}`}>
         <div className="container-fluid">
           <Link className="navbar-brand d-flex align-items-center gap-2" to="/">
-            <img className="logo" src="/img/logo.png" alt="Logo Level-Up Gamer" />
+            <img className={styles.logo} src="/img/logo.png" alt="Logo Level-Up Gamer" />
           </Link>
           <button
             className="navbar-toggler"
@@ -126,10 +127,10 @@ export const Header = () => {
             onSubmit={handleSearchSubmit}
           >
             <div className="col-12 col-md-8 col-lg-6 d-flex justify-content-center">
-              <div ref={searchContainerRef} className="search-container-wrapper search-group">
+              <div ref={searchContainerRef} className={`search-container-wrapper search-group ${styles.searchContainerWrapper} ${styles.searchGroup}`}>
                 <div className="input-group w-100">
                   <input
-                    className={`form-control search-bar bg-white text-dark border border-secondary ${suggestions.length > 0 ? 'suggestions-open' : ''}`}
+                    className={`form-control search-bar bg-white text-dark border border-secondary ${styles.searchBar} ${suggestions.length > 0 ? 'suggestions-open' : ''} ${suggestions.length > 0 ? styles.suggestionsOpen : ''}`}
                     type="text"
                     placeholder="Buscar"
                     aria-label="Buscar"
@@ -138,7 +139,7 @@ export const Header = () => {
                     autoComplete="off"
                   />
                   <button
-                    className={`btn btn-primary search-btn border border-secondary ${suggestions.length > 0 ? 'suggestions-open' : ''}`}
+                    className={`btn btn-primary search-btn border border-secondary ${styles.searchBtn} ${suggestions.length > 0 ? 'suggestions-open' : ''} ${suggestions.length > 0 ? styles.suggestionsOpen : ''}`}
                     type="submit"
                     aria-label="Buscar"
                   >
@@ -146,16 +147,16 @@ export const Header = () => {
                   </button>
                 </div>
                 {suggestions.length > 0 && (
-                  <div id="search-results" className="list-group position-absolute w-100">
+                  <div id="search-results" className={`list-group position-absolute w-100 ${styles.searchResults}`}>
                     {suggestions.map(product => (
                       <Link 
                         key={product.code} 
                         to={`/products/${product.code}`}
-                        className="list-group-item list-group-item-action bg-dark text-white border-secondary"
+                        className={`list-group-item list-group-item-action bg-dark text-white border-secondary ${styles.listGroupItem}`}
                         onClick={handleSuggestionClick}
                       >
                          <div className="d-flex align-items-center">
-                          <img src={`/img/products/${product.image}`} alt={product.name} style={{ width: '40px', height: '40px', objectFit: 'cover', marginRight: '8px' }}/>
+                          <img src={`/img/products/${product.image}`} alt={product.name} className={styles.searchThumb}/>
                           <div>
                               <h6 className="mb-0">{product.name}</h6>
                               <small>${product.price.toLocaleString('es-CL')}</small>

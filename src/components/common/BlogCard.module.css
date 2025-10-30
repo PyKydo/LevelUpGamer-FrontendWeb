@@ -1,0 +1,27 @@
+.blogCard {
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-fast);
+  background-color: var(--card-bg);
+  overflow: hidden;
+}
+
+.blogCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px var(--shadow-color);
+}
+
+.blogImg {
+  height: 200px;
+  object-fit: cover;
+  transition: all var(--transition-fast);
+}
+
+.blogCard:hover .blogImg {
+  transform: scale(1.05);
+}
+
+.blogExcerpt {
+  font-size: 0.9rem;
+  color: var(--secondary-color);
+  margin-bottom: 1rem;
+}

@@ -1,5 +1,6 @@
 import { useCart } from '../../hooks/useCart';
 import type { CartItem } from '../../hooks/CartContext';
+import styles from './CartItemRow.module.css';
 
 interface CartItemCardProps {
   item: CartItem;
@@ -12,7 +13,7 @@ export const CartItemRow = ({ item }: CartItemCardProps) => {
     <div className="card mb-3 bg-dark text-white shadow-sm">
       <div className="row g-0">
         <div className="col-md-3 d-flex align-items-center justify-content-center">
-          <img src={`/img/products/${item.image}`} className="img-fluid rounded p-3" alt={item.name} style={{ maxHeight: '150px', objectFit: 'contain' }}/>
+          <img src={`/img/products/${item.image}`} className={`img-fluid rounded p-3 ${styles.productImage}`} alt={item.name} />
         </div>
         <div className="col-md-9">
           <div className="card-body">

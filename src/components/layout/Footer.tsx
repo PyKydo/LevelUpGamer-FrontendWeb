@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
+import styles from './Footer.module.css';
 
 export const Footer = () => {
   return (
-    <footer className="bg-dark text-white py-5 shadow-sm">
+    <footer className={`bg-dark text-white py-5 shadow-sm ${styles.footer}`}>
       <div className="container">
         <div className="row">
           <div className="col-md-4 mb-4 mb-md-0 text-center">
@@ -20,7 +21,7 @@ export const Footer = () => {
             <img
               src="/img/logotype.png"
               alt="Level-Up Gamer Logotype"
-              className="img-fluid mb-3 footer-logo"
+              className={`img-fluid mb-3 ${styles.footerLogo}`}
               style={{ width: '150px' }}
             />
             <p>
@@ -29,7 +30,7 @@ export const Footer = () => {
           </div>
           <div className="col-md-4 text-center">
             <h5 className="mb-3">Síguenos</h5>
-            <div className="d-flex gap-3 justify-content-center">
+            <div className={`d-flex gap-3 justify-content-center ${styles.socialIcons}`}>
               <a href="#" className="text-white"><i className="bi bi-facebook"></i></a>
               <a href="#" className="text-white"><i className="bi bi-twitter"></i></a>
               <a href="#" className="text-white"><i className="bi bi-instagram"></i></a>
