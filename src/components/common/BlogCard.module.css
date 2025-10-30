@@ -1,7 +1,9 @@
 .blogCard {
-  border: 1px solid var(--border-color);
-  transition: all var(--transition-fast);
   background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  transition: all var(--transition-fast);
   overflow: hidden;
 }
 
@@ -14,14 +16,36 @@
   height: 200px;
   object-fit: cover;
   transition: all var(--transition-fast);
+  border-radius: var(--card-radius) var(--card-radius) 0 0;
 }
 
 .blogCard:hover .blogImg {
   transform: scale(1.05);
 }
 
+.blogTitle {
+  color: var(--primary-color) !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
 .blogExcerpt {
+
   font-size: 0.9rem;
+
   color: var(--secondary-color);
+
   margin-bottom: 1rem;
+
+}
+
+
+
+.blogCardBody {
+
+  padding: 1.25rem;
+
 }

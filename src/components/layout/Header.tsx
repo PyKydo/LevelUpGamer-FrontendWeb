@@ -24,6 +24,12 @@ export const Header = () => {
 
   const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
 
+  const closeNav = () => {
+    if (!isNavCollapsed) {
+      setIsNavCollapsed(true);
+    }
+  };
+
   useEffect(() => {
     if (searchTerm.trim() === '') {
       setSuggestions([]);
@@ -79,17 +85,17 @@ export const Header = () => {
           </button>
           <div className={`collapse navbar-collapse ${!isNavCollapsed ? 'show' : ''}`} id="navbarSupportedContent">
             <ul className="navbar-nav mx-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-2 gap-2 gap-md-3">
-              <li className="nav-item"><Link to="/" className="nav-link home-item">Inicio</Link></li>
-              <li className="nav-item"><Link to="/products" className="nav-link products-item">Productos</Link></li>
-              <li className="nav-item"><Link to="/about" className="nav-link about-item">Nosotros</Link></li>
-              <li className="nav-item"><Link to="/blog" className="nav-link blogs-item">Blogs</Link></li>
-              <li className="nav-item"><Link to="/contact" className="nav-link contact-item">Contacto</Link></li>
+              <li className="nav-item"><Link to="/" className="nav-link home-item" onClick={closeNav}>Inicio</Link></li>
+              <li className="nav-item"><Link to="/products" className="nav-link products-item" onClick={closeNav}>Productos</Link></li>
+              <li className="nav-item"><Link to="/about" className="nav-link about-item" onClick={closeNav}>Nosotros</Link></li>
+              <li className="nav-item"><Link to="/blog" className="nav-link blogs-item" onClick={closeNav}>Blogs</Link></li>
+              <li className="nav-item"><Link to="/contact" className="nav-link contact-item" onClick={closeNav}>Contacto</Link></li>
 
-              <li className="nav-item d-lg-none"><Link to="/cart" className="nav-link">Carrito ({totalItems})</Link></li>
+              <li className="nav-item d-lg-none"><Link to="/cart" className="nav-link" onClick={closeNav}>Carrito ({totalItems})</Link></li>
               {user ? (
-                <li className="nav-item d-lg-none"><Link to="/profile" className="nav-link">Perfil</Link></li>
+                <li className="nav-item d-lg-none"><Link to="/profile" className="nav-link" onClick={closeNav}>Perfil</Link></li>
               ) : (
-                <li className="nav-item d-lg-none"><Link to="/login" className="nav-link">Iniciar Sesión / Registro</Link></li>
+                <li className="nav-item d-lg-none"><Link to="/login" className="nav-link" onClick={closeNav}>Iniciar Sesión / Registro</Link></li>
               )}
             </ul>
           </div>

@@ -1,4 +1,33 @@
+.cartItemRow {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+}
+
 .productImage {
+
   max-height: 150px;
+
   object-fit: contain;
+
+}
+
+
+
+.cartItemRowBody {
+
+  padding: 1.25rem;
+
+}
+
+.quantityBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }

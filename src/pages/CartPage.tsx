@@ -3,6 +3,8 @@ import { useCart } from '../hooks/useCart';
 import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../hooks/useNotification';
 import { CartItemRow } from '../components/common/CartItemRow';
+import styles from './CartPage.module.css';
+
 import { formatCurrency } from '../helpers/formatting.helper';
 import { calculateSubtotal, calculateTotal } from '../helpers/cart.helper';
 
@@ -38,8 +40,8 @@ export const CartPage = () => {
       <div className="row">
         <div className="col-lg-8">
           {cart.length === 0 ? (
-            <div className="card bg-dark text-white shadow-sm">
-              <div className="card-body text-center p-5">
+            <div className={styles.summaryCard}>
+              <div className={`${styles.summaryCardBody} text-center p-5`}>
                 <p className="lead mb-0">El carrito está vacío.</p>
               </div>
             </div>
@@ -48,8 +50,8 @@ export const CartPage = () => {
           )}
         </div>
         <div className="col-lg-4 mt-4 mt-lg-0">
-          <div className="card bg-dark text-white shadow-sm">
-            <div className="card-body">
+          <div className={`bg-dark text-white shadow-sm ${styles.summaryCard}`}>
+            <div className={styles.summaryCardBody}>
               <h5 className="card-title mb-4">Resumen del Pedido</h5>
               <div className="d-flex justify-content-between mb-2">
                 <span>Subtotal:</span>

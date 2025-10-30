@@ -36,14 +36,14 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   };
 
   return (
-    <div className={`card h-100 ${styles.productCard}`}>
+    <div className={`h-100 ${styles.productCard}`}>
       <div className={`${styles.cardBadge} position-absolute ${categoryToClassName(category)}`}>{category}</div>
       <Link to={`/products/${code}`} className="text-decoration-none text-dark">
         <img src={`/img/products/${image}`} className={`card-img-top ${styles.productImg}`} alt={name} />
       </Link>
-      <div className="card-body d-flex flex-column">
+      <div className={`card-body d-flex flex-column ${styles.productCardBody}`}>
         <Link to={`/products/${code}`} className="text-decoration-none text-dark">
-          <h5 className="card-title product-title">{name}</h5>
+          <h5 className={`card-title ${styles.productTitle}`}>{name}</h5>
         </Link>
         <p className={`card-text ${styles.productDescription}`}>{description}</p>
         <div className={`${styles.productPrice} mt-auto`}>

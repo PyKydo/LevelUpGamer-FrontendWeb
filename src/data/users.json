@@ -9,7 +9,7 @@
     "address": "Playa Ancha, Calle 123",
     "region": "13",
     "commune": "13101",
-    "password": "MzIxbmltZGE=1",
+    "password": "Admin123",
     "role": "admin"
   },
   {
@@ -22,7 +22,7 @@
     "address": "Limache, Calle 456",
     "region": "13",
     "commune": "13101",
-    "password": "MzIxZGl2YWQ=",
+    "password": "David123",
     "role": "customer"
   },
   {
@@ -35,7 +35,7 @@
     "address": "Rodelillo, Calle 678",
     "region": "13",
     "commune": "13101",
-    "password": "MzIxc2FpdGFt",
+    "password": "Matias123",
     "role": "customer"
   }
 ]

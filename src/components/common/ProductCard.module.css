@@ -1,7 +1,9 @@
 .productCard {
-  border: 1px solid var(--border-color);
-  transition: all var(--transition-fast);
   background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  transition: all var(--transition-fast);
   position: relative;
   overflow: hidden;
 }
@@ -12,11 +14,23 @@
 }
 
 .productImg {
+  height: 250px;
+  object-fit: cover;
+  border-radius: var(--card-radius) var(--card-radius) 0 0;
   transition: transform var(--transition-fast) ease;
 }
 
 .productCard:hover .productImg {
   transform: scale(1.05);
+}
+
+.productTitle {
+  color: var(--primary-color) !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .productDescription {
@@ -48,7 +62,6 @@
   z-index: 1;
 }
 
-/* Categorías (mantener colores congruentes con globales) */
 .badgeJuegosDeMesa {
   background-color: var(--accent-color);
 }
@@ -72,4 +85,8 @@
 }
 .badgePolerasPersonalizadas {
   background-color: #ff69b4;
+}
+
+.productCardBody {
+  padding: 1.25rem;
 }

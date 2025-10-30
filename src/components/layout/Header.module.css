@@ -73,3 +73,10 @@
     padding: 18px 12px !important;
   }
 }
+
+@media (max-width: 575.98px) {
+  .searchGroup {
+    min-width: 100%;
+    max-width: 100%;
+  }
+}
