@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { IoCart, IoPerson, IoLogOut } from 'react-icons/io5';
 import styles from './Header.module.css';
 import { useCart } from '../../hooks/useCart';
 import { useAuth } from '../../hooks/useAuth';
@@ -53,7 +54,7 @@ export const Header = () => {
           </div>
           <Link to="/cart" className="d-none d-lg-block me-2">
             <button type="button" className="btn btn-accent login-signup-btn" aria-label="Carrito de Compras">
-              <span className="bi bi-cart"></span>
+              <IoCart size={24} />
               <span className={`badge rounded-pill ${styles.cartCount}`}>{totalItems}</span>
             </button>
           </Link>
@@ -61,17 +62,17 @@ export const Header = () => {
             <div className="d-none d-lg-flex align-items-center">
               <Link to="/profile" className="me-2">
                 <button type="button" className="btn btn-accent login-signup-btn" aria-label="Perfil de Usuario">
-                  <span className="bi bi-person-circle"></span>
+                  <IoPerson />
                 </button>
               </Link>
               <button onClick={logout} className="btn btn-danger" aria-label="Cerrar Sesión">
-                <i className="bi bi-box-arrow-right"></i>
+                <IoLogOut size={24} />
               </button>
             </div>
           ) : (
             <Link to="/login" className="ms-auto d-none d-lg-block">
               <button type="button" className="btn btn-accent login-signup-btn" aria-label="Registro / Iniciar Sesión">
-                <span className="bi bi-person-circle"></span>
+                <IoPerson />
               </button>
             </Link>
           )}

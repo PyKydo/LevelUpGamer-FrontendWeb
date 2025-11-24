@@ -1,3 +1,4 @@
+import { IoSend } from 'react-icons/io5';
 import { FormFloating } from '../components/common/FormFloating';
 import { FormFloatingTextarea } from '../components/common/FormFloatingTextarea';
 
@@ -54,8 +55,8 @@ export const ContactPage = () => {
                   style={{ height: '120px' }}
                 />
 
-                <button className="btn btn-primary w-100 py-2 my-3" type="submit">
-                  Enviar Mensaje
+                <button className="btn btn-primary w-100 py-2 my-3" type="submit" aria-label="Enviar mensaje">
+                  <IoSend size={24} />
                 </button>
 
                 <p className="mt-4 mb-3 text-secondary text-center">© 2025</p>

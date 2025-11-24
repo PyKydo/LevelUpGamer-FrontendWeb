@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { IoCart } from 'react-icons/io5';
 import { useCart } from '../hooks/useCart';
 import { useNotification } from '../hooks/useNotification';
 import { getProductById, type Product } from '../helpers/api.helper';
@@ -53,7 +54,7 @@ export const ProductDetailPage = () => {
           <p className="lead">{product.description}</p>
           <h3 className="my-4">{formatCurrency(product.price)}</h3>
           <button className="btn btn-primary btn-lg" onClick={handleAddToCart}>
-            <i className="bi bi-cart-plus"></i> Añadir al Carrito
+            <IoCart /> Añadir al Carrito
           </button>
         </div>
       </div>

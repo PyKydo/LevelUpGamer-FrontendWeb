@@ -67,7 +67,7 @@ export const AboutPage = () => {
             </div>
           </div>
           <div className="col-lg-4 col-md-6 mb-4">
-            <div className="team-member text-center">
+            <div className={`text-center ${styles.teamMember}`}>
               <img
                 src="https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fHBlcnNvbmF8ZW58MHx8MHx8fDA%3D"
                 alt="Victor Mena - Lead Developer"
@@ -78,7 +78,7 @@ export const AboutPage = () => {
             </div>
           </div>
           <div className="col-lg-4 col-md-12 mb-4">
-            <div className="team-member text-center">
+            <div className={`text-center ${styles.teamMember}`}>
               <img
                 src="https://assets.realmadrid.com/is/image/realmadrid/1330603286208?$Mobile$&fit=wrap&wid=312"
                 alt="David Larenas - Marketing Director"

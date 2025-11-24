@@ -65,24 +65,31 @@
 .badgeJuegosDeMesa {
   background-color: var(--accent-color);
 }
+
 .badgeAccesorios {
   background-color: var(--btn-color);
 }
+
 .badgeConsolas {
   background-color: #ff6347;
 }
+
 .badgeComputadoresGamers {
   background-color: #8a2be2;
 }
+
 .badgeSillasGamers {
   background-color: #00ced1;
 }
+
 .badgeMouse {
   background-color: #ffd700;
 }
+
 .badgeMousepad {
   background-color: #adff2f;
 }
+
 .badgePolerasPersonalizadas {
   background-color: #ff69b4;
 }
@@ -91,3 +98,9 @@
   padding: 1.25rem;
 }
 
+.addToCartBtn {
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

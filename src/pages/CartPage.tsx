@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { IoCard } from 'react-icons/io5';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../hooks/useNotification';
@@ -30,7 +31,7 @@ export const CartPage = () => {
     }
 
     showNotification('¡Pago realizado exitosamente! Gracias por tu compra.', 'success');
-    
+
     clearCart();
   };
 
@@ -71,8 +72,9 @@ export const CartPage = () => {
                   className="btn btn-primary btn-lg"
                   disabled={cart.length === 0}
                   onClick={handleCheckout}
+                  aria-label="Proceder al Pago"
                 >
-                  Proceder al Pago
+                  <IoCard size={28} />
                 </button>
               </div>
             </div>

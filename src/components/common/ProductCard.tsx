@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { FaCartPlus } from 'react-icons/fa6';
 import styles from './ProductCard.module.css';
 import { useCart } from '../../hooks/useCart';
 import { useNotification } from '../../hooks/useNotification';
@@ -55,8 +56,8 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           )}
         </div>
         <div className="d-flex justify-content-between align-items-center mt-3">
-          <button className="btn btn-primary add-to-cart" onClick={handleAddToCart}>
-            <i className="bi bi-cart-plus"></i> Agregar
+          <button className={`btn btn-primary add-to-cart ${styles.addToCartBtn}`} onClick={handleAddToCart} aria-label="Agregar al carrito">
+            <FaCartPlus size={24} />
           </button>
         </div>
       </div>

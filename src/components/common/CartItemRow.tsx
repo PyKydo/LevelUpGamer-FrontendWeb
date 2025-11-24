@@ -1,5 +1,6 @@
 import { useCart } from '../../hooks/useCart';
 import type { CartItem } from '../../hooks/CartContext';
+import { IoAddCircle, IoRemoveCircle, IoTrash } from 'react-icons/io5';
 import styles from './CartItemRow.module.css';
 
 interface CartItemCardProps {
@@ -19,17 +20,17 @@ export const CartItemRow = ({ item }: CartItemCardProps) => {
           <div className={`card-body ${styles.cartItemRowBody}`}>
             <div className="d-flex justify-content-between">
               <h5 className="card-title">{item.name}</h5>
-              <button className="btn btn-danger btn-sm" onClick={() => removeFromCart(item.id)} aria-label="Eliminar item">
-                <i className="bi bi-trash"></i>
+              <button className={`btn btn-link text-danger ${styles.deleteBtn}`} onClick={() => removeFromCart(item.id)} aria-label="Eliminar item">
+                <IoTrash size={26} />
               </button>
             </div>
             <p className="card-text mb-2">Precio Unitario: ${item.price.toLocaleString('es-CL')}</p>
             <div className="d-flex align-items-center justify-content-between">
               <div className="d-flex align-items-center">
                 <span className="me-3">Cantidad:</span>
-                <button className={`btn btn-primary ${styles.quantityBtn}`} onClick={() => decreaseQuantity(item.id)}>-</button>
+                <button className={`btn btn-primary ${styles.quantityBtn}`} onClick={() => decreaseQuantity(item.id)}><IoRemoveCircle size={24} /></button>
                 <span className="mx-3" data-testid="quantity">{item.quantity}</span>
-                <button className={`btn btn-primary ${styles.quantityBtn}`} onClick={() => increaseQuantity(item.id)}>+</button>
+                <button className={`btn btn-primary ${styles.quantityBtn}`} onClick={() => increaseQuantity(item.id)}><IoAddCircle size={24} /></button>
               </div>
               <p className="card-text fs-5 fw-bold mb-0">${(item.price * item.quantity).toLocaleString('es-CL')}</p>
             </div>

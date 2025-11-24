@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { IoSearch } from 'react-icons/io5';
 import { useSearch } from '../../hooks/useSearch';
 import productsData from '../../data/products.json';
 import styles from './SearchBar.module.css';
@@ -76,7 +77,7 @@ export const SearchBar = () => {
                             type="submit"
                             aria-label="Buscar"
                         >
-                            <span className="bi bi-search"></span>
+                            <IoSearch />
                         </button>
                     </div>
                     {suggestions.length > 0 && (
