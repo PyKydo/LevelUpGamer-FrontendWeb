@@ -7,6 +7,7 @@ import {
   validateEmail,
   validatePassword,
 } from '../helpers/validation.helper';
+import { FormFloating } from '../components/common/FormFloating';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -60,30 +61,24 @@ export const LoginPage = () => {
                   </Link>
                 </div>
                 <h1 className="h3 mb-3 fw-normal text-center">Iniciar Sesión</h1>
-                <div className="form-floating mb-3">
-                  <input
-                    type="email"
-                    className="form-control"
-                    id="email"
-                    placeholder="name@example.com"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                  <label htmlFor="email">Correo Electrónico</label>
-                </div>
-                <div className="form-floating mb-3">
-                  <input
-                    type="password"
-                    className="form-control"
-                    id="password"
-                    placeholder="Password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                  <label htmlFor="password">Contraseña</label>
-                </div>
+                <FormFloating
+                  id="email"
+                  type="email"
+                  label="Correo Electrónico"
+                  placeholder="name@example.com"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                <FormFloating
+                  id="password"
+                  type="password"
+                  label="Contraseña"
+                  placeholder="Password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
                 <div className="form-check text-start my-3">
                   <input
                     className="form-check-input"

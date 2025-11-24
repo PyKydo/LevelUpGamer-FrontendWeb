@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ProductCard } from '../components/common/ProductCard';
+import { FormFloating } from '../components/common/FormFloating';
+import { FormSelect } from '../components/common/FormSelect';
 import { getProducts, type Product } from '../helpers/api.helper';
 import { useSearch } from '../hooks/useSearch';
 
@@ -53,50 +55,39 @@ export const ProductsPage = () => {
 
       <div className="row mb-4 g-3">
         <div className="col-md-4">
-          <div className="form-floating">
-            <select
-              className="form-select"
-              id="category"
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-            >
-              <option value="">Todas las categorías</option>
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-            <label htmlFor="category">Categoría</label>
-          </div>
+          <FormSelect
+            id="category"
+            label="Categoría"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            options={[
+              { value: '', label: 'Todas las categorías' },
+              ...categories.map((category) => ({ value: category, label: category })),
+            ]}
+            floating
+          />
         </div>
         <div className="col-md-4">
-          <div className="form-floating">
-            <input
-              type="number"
-              name="min"
-              id="minPrice"
-              className="form-control"
-              placeholder="Precio Mínimo"
-              value={priceRange.min}
-              onChange={handlePriceChange}
-            />
-            <label htmlFor="minPrice">Precio Mínimo</label>
-          </div>
+          <FormFloating
+            type="number"
+            name="min"
+            id="minPrice"
+            label="Precio Mínimo"
+            placeholder="Precio Mínimo"
+            value={priceRange.min}
+            onChange={handlePriceChange}
+          />
         </div>
         <div className="col-md-4">
-          <div className="form-floating">
-            <input
-              type="number"
-              name="max"
-              id="maxPrice"
-              className="form-control"
-              placeholder="Precio Máximo"
-              value={priceRange.max}
-              onChange={handlePriceChange}
-            />
-            <label htmlFor="maxPrice">Precio Máximo</label>
-          </div>
+          <FormFloating
+            type="number"
+            name="max"
+            id="maxPrice"
+            label="Precio Máximo"
+            placeholder="Precio Máximo"
+            value={priceRange.max}
+            onChange={handlePriceChange}
+          />
         </div>
       </div>
 

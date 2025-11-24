@@ -1,0 +1,140 @@
+/* Bootstrap Overrides */
+
+/* Buttons */
+.btn {
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    border: none;
+}
+
+.btn-primary {
+    background-color: var(--btn-color);
+    color: #000000;
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-color);
+    color: var(--primary-color);
+}
+
+.btn-accent {
+    background-color: var(--btn-color);
+    color: #000000;
+    font-weight: 500;
+}
+
+.btn-accent:hover {
+    background-color: var(--accent-color);
+    color: var(--primary-color);
+}
+
+.btn-lg {
+    background-color: var(--btn-color);
+    color: #000000;
+    font-weight: 500;
+    border-radius: var(--border-radius);
+    padding: 10px 15px;
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: var(--primary-color);
+}
+
+.btn-success {
+    background-color: var(--success-color);
+    color: var(--background-color);
+}
+
+.btn-warning {
+    background-color: var(--warning-color);
+    color: var(--background-color);
+}
+
+.btn-info {
+    background-color: var(--info-color);
+    color: var(--background-color);
+}
+
+.btn:disabled,
+.btn.disabled {
+    background-color: var(--disabled-color);
+    color: var(--secondary-color);
+}
+
+/* Forms */
+.form-control,
+input,
+select,
+textarea {
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: var(--input-radius);
+    color: var(--primary-color);
+    transition: all var(--transition-fast);
+}
+
+.form-control:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    background-color: var(--input-bg);
+    border-color: var(--btn-color);
+    color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(57, 255, 20, 0.25);
+}
+
+.form-control::placeholder,
+input::placeholder,
+textarea::placeholder {
+    color: var(--secondary-color);
+    opacity: 1;
+}
+
+.form-control:disabled,
+input:disabled,
+textarea:disabled {
+    background-color: var(--input-bg-disabled) !important;
+    color: var(--secondary-color) !important;
+    border-color: var(--input-border-disabled) !important;
+    cursor: not-allowed;
+    opacity: 1 !important;
+}
+
+.form-select {
+    background-color: var(--input-bg) !important;
+    border-color: var(--input-border) !important;
+    color: var(--primary-color) !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23d3d3d3' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+    min-height: calc(3.5rem + 2px);
+}
+
+.form-select:focus {
+    background-color: var(--input-bg) !important;
+    border-color: var(--accent-color) !important;
+    color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(30, 144, 255, 0.25);
+}
+
+.form-select:disabled {
+    background-color: var(--input-bg-disabled) !important;
+    color: var(--secondary-color) !important;
+    border-color: var(--input-border-disabled) !important;
+    cursor: not-allowed;
+    opacity: 1 !important;
+}
+
+/* Tables */
+.table-dark {
+    background-color: var(--header-color);
+    color: var(--primary-color);
+}
+
+.table-dark th,
+.table-dark td,
+.table-dark thead th {
+    border-color: var(--border-color);
+}

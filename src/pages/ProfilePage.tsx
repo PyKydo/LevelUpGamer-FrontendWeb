@@ -5,6 +5,7 @@ import { useNotification } from '../hooks/useNotification';
 import { getLocalStorageItem, setLocalStorageItem } from '../helpers/storage.helper';
 import { simpleHash } from '../helpers/security.helper';
 import type { UserWithPassword } from '../hooks/AuthContext';
+import { FormFloating } from '../components/common/FormFloating';
 
 export const ProfilePage = () => {
   const { user, login, logout } = useAuth();
@@ -51,9 +52,9 @@ export const ProfilePage = () => {
       users[userIndex] = updatedUser;
       setLocalStorageItem('users', users);
 
-  const { password: _removedPassword, ...userToLogin } = updatedUser;
-  void _removedPassword;
-  login(userToLogin);
+      const { password: _removedPassword, ...userToLogin } = updatedUser;
+      void _removedPassword;
+      login(userToLogin);
 
       showNotification('Perfil actualizado correctamente.', 'success');
       setFormData((prev) => ({ ...prev, password: '' }));
@@ -69,81 +70,66 @@ export const ProfilePage = () => {
               <div className="form-signin">
                 <h2 className="card-title text-center mb-4 text-white">Perfil de Usuario</h2>
                 <form onSubmit={handleSubmit}>
-                                  <div className="row">
-                                    <div className="col-md-6 mb-3">
-                                      <div className="form-floating">
-                                        <input
-                                          type="text"
-                                          id="name"
-                                          name="name"
-                                          className="form-control"
-                                          value={formData.name}
-                                          onChange={handleChange}
-                                          placeholder="Nombre"
-                                        />
-                                        <label htmlFor="name">Nombre</label>
-                                      </div>
-                                    </div>
-                                    <div className="col-md-6 mb-3">
-                                      <div className="form-floating">
-                                        <input
-                                          type="text"
-                                          id="lastName"
-                                          name="lastName"
-                                          className="form-control"
-                                          value={formData.lastName}
-                                          onChange={handleChange}
-                                          placeholder="Apellido"
-                                        />
-                                        <label htmlFor="lastName">Apellido</label>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="mb-3">
-                                    <div className="form-floating">
-                                      <input
-                                        type="email"
-                                        id="email"
-                                        className="form-control"
-                                        value={user.email}
-                                        disabled
-                                        placeholder="Email"
-                                      />
-                                      <label htmlFor="email">Email</label>
-                                    </div>
-                                  </div>
-                                  <div className="mb-3">
-                                    <div className="form-floating">
-                                      <input
-                                        type="text"
-                                        id="address"
-                                        name="address"
-                                        className="form-control"
-                                        value={formData.address}
-                                        onChange={handleChange}
-                                        placeholder="Dirección"
-                                      />
-                                      <label htmlFor="address">Dirección</label>
-                                    </div>
-                                  </div>
-                                  <div className="mb-3">
-                                    <div className="form-floating">
-                                      <input
-                                        type="password"
-                                        id="password"
-                                        name="password"
-                                        className="form-control"
-                                        value={formData.password}
-                                        onChange={handleChange}
-                                        placeholder="Nueva Contraseña"
-                                      />
-                                      <label htmlFor="password">Nueva Contraseña (dejar en blanco para no cambiar)</label>
-                                    </div>
-                                  </div>
-                                  <div className="d-grid gap-2">
-                                    <button type="submit" className="btn btn-primary">Guardar Cambios</button>
-                                    <button type="button" className="btn btn-danger" onClick={logout}>Cerrar Sesión</button>
-                                  </div>
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <FormFloating
+                        id="name"
+                        name="name"
+                        type="text"
+                        label="Nombre"
+                        placeholder="Nombre"
+                        value={formData.name}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div className="col-md-6 mb-3">
+                      <FormFloating
+                        id="lastName"
+                        name="lastName"
+                        type="text"
+                        label="Apellido"
+                        placeholder="Apellido"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+                  <div className="mb-3">
+                    <FormFloating
+                      id="email"
+                      type="email"
+                      label="Email"
+                      placeholder="Email"
+                      value={user.email}
+                      disabled
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <FormFloating
+                      id="address"
+                      name="address"
+                      type="text"
+                      label="Dirección"
+                      placeholder="Dirección"
+                      value={formData.address}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <FormFloating
+                      id="password"
+                      name="password"
+                      type="password"
+                      label="Nueva Contraseña (dejar en blanco para no cambiar)"
+                      placeholder="Nueva Contraseña"
+                      value={formData.password}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className="d-grid gap-2">
+                    <button type="submit" className="btn btn-primary">Guardar Cambios</button>
+                    <button type="button" className="btn btn-danger" onClick={logout}>Cerrar Sesión</button>
+                  </div>
                 </form>
               </div>
             </div>

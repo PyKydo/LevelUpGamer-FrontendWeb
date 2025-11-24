@@ -1,0 +1,95 @@
+.carouselCaptionStrip {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    z-index: 2;
+}
+
+.carouselPriceTag {
+    background-color: var(--btn-color);
+    color: #000000;
+    padding: 0.3rem 0.6rem;
+    border-radius: var(--border-radius);
+    font-weight: bold;
+}
+
+.productCarousel {
+    border-radius: var(--card-radius);
+    overflow: hidden;
+}
+
+.carouselCaptionOverlay {
+    z-index: 2;
+    pointer-events: none;
+}
+
+.carouselCaption p {
+    background-color: var(--btn-color);
+    color: var(--background-color);
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.carouselCaptionHidden {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.carouselImageWrapper:hover+.carouselCaptionHidden {
+    opacity: 1;
+    visibility: visible;
+}
+
+.carouselItem {
+    position: relative;
+    overflow: hidden;
+}
+
+.carouselImageWrapper {
+    position: relative;
+    overflow: hidden;
+    display: block;
+    height: 100%;
+    width: 100%;
+}
+
+.carouselImageWrapper::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0);
+    transition: background-color 0.3s ease;
+    z-index: 1;
+}
+
+.carouselImageWrapper:hover::before {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.carouselImageWrapper img {
+    transition: transform 0.3s ease;
+}
+
+.carouselImageWrapper:hover img {
+    transform: scale(1.05);
+}
+
+.carouselControlPrevIcon,
+.carouselControlNextIcon {
+    transition: filter 0.35s ease;
+}
+
+.productCarousel:hover .carouselControlPrevIcon,
+.productCarousel:hover .carouselControlNextIcon {
+    filter: invert(1);
+}

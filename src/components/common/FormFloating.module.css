@@ -1,0 +1,79 @@
+.formFloating {
+    position: relative;
+}
+
+.formControl {
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: var(--input-radius);
+    color: var(--primary-color);
+    transition: all var(--transition-fast);
+    height: calc(3.5rem + 2px);
+    line-height: 1.25;
+}
+
+.formControl:focus {
+    background-color: var(--input-bg);
+    border-color: var(--btn-color);
+    color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(57, 255, 20, 0.25);
+    outline: 0;
+}
+
+.formControl::placeholder {
+    color: var(--secondary-color);
+    opacity: 1;
+}
+
+.formControl:disabled {
+    background-color: var(--input-bg-disabled) !important;
+    color: var(--secondary-color) !important;
+    border-color: var(--input-border-disabled) !important;
+    cursor: not-allowed;
+    opacity: 1 !important;
+}
+
+.formFloating>label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    padding: 1rem 0.75rem;
+    pointer-events: none;
+    border: 1px solid transparent;
+    transform-origin: 0 0;
+    transition: opacity .1s ease-in-out, transform .1s ease-in-out;
+    color: var(--primary-color) !important;
+}
+
+.formControl:focus~label,
+.formControl:not(:placeholder-shown)~label,
+.formControl:disabled~label,
+.formControl[type="date"]~label,
+.formControl[type="datetime-local"]~label,
+.formControl[type="month"]~label,
+.formControl[type="week"]~label,
+.formControl[type="time"]~label {
+    opacity: .65;
+    transform: scale(.85) translateY(-.5rem) translateX(.15rem);
+    color: var(--primary-color) !important;
+}
+
+.formControl:disabled~label {
+    color: var(--secondary-color) !important;
+}
+
+.formControl:focus~label::after,
+.formControl:not(:placeholder-shown)~label::after {
+    background-color: var(--input-bg) !important;
+}
+
+/* Autofill styles */
+.formControl:-webkit-autofill,
+.formControl:-webkit-autofill:hover,
+.formControl:-webkit-autofill:focus,
+.formControl:-webkit-autofill:active {
+    -webkit-text-fill-color: var(--primary-color) !important;
+    -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
+import styles from './BlogDetailPage.module.css';
 import {
   getBlogPostById,
   getBlogContent,
@@ -46,7 +47,7 @@ export const BlogDetailPage = () => {
           <div className="text-muted mb-3">
             <span>Por {post.author}</span> | <span>{formatDate(post.date)}</span>
           </div>
-          <div className="blog-detail-img-wrapper mb-4">
+          <div className={`mb-4 ${styles.blogDetailImgWrapper}`}>
             <img src={post.image} className="img-fluid" alt={post.alt} />
           </div>
           <div className="lead">

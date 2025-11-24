@@ -12,6 +12,8 @@ import { useNotification } from '../hooks/useNotification';
 import { getLocalStorageItem, setLocalStorageItem } from '../helpers/storage.helper';
 import { simpleHash } from '../helpers/security.helper';
 import type { UserWithPassword } from '../hooks/AuthContext';
+import { FormFloating } from '../components/common/FormFloating';
+import { FormSelect } from '../components/common/FormSelect';
 
 export const RegisterPage = () => {
   const navigate = useNavigate();
@@ -162,146 +164,112 @@ export const RegisterPage = () => {
                 </div>
                 <h1 className="h3 mb-3 fw-normal text-center">Crea una Cuenta</h1>
 
-                <div className="form-floating mb-3">
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="name"
-                    name="name"
-                    placeholder="Nombre"
-                    required
-                    onChange={handleChange}
-                    value={formData.name}
-                  />
-                  <label htmlFor="name">Nombre</label>
-                </div>
-                <div className="form-floating mb-3">
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="lastName"
-                    name="lastName"
-                    placeholder="Apellidos"
-                    required
-                    onChange={handleChange}
-                    value={formData.lastName}
-                  />
-                  <label htmlFor="lastName">Apellidos</label>
-                </div>
-                <div className="form-floating mb-3">
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="run"
-                    name="run"
-                    placeholder="RUN"
-                    required
-                    onChange={handleChange}
-                    value={formData.run}
-                  />
-                  <label htmlFor="run">RUN</label>
-                </div>
-                <div className="form-floating mb-3">
-                  <input
-                    type="email"
-                    className="form-control"
-                    id="email"
-                    name="email"
-                    placeholder="name@example.com"
-                    required
-                    onChange={handleChange}
-                    value={formData.email}
-                  />
-                  <label htmlFor="email">Correo Electrónico</label>
-                </div>
-                <div className="form-floating mb-3">
-                  <input
-                    type="password"
-                    className="form-control"
-                    id="password"
-                    name="password"
-                    placeholder="Contraseña"
-                    required
-                    onChange={handleChange}
-                    value={formData.password}
-                  />
-                  <label htmlFor="password">Contraseña</label>
-                </div>
-                <div className="form-floating mb-3">
-                  <input
-                    type="password"
-                    className="form-control"
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    placeholder="Confirmar Contraseña"
-                    required
-                    onChange={handleChange}
-                    value={formData.confirmPassword}
-                  />
-                  <label htmlFor="confirmPassword">Confirmar Contraseña</label>
-                </div>
-                <div className="form-floating mb-3">
-                  <input
-                    type="date"
-                    className="form-control"
-                    id="birthdate"
-                    name="birthdate"
-                    required
-                    onChange={handleChange}
-                    value={formData.birthdate}
-                  />
-                  <label htmlFor="birthdate">Fecha de Nacimiento</label>
-                </div>
-                <div className="form-floating mb-3">
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="address"
-                    name="address"
-                    placeholder="Dirección"
-                    required
-                    onChange={handleChange}
-                    value={formData.address}
-                  />
-                  <label htmlFor="address">Dirección</label>
-                </div>
-                <div className="form-floating mb-3">
-                  <select
-                    className="form-select"
-                    id="region"
-                    name="region"
-                    required
-                    onChange={handleChange}
-                    value={formData.region}
-                  >
-                    <option value="">Seleccione Región</option>
-                    {regions.map((r) => (
-                      <option key={r.codigo} value={r.codigo}>
-                        {r.nombre}
-                      </option>
-                    ))}
-                  </select>
-                  <label htmlFor="region">Región</label>
-                </div>
-                <div className="form-floating mb-3">
-                  <select
-                    className="form-select"
-                    id="commune"
-                    name="commune"
-                    required
-                    onChange={handleChange}
-                    value={formData.commune}
-                    disabled={!formData.region || loadingCommunes}
-                  >
-                    <option value="">Seleccione Comuna</option>
-                    {communes.map((c) => (
-                      <option key={c.codigo} value={c.codigo}>
-                        {c.nombre}
-                      </option>
-                    ))}
-                  </select>
-                  <label htmlFor="commune">Comuna</label>
-                </div>
+                <FormFloating
+                  id="name"
+                  name="name"
+                  type="text"
+                  label="Nombre"
+                  placeholder="Nombre"
+                  required
+                  onChange={handleChange}
+                  value={formData.name}
+                />
+                <FormFloating
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  label="Apellidos"
+                  placeholder="Apellidos"
+                  required
+                  onChange={handleChange}
+                  value={formData.lastName}
+                />
+                <FormFloating
+                  id="run"
+                  name="run"
+                  type="text"
+                  label="RUN"
+                  placeholder="RUN"
+                  required
+                  onChange={handleChange}
+                  value={formData.run}
+                />
+                <FormFloating
+                  id="email"
+                  name="email"
+                  type="email"
+                  label="Correo Electrónico"
+                  placeholder="name@example.com"
+                  required
+                  onChange={handleChange}
+                  value={formData.email}
+                />
+                <FormFloating
+                  id="password"
+                  name="password"
+                  type="password"
+                  label="Contraseña"
+                  placeholder="Contraseña"
+                  required
+                  onChange={handleChange}
+                  value={formData.password}
+                />
+                <FormFloating
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  label="Confirmar Contraseña"
+                  placeholder="Confirmar Contraseña"
+                  required
+                  onChange={handleChange}
+                  value={formData.confirmPassword}
+                />
+                <FormFloating
+                  id="birthdate"
+                  name="birthdate"
+                  type="date"
+                  label="Fecha de Nacimiento"
+                  required
+                  onChange={handleChange}
+                  value={formData.birthdate}
+                />
+                <FormFloating
+                  id="address"
+                  name="address"
+                  type="text"
+                  label="Dirección"
+                  placeholder="Dirección"
+                  required
+                  onChange={handleChange}
+                  value={formData.address}
+                />
+                <FormSelect
+                  id="region"
+                  name="region"
+                  label="Región"
+                  required
+                  onChange={handleChange}
+                  value={formData.region}
+                  options={[
+                    { value: '', label: 'Seleccione Región' },
+                    ...regions.map((r) => ({ value: r.codigo, label: r.nombre })),
+                  ]}
+                  floating
+                />
+                <FormSelect
+                  id="commune"
+                  name="commune"
+                  label="Comuna"
+                  required
+                  onChange={handleChange}
+                  value={formData.commune}
+                  disabled={!formData.region || loadingCommunes}
+                  options={[
+                    { value: '', label: 'Seleccione Comuna' },
+                    ...communes.map((c) => ({ value: c.codigo, label: c.nombre })),
+                  ]}
+                  floating
+                />
 
                 <button
                   className="btn btn-primary w-100 py-2 my-3"

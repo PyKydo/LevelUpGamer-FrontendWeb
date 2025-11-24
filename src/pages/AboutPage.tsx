@@ -1,8 +1,10 @@
+import styles from './AboutPage.module.css';
+
 export const AboutPage = () => {
   return (
     <main>
       <div className="container mt-5">
-        <section className="p-5 mb-4 rounded-3 about-us-section">
+        <section className={`p-5 mb-4 rounded-3 ${styles.aboutUsSection}`}>
           <div className="container-fluid py-5">
             <h1 className="display-5 fw-bold">Acerca de Nosotros</h1>
             <p className="col-md-8 fs-4">
@@ -54,7 +56,7 @@ export const AboutPage = () => {
 
         <div className="row">
           <div className="col-lg-4 col-md-6 mb-4">
-            <div className="team-member text-center">
+            <div className={`text-center ${styles.teamMember}`}>
               <img
                 src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cGVyc29uYXxlbnwwfHwwfHx8MA%3D%3D"
                 alt="Matías Gutiérrez - CEO & Fundador"

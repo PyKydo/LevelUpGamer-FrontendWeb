@@ -1,3 +1,6 @@
+import { FormFloating } from '../components/common/FormFloating';
+import { FormFloatingTextarea } from '../components/common/FormFloatingTextarea';
+
 export const ContactPage = () => {
   return (
     <main className="d-flex align-items-center justify-content-center flex-grow-1 py-5">
@@ -21,44 +24,35 @@ export const ContactPage = () => {
                   responderemos a la brevedad.
                 </p>
 
-                <div className="form-floating mb-3">
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="name"
-                    name="name"
-                    placeholder="Tu nombre completo"
-                    maxLength={100}
-                    required
-                  />
-                  <label htmlFor="name">Nombre</label>
-                </div>
+                <FormFloating
+                  id="name"
+                  name="name"
+                  type="text"
+                  label="Nombre"
+                  placeholder="Tu nombre completo"
+                  maxLength={100}
+                  required
+                />
 
-                <div className="form-floating mb-3">
-                  <input
-                    type="email"
-                    className="form-control"
-                    id="email"
-                    name="email"
-                    placeholder="tu.correo@ejemplo.com"
-                    maxLength={100}
-                    required
-                  />
-                  <label htmlFor="email">Correo Electrónico</label>
-                </div>
+                <FormFloating
+                  id="email"
+                  name="email"
+                  type="email"
+                  label="Correo Electrónico"
+                  placeholder="tu.correo@ejemplo.com"
+                  maxLength={100}
+                  required
+                />
 
-                <div className="form-floating mb-3">
-                  <textarea
-                    className="form-control"
-                    id="comment"
-                    name="comment"
-                    placeholder="Escribe aquí tu mensaje..."
-                    maxLength={500}
-                    required
-                    style={{ height: '120px' }}
-                  ></textarea>
-                  <label htmlFor="comment">Mensaje</label>
-                </div>
+                <FormFloatingTextarea
+                  id="comment"
+                  name="comment"
+                  label="Mensaje"
+                  placeholder="Escribe aquí tu mensaje..."
+                  maxLength={500}
+                  required
+                  style={{ height: '120px' }}
+                />
 
                 <button className="btn btn-primary w-100 py-2 my-3" type="submit">
                   Enviar Mensaje

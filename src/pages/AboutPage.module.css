@@ -1,0 +1,13 @@
+.teamMember img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    border: 3px solid var(--primary-color);
+}
+
+.aboutUsSection {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+}

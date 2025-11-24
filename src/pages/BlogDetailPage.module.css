@@ -1,0 +1,13 @@
+.blogDetailImgWrapper {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: var(--bs-border-radius);
+    box-shadow: var(--bs-box-shadow-sm);
+}
+
+.blogDetailImgWrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
