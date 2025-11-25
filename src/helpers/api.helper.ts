@@ -482,8 +482,8 @@ const fetchBlogContentFromEndpoint = async (
     return typeof response.data === "string"
       ? response.data
       : response.data != null
-        ? String(response.data)
-        : "";
+      ? String(response.data)
+      : "";
   } catch (error) {
     console.error("Error fetching blog content via endpoint:", error);
     return null;
