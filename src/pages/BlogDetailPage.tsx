@@ -62,14 +62,14 @@ export const BlogDetailPage = () => {
   useEffect(() => {
     let isMounted = true;
     const fetchContent = async () => {
-      if (!post?.content_path) {
+      if (!post?.id) {
         return;
       }
       setLoadingContent(true);
       setContentError(null);
       setMarkdownContent('');
       try {
-        const content = await getBlogContent(post.content_path);
+        const content = await getBlogContent(post.id, post.content_path);
         if (isMounted) {
           setMarkdownContent(content);
         }
@@ -90,7 +90,7 @@ export const BlogDetailPage = () => {
     return () => {
       isMounted = false;
     };
-  }, [post?.content_path]);
+  }, [post?.id, post?.content_path]);
 
   if (loadingPost) {
     return (

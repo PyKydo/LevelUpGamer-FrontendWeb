@@ -405,9 +405,12 @@ export const getBlogPosts = async (): Promise<Blog[]> => {
 export const getBlogPostById = async (
   id: string
 ): Promise<Blog | undefined> => {
+  if (!id) {
+    return undefined;
+  }
   try {
-    const blogs = await getBlogPosts();
-    return blogs.find((b) => b.id === id);
+    const response = await apiClient.get<BlogDTO>(`blog-posts/${id}`);
+    return mapBlogDTOtoBlog(response.data);
   } catch (error) {
     console.error("Error fetching blog post by id:", error);
     return undefined;
@@ -458,19 +461,67 @@ export const authenticateUser = async (
   }
 };
 
-export const getBlogContent = async (path: string): Promise<string> => {
+const fetchBlogContentFromEndpoint = async (
+  blogId: string
+): Promise<string | null> => {
+  if (!blogId) {
+    return null;
+  }
+
+  try {
+    const response = await apiClient.get<string>(
+      `blog-posts/${blogId}/content`,
+      {
+        responseType: "text",
+        transformResponse: (data) => data,
+        headers: {
+          Accept: "text/markdown, text/plain, text/html, */*",
+        },
+      }
+    );
+    return typeof response.data === "string"
+      ? response.data
+      : response.data != null
+        ? String(response.data)
+        : "";
+  } catch (error) {
+    console.error("Error fetching blog content via endpoint:", error);
+    return null;
+  }
+};
+
+const fetchBlogContentFromPath = async (path: string): Promise<string> => {
   if (!path) {
     throw new Error("No blog content path provided");
   }
+
   const resolvedPath = resolveApiUrl(path);
   if (!resolvedPath) {
     throw new Error("Unable to resolve blog content path");
   }
+
   const response = await fetch(resolvedPath);
   if (!response.ok) {
     throw new Error(`Failed to fetch blog content from ${resolvedPath}`);
   }
+
   return await response.text();
+};
+
+export const getBlogContent = async (
+  blogId: string,
+  fallbackPath?: string
+): Promise<string> => {
+  const contentFromApi = await fetchBlogContentFromEndpoint(blogId);
+  if (contentFromApi !== null) {
+    return contentFromApi;
+  }
+
+  if (!fallbackPath) {
+    throw new Error("Unable to obtain blog content without a fallback path");
+  }
+
+  return fetchBlogContentFromPath(fallbackPath);
 };
 
 declare global {

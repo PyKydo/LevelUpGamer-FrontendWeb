@@ -119,23 +119,38 @@ describe("Ayudantes de API", () => {
   });
 
   describe("obtener Contenido del Blog", () => {
-    it("obtiene y devuelve el contenido de texto correctamente", async () => {
+    it("prefiere el endpoint del backend cuando está disponible", async () => {
       const mockContent = "## Título del Blog\n\nEste es el contenido.";
-      (fetch as vi.Mock).mockResolvedValueOnce({
-        ok: true,
-        text: () => Promise.resolve(mockContent),
-      });
+      (apiClient.get as vi.Mock).mockResolvedValueOnce({ data: mockContent });
 
-      const content = await getBlogContent("/path/to/blog.md");
+      const content = await getBlogContent("42", "/path/to/blog.md");
 
-      expect(fetch).toHaveBeenCalledWith(resolveApiUrl("/path/to/blog.md"));
+      expect(apiClient.get).toHaveBeenCalledWith(
+        "blog-posts/42/content",
+        expect.objectContaining({ responseType: "text" })
+      );
+      expect(fetch).not.toHaveBeenCalled();
       expect(content).toBe(mockContent);
     });
 
-    it("lanza un error si el fetch falla", async () => {
-      (fetch as vi.Mock).mockResolvedValueOnce({ ok: false });
+    it("usa la ruta de respaldo cuando el endpoint falla", async () => {
+      (apiClient.get as vi.Mock).mockRejectedValueOnce(new Error("Network"));
+      const fallbackContent = "## Contenido desde fallback";
+      (fetch as vi.Mock).mockResolvedValueOnce({
+        ok: true,
+        text: () => Promise.resolve(fallbackContent),
+      });
 
-      await expect(getBlogContent("/bad/path.md")).rejects.toThrow();
+      const content = await getBlogContent("42", "/path/to/blog.md");
+
+      expect(fetch).toHaveBeenCalledWith(resolveApiUrl("/path/to/blog.md"));
+      expect(content).toBe(fallbackContent);
+    });
+
+    it("lanza error si no hay ruta de respaldo y falla el endpoint", async () => {
+      (apiClient.get as vi.Mock).mockRejectedValueOnce(new Error("Network"));
+
+      await expect(getBlogContent("42")).rejects.toThrow();
     });
   });
 });
