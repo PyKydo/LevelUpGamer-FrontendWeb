@@ -1,5 +1,5 @@
-import { createContext } from 'react';
-import type { ReactNode } from 'react';
+import { createContext } from "react";
+import type { ReactNode } from "react";
 
 export interface CartItem {
   id: string;
@@ -13,7 +13,10 @@ export interface CartItem {
 export interface CartContextType {
   cart: CartItem[];
   loading: boolean;
-  addToCart: (item: Omit<CartItem, 'quantity'>, quantity?: number) => Promise<void>;
+  addToCart: (
+    item: Omit<CartItem, "quantity">,
+    quantity?: number
+  ) => Promise<void>;
   removeFromCart: (productId: number) => Promise<void>;
   increaseQuantity: (productId: number) => Promise<void>;
   decreaseQuantity: (productId: number) => Promise<void>;
@@ -26,4 +29,6 @@ export interface CartProviderProps {
   children: ReactNode;
 }
 
-export const CartContext = createContext<CartContextType | undefined>(undefined);
+export const CartContext = createContext<CartContextType | undefined>(
+  undefined
+);

@@ -240,24 +240,22 @@ type CartImageOverrides = Record<number, string>;
 const mapCartItemDTOToCartItem = (
   dto: CartItemDTO,
   overrides: CartImageOverrides = {}
-): CartItem => (
-  {
-    id: dto.productCode ?? dto.productId.toString(),
-    productId: dto.productId,
-    name: dto.productName,
-    price: dto.price,
-    quantity: dto.quantity,
-    image:
-      dto.productImageUrl
-        ? resolveApiUrl(dto.productImageUrl)
-        : overrides[dto.productId] ?? DEFAULT_PRODUCT_IMAGE,
-  }
-);
+): CartItem => ({
+  id: dto.productCode ?? dto.productId.toString(),
+  productId: dto.productId,
+  name: dto.productName,
+  price: dto.price,
+  quantity: dto.quantity,
+  image: dto.productImageUrl
+    ? resolveApiUrl(dto.productImageUrl)
+    : overrides[dto.productId] ?? DEFAULT_PRODUCT_IMAGE,
+});
 
 const mapCartDTOToCartItems = (
   dto: CartDTO,
   overrides: CartImageOverrides = {}
-): CartItem[] => dto.items?.map((item) => mapCartItemDTOToCartItem(item, overrides)) ?? [];
+): CartItem[] =>
+  dto.items?.map((item) => mapCartItemDTOToCartItem(item, overrides)) ?? [];
 
 export const getProducts = async (): Promise<Product[]> => {
   try {
@@ -333,13 +331,9 @@ export const addProductToCartApi = async (
   }
 
   try {
-    const response = await apiClient.post<CartDTO>(
-      `cart/${userId}/add`,
-      null,
-      {
-        params: { productId, quantity },
-      }
-    );
+    const response = await apiClient.post<CartDTO>(`cart/${userId}/add`, null, {
+      params: { productId, quantity },
+    });
     return mapCartDTOToCartItems(response.data, overrides);
   } catch (error) {
     console.error("Error adding product to cart:", error);
@@ -357,12 +351,9 @@ export const removeProductFromCartApi = async (
   }
 
   try {
-    const response = await apiClient.delete<CartDTO>(
-      `cart/${userId}/remove`,
-      {
-        params: { productId },
-      }
-    );
+    const response = await apiClient.delete<CartDTO>(`cart/${userId}/remove`, {
+      params: { productId },
+    });
     return mapCartDTOToCartItems(response.data, overrides);
   } catch (error) {
     console.error("Error removing product from cart:", error);
