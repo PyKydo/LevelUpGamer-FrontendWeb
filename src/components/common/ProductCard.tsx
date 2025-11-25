@@ -1,3 +1,4 @@
+import type { SyntheticEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { FaCartPlus } from 'react-icons/fa6';
 import styles from './ProductCard.module.css';
@@ -14,6 +15,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   const { showNotification } = useNotification();
 
   const { code, name, category, image, description, price, originalPrice } = product;
+  const fallbackProductImage = 'https://placehold.co/600x600?text=Producto';
 
   const handleAddToCart = async () => {
     if (typeof product.id !== 'number') {
@@ -31,6 +33,10 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
     await addToCart(itemToAdd);
     showNotification(`'${name}' ha sido añadido al carrito.`, 'success');
+  };
+
+  const handleImageError = (event: SyntheticEvent<HTMLImageElement>) => {
+    event.currentTarget.src = fallbackProductImage;
   };
 
   const categoryToClassName = (category: string) => {
@@ -53,9 +59,10 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       <div className={`${styles.cardBadge} position-absolute ${categoryToClassName(category)}`}>{category}</div>
       <Link to={`/products/${code}`} className="text-decoration-none text-dark">
         <img
-          src={image}
+          src={image || fallbackProductImage}
           className={`card-img-top ${styles.productImg}`}
           alt={name}
+          onError={handleImageError}
           loading="lazy"
         />
       </Link>
