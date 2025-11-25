@@ -14,14 +14,24 @@ export const ProductsPage = () => {
   const { searchTerm, setSearchTerm } = useSearch();
 
   useEffect(() => {
-    setProducts(getProducts());
+    const fetchProducts = async () => {
+      try {
+        const data = await getProducts();
+        setProducts(data);
+      } catch (error) {
+        console.error('Failed to load products in page:', error);
+      }
+    };
+    fetchProducts();
+
     const query = searchParams.get('q') || '';
     setSearchTerm(query);
   }, [searchParams, setSearchTerm]);
 
   const categories = useMemo(() => {
     const allCategories = products.map((p) => p.category);
-    return ['', ...Array.from(new Set(allCategories))];
+    // Filter out empty strings to avoid duplicate keys with the default option
+    return Array.from(new Set(allCategories)).filter(Boolean);
   }, [products]);
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,8 +103,8 @@ export const ProductsPage = () => {
 
       <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => (
-            <div className="col" key={product.code}>
+          filteredProducts.map((product, index) => (
+            <div className="col" key={`${product.code}-${index}`}>
               <ProductCard product={product} />
             </div>
           ))

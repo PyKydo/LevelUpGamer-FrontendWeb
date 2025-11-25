@@ -2,32 +2,39 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { IoSearch } from 'react-icons/io5';
 import { useSearch } from '../../hooks/useSearch';
-import productsData from '../../data/products.json';
+import { getProducts, type Product } from '../../helpers/api.helper';
 import styles from './SearchBar.module.css';
-
-interface Product {
-    code: string;
-    name: string;
-    image: string;
-    price: number;
-}
 
 export const SearchBar = () => {
     const { searchTerm, setSearchTerm } = useSearch();
     const [suggestions, setSuggestions] = useState<Product[]>([]);
+    const [availableProducts, setAvailableProducts] = useState<Product[]>([]);
     const navigate = useNavigate();
     const searchContainerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const products = await getProducts();
+                setAvailableProducts(products);
+            } catch (error) {
+                console.error('Error loading products for search suggestions:', error);
+            }
+        };
+
+        fetchProducts();
+    }, []);
 
     useEffect(() => {
         if (searchTerm.trim() === '') {
             setSuggestions([]);
             return;
         }
-        const filtered = productsData.filter(p =>
-            p.name.toLowerCase().includes(searchTerm.toLowerCase())
-        ).slice(0, 5);
-        setSuggestions(filtered as Product[]);
-    }, [searchTerm]);
+        const filtered = availableProducts
+            .filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
+            .slice(0, 5);
+        setSuggestions(filtered);
+    }, [searchTerm, availableProducts]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {

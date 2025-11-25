@@ -1,4 +1,4 @@
-import { SelectHTMLAttributes } from 'react';
+import type { SelectHTMLAttributes } from 'react';
 import styles from './FormSelect.module.css';
 
 interface FormSelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
@@ -23,8 +23,8 @@ export const FormSelect = ({
             className={`form-select ${styles.formSelect} ${className}`}
             {...props}
         >
-            {options.map((option) => (
-                <option key={option.value} value={option.value}>
+            {options.map((option, index) => (
+                <option key={`${option.value}-${index}`} value={option.value}>
                     {option.label}
                 </option>
             ))}

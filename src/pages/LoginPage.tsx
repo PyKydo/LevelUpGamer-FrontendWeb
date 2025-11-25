@@ -12,11 +12,12 @@ import { FormFloating } from '../components/common/FormFloating';
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('CLIENTE');
   const navigate = useNavigate();
   const { login } = useAuth();
   const { showNotification } = useNotification();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!validateEmail(email)) {
@@ -32,14 +33,30 @@ export const LoginPage = () => {
       return;
     }
 
-    const foundUser = authenticateUser(email, password);
+    try {
+      const foundUser = await authenticateUser(email, password, role);
+      if (foundUser) {
+        login(foundUser);
+        showNotification('Inicio de sesión exitoso.', 'success');
 
-    if (foundUser) {
-      login(foundUser);
-      showNotification('Inicio de sesión exitoso.', 'success');
-      navigate('/');
-    } else {
-      showNotification('Correo o contraseña incorrectos.', 'error');
+        // Redirect based on role
+        if (foundUser.role === 'ADMINISTRADOR') {
+          navigate('/admin');
+        } else if (foundUser.role === 'VENDEDOR') {
+          navigate('/seller');
+        } else {
+          navigate('/');
+        }
+      }
+    } catch (error: any) {
+      console.error(error);
+      if (error.code === 'ERR_NETWORK') {
+        showNotification('No se pudo conectar con el servidor. Asegúrate de que el backend esté corriendo en el puerto 8081.', 'error');
+      } else if (error.response && (error.response.status === 401 || error.response.status === 404)) {
+        showNotification('Credenciales incorrectas o usuario no encontrado.', 'error');
+      } else {
+        showNotification('Ocurrió un error al iniciar sesión.', 'error');
+      }
     }
   };
 
@@ -79,6 +96,21 @@ export const LoginPage = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
+
+                <div className="form-floating mb-3">
+                  <select
+                    className="form-select"
+                    id="role"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                  >
+                    <option value="CLIENTE">Cliente</option>
+                    <option value="VENDEDOR">Vendedor</option>
+                    <option value="ADMINISTRADOR">Administrador</option>
+                  </select>
+                  <label htmlFor="role">Rol</label>
+                </div>
+
                 <div className="form-check text-start my-3">
                   <input
                     className="form-check-input"

@@ -1,89 +1,141 @@
-import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
-import productsData from '../data/products.json';
-import blogsData from '../data/blogs.json';
-import * as api from './api.helper';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { apiClient, resolveApiUrl } from "./api.client";
+import { getProducts, getBlogPosts, getBlogContent } from "./api.helper";
+
+vi.mock("./api.client", async () => {
+  const actual = await vi.importActual<typeof import("./api.client")>(
+    "./api.client"
+  );
+  return {
+    ...actual,
+    apiClient: {
+      get: vi.fn(),
+      post: vi.fn(),
+    },
+  };
+});
 
 global.fetch = vi.fn();
 
-describe('Ayudantes de API', () => {
+describe("Ayudantes de API", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
+  describe("obtener Productos", () => {
+    it("mapea correctamente los productos desde la API", async () => {
+      (apiClient.get as vi.Mock).mockResolvedValueOnce({
+        data: [
+          {
+            id: 1,
+            codigo: "PRD-1",
+            nombre: "Producto 1",
+            descripcion: "Descripción",
+            precio: 9990,
+            stock: 5,
+            stockCritico: 1,
+            categoria: {
+              id: 10,
+              codigo: "CAT-1",
+              nombre: "Accesorios",
+              descripcion: "Cat desc",
+              activo: true,
+            },
+            imagenes: ["https://cdn.example.com/img.png"],
+            puntosLevelUp: 200,
+            activo: true,
+            vendedor: {
+              id: 7,
+              nombre: "LevelUp",
+              correo: "ventas@levelup.cl",
+              corporativo: true,
+            },
+          },
+        ],
+      });
 
-  describe('obtener Productos', () => {
-    it('debería devolver todos los productos', () => {
-      const products = api.getProducts();
-      expect(products).toEqual(productsData);
+      const products = await getProducts();
+
+      expect(apiClient.get).toHaveBeenCalledWith("products");
+      expect(products).toHaveLength(1);
+      expect(products[0]).toMatchObject({
+        code: "PRD-1",
+        category: "Accesorios",
+        image: "https://cdn.example.com/img.png",
+        seller: { id: 7, corporate: true },
+      });
+    });
+
+    it("devuelve un arreglo vacío cuando la API falla", async () => {
+      (apiClient.get as vi.Mock).mockRejectedValueOnce(
+        new Error("Network error")
+      );
+
+      const products = await getProducts();
+
+      expect(products).toEqual([]);
     });
   });
 
-  describe('obtener Producto por ID', () => {
-    it('debería devolver el producto correcto si le pasas un ID válido', () => {
-      const product = api.getProductById('CQ001');
-      expect(product).toBeDefined();
-      expect(product?.name).toBe('PlayStation 5');
+  describe("obtener Publicaciones del Blog", () => {
+    it("retorna las publicaciones devueltas por la API", async () => {
+      (apiClient.get as vi.Mock).mockResolvedValueOnce({
+        data: [
+          {
+            id: 42,
+            titulo: "Blog 1",
+            autor: "Autor",
+            fechaPublicacion: "2025-01-01",
+            descripcionCorta: "Resumen",
+            contenidoUrl: "blogs/blog42.md",
+            imagenUrl: "blogs/blog42.png",
+            altImagen: "Blog 1",
+          },
+        ],
+      });
+
+      const blogs = await getBlogPosts();
+
+      expect(apiClient.get).toHaveBeenCalledWith("blog-posts");
+      expect(blogs).toHaveLength(1);
+      expect(blogs[0]).toMatchObject({ id: "42", title: "Blog 1" });
+      expect(blogs[0].image).toBe(
+        "https://level-up-gamer.s3.amazonaws.com/blogs/42/blog42.png"
+      );
+      expect(blogs[0].content_path).toBe(
+        "https://level-up-gamer.s3.amazonaws.com/blogs/42/blog.md"
+      );
+    });
+
+    it("retorna un arreglo vacío cuando ocurre un error", async () => {
+      (apiClient.get as vi.Mock).mockRejectedValueOnce(
+        new Error("Network error")
+      );
+
+      const blogs = await getBlogPosts();
+
+      expect(blogs).toEqual([]);
     });
   });
 
-  describe('obtener Publicaciones del Blog', () => {
-    it('debería devolver todas las publicaciones', () => {
-      const blogs = api.getBlogPosts();
-      expect(blogs).toEqual(blogsData);
-    });
-  });
-
-  describe('obtener Publicación por ID', () => {
-    it('debería devolver la publicación correcta si le pasas un ID válido', () => {
-      const blog = api.getBlogPostById('post-1');
-      expect(blog).toBeDefined();
-      expect(blog?.title).toBe('Los mejores juegos de 2025');
-    });
-  });
-
-  describe('autenticar Usuario', () => {
-    beforeEach(() => {
-      const users = [
-        {
-          id: '1',
-          username: 'admin',
-          email: 'admin@levelup.cl',
-          password: 'admin123',
-          role: 'admin',
-        },
-      ];
-      window.localStorage.setItem('users', JSON.stringify(users));
-    });
-
-    it('debería devolver un usuario sin la contraseña si todo está bien', () => {
-      const user = api.authenticateUser('admin@levelup.cl', 'admin123');
-      expect(user).toBeDefined();
-      expect(user?.email).toBe('admin@levelup.cl');
-      expect(user).not.toHaveProperty('password');
-    });
-
-    it('debería devolver nada si la contraseña es incorrecta', () => {
-      const user = api.authenticateUser('admin@example.com', 'wrongpassword');
-      expect(user).toBeUndefined();
-    });
-
-  });
-
-  describe('obtener Contenido del Blog', () => {
-    it('debería obtener y devolver el contenido de texto correctamente', async () => {
-      const mockContent = '## Título del Blog\n\nEste es el contenido.';
-      (fetch as vi.Mock).mockResolvedValue({
+  describe("obtener Contenido del Blog", () => {
+    it("obtiene y devuelve el contenido de texto correctamente", async () => {
+      const mockContent = "## Título del Blog\n\nEste es el contenido.";
+      (fetch as vi.Mock).mockResolvedValueOnce({
         ok: true,
         text: () => Promise.resolve(mockContent),
       });
 
-      const content = await api.getBlogContent('/path/to/blog.md');
+      const content = await getBlogContent("/path/to/blog.md");
 
-      expect(fetch).toHaveBeenCalledWith('/path/to/blog.md');
+      expect(fetch).toHaveBeenCalledWith(resolveApiUrl("/path/to/blog.md"));
       expect(content).toBe(mockContent);
+    });
+
+    it("lanza un error si el fetch falla", async () => {
+      (fetch as vi.Mock).mockResolvedValueOnce({ ok: false });
+
+      await expect(getBlogContent("/bad/path.md")).rejects.toThrow();
     });
   });
 });

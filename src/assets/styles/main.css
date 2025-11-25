@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Outfit:wght@100..900&display=swap');
+
 :root {
   --primary-color: #ffffff;
   --secondary-color: #d3d3d3;
@@ -23,7 +25,7 @@
   --shadow-color: rgba(30, 144, 255, 0.15);
   --card-shadow: 0 2px 8px var(--shadow-color);
 
-  --font-stack: "Roboto", sans-serif;
+  --font-stack: "Outfit", sans-serif;
   --heading-font: "Orbitron", sans-serif;
 
   --navbar-height: 64px;
@@ -77,18 +79,23 @@ h6 {
 h1 {
   font-size: 2.5rem;
 }
+
 h2 {
   font-size: 2rem;
 }
+
 h3 {
   font-size: 1.75rem;
 }
+
 h4 {
   font-size: 1.5rem;
 }
+
 h5 {
   font-size: 1.25rem;
 }
+
 h6 {
   font-size: 1rem;
 }
@@ -101,18 +108,23 @@ p {
 .text-primary {
   color: var(--btn-color) !important;
 }
+
 .text-secondary {
   color: var(--secondary-color) !important;
 }
+
 .text-success {
   color: var(--success-color) !important;
 }
+
 .text-danger {
   color: var(--danger-color) !important;
 }
+
 .text-warning {
   color: var(--warning-color) !important;
 }
+
 .text-info {
   color: var(--info-color) !important;
 }
@@ -120,18 +132,23 @@ p {
 .bg-primary {
   background-color: var(--btn-color) !important;
 }
+
 .bg-secondary {
   background-color: var(--secondary-color) !important;
 }
+
 .bg-success {
   background-color: var(--success-color) !important;
 }
+
 .bg-danger {
   background-color: var(--danger-color) !important;
 }
+
 .bg-warning {
   background-color: var(--warning-color) !important;
 }
+
 .bg-info {
   background-color: var(--info-color) !important;
 }

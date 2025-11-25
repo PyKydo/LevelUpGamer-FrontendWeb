@@ -12,6 +12,7 @@ export interface User {
   region: string;
   commune: string;
   role: string;
+  token?: string;
 }
 
 export interface UserWithPassword extends User {
@@ -22,6 +23,9 @@ export interface AuthContextType {
   user: User | null;
   login: (userData: User) => void;
   logout: () => void;
+  isAdmin: boolean;
+  isSeller: boolean;
+  isClient: boolean;
 }
 
 export interface AuthProviderProps {

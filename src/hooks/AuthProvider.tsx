@@ -33,14 +33,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const login: AuthContextType['login'] = (userData) => {
     setUser(userData);
+    if (userData.token) {
+      setLocalStorageItem('token', userData.token);
+    }
   };
 
   const logout: AuthContextType['logout'] = () => {
     setUser(null);
+    removeLocalStorageItem('token');
   };
 
+  const isAdmin = user?.role === 'ADMINISTRADOR';
+  const isSeller = user?.role === 'VENDEDOR';
+  const isClient = user?.role === 'CLIENTE';
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, isAdmin, isSeller, isClient }}>
       {children}
     </AuthContext.Provider>
   );

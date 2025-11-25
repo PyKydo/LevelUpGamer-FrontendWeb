@@ -24,7 +24,7 @@ export const Carousel = ({ products }: CarouselProps) => {
                 {products.map((product, index) => (
                     <div
                         className={`carousel-item ${styles.carouselItem} ${index === 0 ? 'active' : ''}`}
-                        key={product.code}
+                        key={`${product.code}-${index}`}
                     >
                         <div
                             className="d-flex justify-content-center align-items-center"
@@ -35,7 +35,7 @@ export const Carousel = ({ products }: CarouselProps) => {
                                 className={`d-block h-100 w-100 text-decoration-none ${styles.carouselImageWrapper}`}
                             >
                                 <img
-                                    src={`/img/products/${product.image}`}
+                                    src={product.image.startsWith('http') || product.image.startsWith('/') ? product.image : `/img/products/${product.image}`}
                                     className="d-block h-100 w-100"
                                     style={{ objectFit: 'contain' }}
                                     alt={product.name}

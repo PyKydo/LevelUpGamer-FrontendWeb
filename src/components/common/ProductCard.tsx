@@ -40,7 +40,11 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     <div className={`h-100 ${styles.productCard}`}>
       <div className={`${styles.cardBadge} position-absolute ${categoryToClassName(category)}`}>{category}</div>
       <Link to={`/products/${code}`} className="text-decoration-none text-dark">
-        <img src={`/img/products/${image}`} className={`card-img-top ${styles.productImg}`} alt={name} />
+        <img
+          src={image.startsWith('http') || image.startsWith('/') ? image : `/img/products/${image}`}
+          className={`card-img-top ${styles.productImg}`}
+          alt={name}
+        />
       </Link>
       <div className={`card-body d-flex flex-column ${styles.productCardBody}`}>
         <Link to={`/products/${code}`} className="text-decoration-none text-dark">
@@ -58,6 +62,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         <div className="d-flex justify-content-between align-items-center mt-3">
           <button className={`btn btn-primary add-to-cart ${styles.addToCartBtn}`} onClick={handleAddToCart} aria-label="Agregar al carrito">
             <FaCartPlus size={24} />
+            <span className="ms-2">Agregar al Carrito</span>
           </button>
         </div>
       </div>
