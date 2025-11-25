@@ -1,27 +1,33 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { CartItemRow } from './CartItemRow';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CartContext } from '../../hooks/CartContext';
 
 const mockItem = {
   id: '1',
+  productId: 101,
   name: 'Test Product',
   price: 1000,
-  image: 'test.jpg',
+  image: 'https://example.com/product.png',
   quantity: 2,
 };
 
 describe('CartItemRow', () => {
   const mockCartContext = {
     cart: [],
+    loading: false,
     totalItems: 0,
-    addToCart: vi.fn(),
-    removeFromCart: vi.fn(),
-    increaseQuantity: vi.fn(),
-    decreaseQuantity: vi.fn(),
-    clearCart: vi.fn(),
-    subtotal: 0,
+    addToCart: vi.fn().mockResolvedValue(undefined),
+    removeFromCart: vi.fn().mockResolvedValue(undefined),
+    increaseQuantity: vi.fn().mockResolvedValue(undefined),
+    decreaseQuantity: vi.fn().mockResolvedValue(undefined),
+    clearCart: vi.fn().mockResolvedValue(undefined),
+    refreshCart: vi.fn().mockResolvedValue(undefined),
   };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('debería mostrar la información del producto', () => {
     render(
@@ -47,16 +53,16 @@ describe('CartItemRow', () => {
       </CartContext.Provider>
     );
 
-    const increaseButton = screen.getByText('+');
+    const increaseButton = screen.getByLabelText('Aumentar cantidad');
     fireEvent.click(increaseButton);
-    expect(mockCartContext.increaseQuantity).toHaveBeenCalledWith('1');
+    expect(mockCartContext.increaseQuantity).toHaveBeenCalledWith(101);
 
-    const decreaseButton = screen.getByText('-');
+    const decreaseButton = screen.getByLabelText('Disminuir cantidad');
     fireEvent.click(decreaseButton);
-    expect(mockCartContext.decreaseQuantity).toHaveBeenCalledWith('1');
+    expect(mockCartContext.decreaseQuantity).toHaveBeenCalledWith(101);
 
     const removeButton = screen.getByRole('button', { name: /Eliminar item/i });
     fireEvent.click(removeButton);
-    expect(mockCartContext.removeFromCart).toHaveBeenCalledWith('1');
+    expect(mockCartContext.removeFromCart).toHaveBeenCalledWith(101);
   });
 });

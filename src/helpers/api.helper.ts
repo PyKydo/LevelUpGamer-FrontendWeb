@@ -1,8 +1,17 @@
 import type { User } from "../hooks/AuthContext";
+import type { CartItem } from "../hooks/CartContext";
 import { apiClient, resolveApiUrl } from "./api.client";
 
 const ensureTrailingSlash = (value: string): string =>
   value.endsWith("/") ? value : `${value}/`;
+
+const toAbsoluteUrl = (path?: string): string | undefined => {
+  if (!path) {
+    return undefined;
+  }
+  const resolved = resolveApiUrl(path);
+  return resolved || path;
+};
 
 const BLOG_ASSETS_BASE_URL = ensureTrailingSlash(
   (typeof import.meta !== "undefined" &&
@@ -18,6 +27,7 @@ export interface ProductSeller {
 }
 
 export interface Product {
+  id: number;
   code: string;
   name: string;
   description: string;
@@ -97,6 +107,21 @@ interface BlogDTO {
   altImagen: string;
 }
 
+interface CartItemDTO {
+  productId: number;
+  productCode?: string;
+  productName: string;
+  price: number;
+  quantity: number;
+  productImageUrl?: string;
+}
+
+interface CartDTO {
+  id: number;
+  items: CartItemDTO[];
+  total: number;
+}
+
 const stripProtocolAndLeadingSlash = (path: string): string =>
   path
     .replace(/^https?:\/\/[^/]+\//i, "")
@@ -157,14 +182,20 @@ const resolveBlogAssetUrl = (
 };
 
 // Mappers
+const DEFAULT_PRODUCT_IMAGE = "https://placehold.co/600x600?text=Producto";
+
 const mapProductDTOtoProduct = (dto: ProductDTO): Product => {
   const images = dto.imagenes ?? [];
+  const resolvedImages = images
+    .map((img) => toAbsoluteUrl(img))
+    .filter((img): img is string => Boolean(img));
   const categoryName =
     typeof dto.categoria === "string"
       ? dto.categoria
       : dto.categoria?.nombre ?? "Sin categoría";
 
   return {
+    id: dto.id,
     code: dto.codigo,
     name: dto.nombre,
     description: dto.descripcion,
@@ -172,8 +203,8 @@ const mapProductDTOtoProduct = (dto: ProductDTO): Product => {
     stock: dto.stock,
     stockCritical: dto.stockCritico,
     category: categoryName,
-    image: images[0] ?? "placeholder.jpg",
-    images,
+    image: resolvedImages[0] ?? DEFAULT_PRODUCT_IMAGE,
+    images: resolvedImages,
     originalPrice: undefined,
     pointsLevelUp: dto.puntosLevelUp,
     active: dto.activo,
@@ -204,6 +235,30 @@ const mapBlogDTOtoBlog = (dto: BlogDTO): Blog => {
   };
 };
 
+type CartImageOverrides = Record<number, string>;
+
+const mapCartItemDTOToCartItem = (
+  dto: CartItemDTO,
+  overrides: CartImageOverrides = {}
+): CartItem => (
+  {
+    id: dto.productCode ?? dto.productId.toString(),
+    productId: dto.productId,
+    name: dto.productName,
+    price: dto.price,
+    quantity: dto.quantity,
+    image:
+      dto.productImageUrl
+        ? resolveApiUrl(dto.productImageUrl)
+        : overrides[dto.productId] ?? DEFAULT_PRODUCT_IMAGE,
+  }
+);
+
+const mapCartDTOToCartItems = (
+  dto: CartDTO,
+  overrides: CartImageOverrides = {}
+): CartItem[] => dto.items?.map((item) => mapCartItemDTOToCartItem(item, overrides)) ?? [];
+
 export const getProducts = async (): Promise<Product[]> => {
   try {
     const response = await apiClient.get<ProductDTO[]>("products");
@@ -218,11 +273,131 @@ export const getProductById = async (
   id: string
 ): Promise<Product | undefined> => {
   try {
+    if (!id) {
+      return undefined;
+    }
+
+    if (/^\d+$/.test(id)) {
+      return getProductByBackendId(Number(id));
+    }
+
     const products = await getProducts();
     return products.find((p) => p.code === id);
   } catch (error) {
     console.error("Error fetching product by id:", error);
     return undefined;
+  }
+};
+
+export const getProductByBackendId = async (
+  backendId: number
+): Promise<Product | undefined> => {
+  if (!backendId && backendId !== 0) {
+    return undefined;
+  }
+
+  try {
+    const response = await apiClient.get<ProductDTO>(`products/${backendId}`);
+    return mapProductDTOtoProduct(response.data);
+  } catch (error) {
+    console.error("Error fetching product by backend id:", error);
+    return undefined;
+  }
+};
+
+export const fetchUserCart = async (
+  userId: string,
+  overrides?: CartImageOverrides
+): Promise<CartItem[]> => {
+  if (!userId) {
+    return [];
+  }
+
+  try {
+    const response = await apiClient.get<CartDTO>(`cart/${userId}`);
+    return mapCartDTOToCartItems(response.data, overrides);
+  } catch (error) {
+    console.error("Error fetching user cart:", error);
+    return [];
+  }
+};
+
+export const addProductToCartApi = async (
+  userId: string,
+  productId: number,
+  quantity = 1,
+  overrides?: CartImageOverrides
+): Promise<CartItem[]> => {
+  if (!userId || !productId) {
+    return [];
+  }
+
+  try {
+    const response = await apiClient.post<CartDTO>(
+      `cart/${userId}/add`,
+      null,
+      {
+        params: { productId, quantity },
+      }
+    );
+    return mapCartDTOToCartItems(response.data, overrides);
+  } catch (error) {
+    console.error("Error adding product to cart:", error);
+    throw error;
+  }
+};
+
+export const removeProductFromCartApi = async (
+  userId: string,
+  productId: number,
+  overrides?: CartImageOverrides
+): Promise<CartItem[]> => {
+  if (!userId || !productId) {
+    return [];
+  }
+
+  try {
+    const response = await apiClient.delete<CartDTO>(
+      `cart/${userId}/remove`,
+      {
+        params: { productId },
+      }
+    );
+    return mapCartDTOToCartItems(response.data, overrides);
+  } catch (error) {
+    console.error("Error removing product from cart:", error);
+    throw error;
+  }
+};
+
+export const setCartItemQuantityApi = async (
+  userId: string,
+  productId: number,
+  quantity: number,
+  overrides?: CartImageOverrides
+): Promise<CartItem[]> => {
+  if (!userId || !productId) {
+    return [];
+  }
+
+  if (quantity <= 0) {
+    return removeProductFromCartApi(userId, productId, overrides);
+  }
+
+  await removeProductFromCartApi(userId, productId, overrides);
+  return addProductToCartApi(userId, productId, quantity, overrides);
+};
+
+export const clearUserCartApi = async (userId: string): Promise<void> => {
+  if (!userId) {
+    return;
+  }
+
+  try {
+    await apiClient.delete(`cart/${userId}`);
+  } catch (error) {
+    console.error("Error clearing cart:", error);
+    throw error;
   }
 };
 

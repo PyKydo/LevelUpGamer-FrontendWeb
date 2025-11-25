@@ -24,7 +24,7 @@ export const CartPage = () => {
 
   const finalTotal = calculateTotal(subtotal, discount);
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (!user) {
       navigate('/login');
       return;
@@ -32,7 +32,7 @@ export const CartPage = () => {
 
     showNotification('¡Pago realizado exitosamente! Gracias por tu compra.', 'success');
 
-    clearCart();
+    await clearCart();
   };
 
   return (

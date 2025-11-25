@@ -1,9 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
+import type { SyntheticEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { IoSearch } from 'react-icons/io5';
 import { useSearch } from '../../hooks/useSearch';
 import { getProducts, type Product } from '../../helpers/api.helper';
 import styles from './SearchBar.module.css';
+
+const THUMB_FALLBACK = 'https://placehold.co/64x64?text=IMG';
 
 export const SearchBar = () => {
     const { searchTerm, setSearchTerm } = useSearch();
@@ -61,6 +64,10 @@ export const SearchBar = () => {
         setSuggestions([]);
     };
 
+    const handleThumbError = (event: SyntheticEvent<HTMLImageElement>) => {
+        event.currentTarget.src = THUMB_FALLBACK;
+    };
+
     return (
         <form
             className="row justify-content-center align-items-center gx-2"
@@ -97,7 +104,13 @@ export const SearchBar = () => {
                                     onClick={handleSuggestionClick}
                                 >
                                     <div className="d-flex align-items-center">
-                                        <img src={`/img/products/${product.image}`} alt={product.name} className={styles.searchThumb} />
+                                        <img
+                                            src={product.image || THUMB_FALLBACK}
+                                            alt={product.name}
+                                            className={styles.searchThumb}
+                                            onError={handleThumbError}
+                                            loading="lazy"
+                                        />
                                         <div>
                                             <h6 className="mb-0">{product.name}</h6>
                                             <small>${product.price.toLocaleString('es-CL')}</small>

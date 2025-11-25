@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 
 export interface CartItem {
   id: string;
+  productId: number;
   name: string;
   price: number;
   image: string;
@@ -11,11 +12,13 @@ export interface CartItem {
 
 export interface CartContextType {
   cart: CartItem[];
-  addToCart: (item: Omit<CartItem, 'quantity'>) => void;
-  removeFromCart: (id: string) => void;
-  increaseQuantity: (id: string) => void;
-  decreaseQuantity: (id: string) => void;
-  clearCart: () => void;
+  loading: boolean;
+  addToCart: (item: Omit<CartItem, 'quantity'>, quantity?: number) => Promise<void>;
+  removeFromCart: (productId: number) => Promise<void>;
+  increaseQuantity: (productId: number) => Promise<void>;
+  decreaseQuantity: (productId: number) => Promise<void>;
+  clearCart: () => Promise<void>;
+  refreshCart: () => Promise<void>;
   totalItems: number;
 }
 

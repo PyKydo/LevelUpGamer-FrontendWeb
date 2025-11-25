@@ -8,6 +8,7 @@ import {
   validatePassword,
 } from '../helpers/validation.helper';
 import { FormFloating } from '../components/common/FormFloating';
+import { FormSelect } from '../components/common/FormSelect';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -97,19 +98,18 @@ export const LoginPage = () => {
                   onChange={(e) => setPassword(e.target.value)}
                 />
 
-                <div className="form-floating mb-3">
-                  <select
-                    className="form-select"
-                    id="role"
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                  >
-                    <option value="CLIENTE">Cliente</option>
-                    <option value="VENDEDOR">Vendedor</option>
-                    <option value="ADMINISTRADOR">Administrador</option>
-                  </select>
-                  <label htmlFor="role">Rol</label>
-                </div>
+                <FormSelect
+                  id="role"
+                  label="Rol"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  floating
+                  options={[
+                    { value: 'CLIENTE', label: 'Cliente' },
+                    { value: 'VENDEDOR', label: 'Vendedor' },
+                    { value: 'ADMINISTRADOR', label: 'Administrador' },
+                  ]}
+                />
 
                 <div className="form-check text-start my-3">
                   <input

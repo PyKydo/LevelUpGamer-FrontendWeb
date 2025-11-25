@@ -41,7 +41,7 @@ describe("Ayudantes de API", () => {
               descripcion: "Cat desc",
               activo: true,
             },
-            imagenes: ["https://cdn.example.com/img.png"],
+            imagenes: ["img/products/prd1.png"],
             puntosLevelUp: 200,
             activo: true,
             vendedor: {
@@ -61,7 +61,7 @@ describe("Ayudantes de API", () => {
       expect(products[0]).toMatchObject({
         code: "PRD-1",
         category: "Accesorios",
-        image: "https://cdn.example.com/img.png",
+        image: resolveApiUrl("img/products/prd1.png"),
         seller: { id: 7, corporate: true },
       });
     });

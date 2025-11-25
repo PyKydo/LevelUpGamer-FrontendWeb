@@ -15,9 +15,21 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
   const { code, name, category, image, description, price, originalPrice } = product;
 
-  const handleAddToCart = () => {
-    const itemToAdd = { id: code, name, price, image, quantity: 1 };
-    addToCart(itemToAdd);
+  const handleAddToCart = async () => {
+    if (typeof product.id !== 'number') {
+      showNotification('No se pudo identificar el producto seleccionado.', 'error');
+      return;
+    }
+
+    const itemToAdd = {
+      id: code,
+      productId: product.id,
+      name,
+      price,
+      image,
+    };
+
+    await addToCart(itemToAdd);
     showNotification(`'${name}' ha sido añadido al carrito.`, 'success');
   };
 
@@ -41,9 +53,10 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       <div className={`${styles.cardBadge} position-absolute ${categoryToClassName(category)}`}>{category}</div>
       <Link to={`/products/${code}`} className="text-decoration-none text-dark">
         <img
-          src={image.startsWith('http') || image.startsWith('/') ? image : `/img/products/${image}`}
+          src={image}
           className={`card-img-top ${styles.productImg}`}
           alt={name}
+          loading="lazy"
         />
       </Link>
       <div className={`card-body d-flex flex-column ${styles.productCardBody}`}>
