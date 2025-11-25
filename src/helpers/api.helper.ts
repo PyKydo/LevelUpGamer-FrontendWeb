@@ -5,11 +5,9 @@ const ensureTrailingSlash = (value: string): string =>
   value.endsWith("/") ? value : `${value}/`;
 
 const BLOG_ASSETS_BASE_URL = ensureTrailingSlash(
-  (
-    (typeof import.meta !== "undefined" &&
-      import.meta.env?.VITE_BLOG_ASSETS_BASE_URL?.trim()) ||
+  (typeof import.meta !== "undefined" &&
+    import.meta.env?.VITE_BLOG_ASSETS_BASE_URL?.trim()) ||
     "https://level-up-gamer.s3.amazonaws.com/"
-  )
 );
 
 export interface ProductSeller {
@@ -133,10 +131,7 @@ const normalizeBlogAssetPath = (
   }
 
   const fileName =
-    sanitized
-      .split("/")
-      .filter(Boolean)
-      .pop() || `blog${blogId}.png`;
+    sanitized.split("/").filter(Boolean).pop() || `blog${blogId}.png`;
 
   return `${blogFolder}${fileName}`;
 };
