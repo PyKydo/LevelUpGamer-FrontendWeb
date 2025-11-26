@@ -31,6 +31,10 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { SellerDashboard } from './pages/seller/SellerDashboard';
 import { AdminProductsPage } from './pages/admin/AdminProductsPage';
+import { AdminUsersPage } from './pages/admin/AdminUsersPage';
+import { AdminBlogsPage } from './pages/admin/AdminBlogsPage';
+import { AdminCategoriesPage } from './pages/admin/AdminCategoriesPage';
+import { AdminReviewsPage } from './pages/admin/AdminReviewsPage';
 
 const router = createBrowserRouter([
   // Public / Client Routes
@@ -63,11 +67,11 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <AdminDashboard /> },
       // Placeholders for CRUD
-      { path: 'users', element: <div className="p-4"><h1>Gestión de Usuarios</h1><p>Próximamente</p></div> },
+      { path: 'users', element: <AdminUsersPage /> },
+      { path: 'blogs', element: <AdminBlogsPage /> },
       { path: 'products', element: <AdminProductsPage /> },
-      { path: 'blogs', element: <div className="p-4"><h1>Gestión de Blogs</h1><p>Próximamente</p></div> },
-      { path: 'categories', element: <div className="p-4"><h1>Gestión de Categorías</h1><p>Próximamente</p></div> },
-      { path: 'reviews', element: <div className="p-4"><h1>Gestión de Reseñas</h1><p>Próximamente</p></div> },
+      { path: 'categories', element: <AdminCategoriesPage /> },
+      { path: 'reviews', element: <AdminReviewsPage /> },
       { path: 'orders', element: <div className="p-4"><h1>Gestión de Boletas</h1><p>Próximamente</p></div> },
     ],
   },

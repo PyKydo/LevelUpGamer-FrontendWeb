@@ -1,6 +1,6 @@
 import { useAuth } from '../../hooks/useAuth';
 import { Link } from 'react-router-dom';
-import { FaUsers, FaBoxOpen, FaNewspaper, FaChartLine } from 'react-icons/fa6';
+import { FaUsers, FaBoxOpen, FaNewspaper, FaChartLine, FaTags, FaComments } from 'react-icons/fa6';
 import dashboardStyles from '../dashboard/Dashboard.module.css';
 
 type Accent = 'Primary' | 'Success' | 'Warning' | 'Info';
@@ -27,30 +27,48 @@ const adminActions = [
         Icon: FaUsers,
         accent: 'Primary' as Accent,
         ctaLabel: 'Gestionar usuarios',
-        disabled: true,
+        to: '/admin/users',
     },
     {
         key: 'catalog',
-        title: 'Inventario Global',
-        description: 'Audita catálogos y coordina cargas entre equipos.',
+        title: 'Productos',
+        description: 'Gestiona catálogos y actualiza información sobre los productos.',
         Icon: FaBoxOpen,
         accent: 'Success' as Accent,
         ctaLabel: 'Revisar inventario',
-        to: '/seller',
+        to: '/admin/products',
     },
     {
         key: 'content',
-        title: 'Blog & Noticias',
+        title: 'Blogs',
         description: 'Publica novedades, guías y comunicados oficiales.',
         Icon: FaNewspaper,
         accent: 'Warning' as Accent,
-        ctaLabel: 'Abrir gestor (pronto)',
-        disabled: true,
+        ctaLabel: 'Gestionar blogs',
+        to: '/admin/blogs',
+    },
+    {
+        key: 'categories',
+        title: 'Categorias',
+        description: 'Mantén alineados filtros y jerarquías del catálogo.',
+        Icon: FaTags,
+        accent: 'Info' as Accent,
+        ctaLabel: 'Gestionar categorías',
+        to: '/admin/categories',
+    },
+    {
+        key: 'reviews',
+        title: 'Reseñas',
+        description: 'Modera testimonios y resalta experiencias reales.',
+        Icon: FaComments,
+        accent: 'Warning' as Accent,
+        ctaLabel: 'Revisar reseñas',
+        to: '/admin/reviews',
     },
     {
         key: 'reports',
-        title: 'Reportes & Ventas',
-        description: 'Visualiza métricas, desempeño y proyecciones.',
+        title: 'Boletas',
+        description: 'Visualiza los pedidos realizados por los usuarios.',
         Icon: FaChartLine,
         accent: 'Info' as Accent,
         ctaLabel: 'Ver reportes (pronto)',

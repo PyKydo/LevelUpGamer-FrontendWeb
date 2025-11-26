@@ -475,13 +475,21 @@ export const AdminProductsPage = () => {
                             </div>
                           </div>
                         </td>
-                        <td>{product.code}</td>
+                        <td>
+                          <span className={`${dashboardStyles.tableValue} ${dashboardStyles.tableCode}`}>
+                            {product.code}
+                          </span>
+                        </td>
                         <td>
                           <span className={`${dashboardStyles.tableBadge} ${dashboardStyles.badgeNeutral}`}>
                             {product.category}
                           </span>
                         </td>
-                        <td>{formatCurrency(product.price)}</td>
+                        <td>
+                          <span className={`${dashboardStyles.tableValue} ${dashboardStyles.tablePrice}`}>
+                            {formatCurrency(product.price)}
+                          </span>
+                        </td>
                         <td>
                           <span className={`${dashboardStyles.tableBadge} ${stockBadge}`}>
                             {product.stock} ud.

@@ -233,10 +233,14 @@
   color: var(--secondary-color);
 }
 
-.tableCode,
-.tablePrice {
+.tableValue {
   font-weight: 600;
-  color: var(--primary-color);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.tableCode {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .tablePrice {

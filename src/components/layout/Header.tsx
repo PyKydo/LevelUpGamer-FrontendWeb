@@ -8,7 +8,7 @@ import { SearchBar } from '../common/SearchBar';
 
 export const Header = () => {
   const { totalItems } = useCart();
-  const { user, logout, isAdmin, isSeller } = useAuth();
+  const { user, logout } = useAuth();
   const [isNavCollapsed, setIsNavCollapsed] = useState(true);
 
   const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
@@ -43,13 +43,6 @@ export const Header = () => {
               <li className="nav-item"><Link to="/about" className="nav-link about-item" onClick={closeNav}>Nosotros</Link></li>
               <li className="nav-item"><Link to="/blog" className="nav-link blogs-item" onClick={closeNav}>Blogs</Link></li>
               <li className="nav-item"><Link to="/contact" className="nav-link contact-item" onClick={closeNav}>Contacto</Link></li>
-
-              {isAdmin && (
-                <li className="nav-item"><Link to="/admin" className="nav-link" onClick={closeNav}>Administración</Link></li>
-              )}
-              {isSeller && (
-                <li className="nav-item"><Link to="/seller" className="nav-link" onClick={closeNav}>Ventas</Link></li>
-              )}
 
               <li className="nav-item d-lg-none"><Link to="/cart" className="nav-link" onClick={closeNav}>Carrito ({totalItems})</Link></li>
               {user ? (

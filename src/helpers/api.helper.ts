@@ -55,6 +55,28 @@ export interface CreateProductPayload {
   active?: boolean;
 }
 
+export interface ProductCategory {
+  id: number;
+  code: string;
+  name: string;
+  description: string;
+  active: boolean;
+}
+
+export interface CreateCategoryPayload {
+  code: string;
+  name: string;
+  description?: string;
+  active?: boolean;
+}
+
+export interface UpdateCategoryPayload {
+  code?: string;
+  name?: string;
+  description?: string;
+  active?: boolean;
+}
+
 export interface ProductReview {
   id: number;
   productId: number;
@@ -62,12 +84,20 @@ export interface ProductReview {
   text: string;
   userName: string;
   createdAt: string;
+  productName?: string;
+  visible?: boolean;
 }
 
 export interface CreateReviewPayload {
   productId: number;
   text: string;
   rating: number;
+}
+
+export interface UpdateReviewPayload {
+  text?: string;
+  rating?: number;
+  visible?: boolean;
 }
 
 export interface OrderDetail {
@@ -105,6 +135,42 @@ export interface UserSummary {
   role: string;
 }
 
+export interface UserDetail {
+  id: number;
+  run?: string;
+  name: string;
+  lastName: string;
+  fullName: string;
+  email: string;
+  birthdate?: string;
+  address?: string;
+  region?: string;
+  commune?: string;
+  role: string;
+}
+
+export interface CreateUserPayload {
+  run: string;
+  name: string;
+  lastName: string;
+  email: string;
+  password: string;
+  birthdate: string;
+  region: string;
+  commune: string;
+  address: string;
+  role: string;
+  referralCode?: string;
+}
+
+export interface UpdateUserPayload {
+  name?: string;
+  lastName?: string;
+  region?: string;
+  commune?: string;
+  address?: string;
+}
+
 export interface ProductUpdatePayload {
   name?: string;
   description?: string;
@@ -127,6 +193,39 @@ export interface Blog {
   author: string;
   date: string;
   content_path: string;
+}
+
+export interface AdminBlog {
+  id: number;
+  title: string;
+  author: string;
+  summary: string;
+  publishedAt: string;
+  contentPath: string;
+  imagePath?: string;
+  altText?: string;
+  imageUrl: string;
+  contentUrl: string;
+}
+
+export interface CreateBlogPayload {
+  title: string;
+  author: string;
+  summary: string;
+  publishedAt: string;
+  contentPath: string;
+  imagePath?: string;
+  altText?: string;
+}
+
+export interface UpdateBlogPayload {
+  title?: string;
+  author?: string;
+  summary?: string;
+  publishedAt?: string;
+  contentPath?: string;
+  imagePath?: string;
+  altText?: string;
 }
 
 export interface Region {
@@ -201,6 +300,8 @@ interface ReviewDTO {
   id: number;
   productoId?: number;
   productId?: number;
+  productoNombre?: string;
+  productName?: string;
   texto?: string;
   text?: string;
   calificacion?: number;
@@ -209,6 +310,9 @@ interface ReviewDTO {
   userName?: string;
   createdAt?: string;
   fechaCreacion?: string;
+  visible?: boolean;
+  aprobado?: boolean;
+  estado?: string;
 }
 
 interface BoletaDetalleDTO {
@@ -268,6 +372,8 @@ interface UserProfileDTO {
   direccion: string;
   region: string;
   comuna: string;
+  rol?: string;
+  role?: string;
 }
 
 const stripProtocolAndLeadingSlash = (path: string): string =>
@@ -336,6 +442,15 @@ const mapReviewDTOToReview = (dto: ReviewDTO): ProductReview => ({
   text: dto.text ?? dto.texto ?? "",
   userName: dto.userName ?? dto.nombreUsuario ?? "Usuario",
   createdAt: dto.createdAt ?? dto.fechaCreacion ?? new Date().toISOString(),
+  productName: dto.productName ?? dto.productoNombre,
+  visible:
+    typeof dto.visible === "boolean"
+      ? dto.visible
+      : typeof dto.aprobado === "boolean"
+      ? dto.aprobado
+      : dto.estado
+      ? dto.estado.toUpperCase() !== "RECHAZADA"
+      : undefined,
 });
 
 const mapOrderDetailDTO = (dto: BoletaDetalleDTO): OrderDetail => ({
@@ -369,6 +484,23 @@ const mapUserDTOToSummary = (dto: UserDTO): UserSummary => ({
   ),
   email: dto.correo ?? dto.email ?? "",
   role: (dto.rol ?? dto.role ?? "CLIENTE").toUpperCase(),
+});
+
+const mapUserProfileDTOToDetail = (
+  dto: UserProfileDTO,
+  overrides?: Partial<UserDetail>
+): UserDetail => ({
+  id: dto.id,
+  run: dto.run,
+  name: dto.nombre ?? "",
+  lastName: dto.apellidos ?? "",
+  fullName: buildFullName(dto.nombre, dto.apellidos),
+  email: dto.correo ?? "",
+  birthdate: dto.fechaNacimiento,
+  address: dto.direccion,
+  region: dto.region,
+  commune: dto.comuna,
+  role: (overrides?.role ?? dto.rol ?? dto.role ?? "CLIENTE").toUpperCase(),
 });
 
 const serializeProductUpdatePayload = (
@@ -421,6 +553,7 @@ const serializeProductUpdatePayload = (
 
 // Mappers
 const DEFAULT_PRODUCT_IMAGE = "https://placehold.co/600x600?text=Producto";
+const DEFAULT_BLOG_IMAGE = "https://placehold.co/1200x600?text=Blog";
 
 const mapProductDTOtoProduct = (dto: ProductDTO): Product => {
   const images = dto.imagenes ?? [];
@@ -456,6 +589,14 @@ const mapProductDTOtoProduct = (dto: ProductDTO): Product => {
       : undefined,
   };
 };
+
+const mapCategoryDTOToCategory = (dto: CategoryDTO): ProductCategory => ({
+  id: dto.id,
+  code: dto.codigo,
+  name: dto.nombre,
+  description: dto.descripcion ?? "",
+  active: dto.activo ?? true,
+});
 
 const productNameCollator = new Intl.Collator("es", { sensitivity: "base" });
 
@@ -495,21 +636,52 @@ const mapCreateProductPayloadToRequest = (
   return body;
 };
 
-const mapBlogDTOtoBlog = (dto: BlogDTO): Blog => {
+const mapBlogDTOtoAdminBlog = (dto: BlogDTO): AdminBlog => {
   const imageUrl = resolveBlogAssetUrl(dto.imagenUrl, dto.id, "image");
   const contentUrl = resolveBlogAssetUrl(dto.contenidoUrl, dto.id, "content");
 
   return {
-    id: dto.id.toString(),
+    id: dto.id,
     title: dto.titulo,
-    image: imageUrl || "https://placehold.co/1200x600?text=Blog",
-    alt: dto.altImagen,
-    summary: dto.descripcionCorta,
     author: dto.autor,
-    date: dto.fechaPublicacion,
-    content_path: contentUrl,
+    summary: dto.descripcionCorta,
+    publishedAt: dto.fechaPublicacion,
+    contentPath: dto.contenidoUrl,
+    imagePath: dto.imagenUrl,
+    altText: dto.altImagen,
+    imageUrl: imageUrl || DEFAULT_BLOG_IMAGE,
+    contentUrl,
   };
 };
+
+const mapBlogDTOtoBlog = (dto: BlogDTO): Blog => {
+  const adminBlog = mapBlogDTOtoAdminBlog(dto);
+
+  return {
+    id: adminBlog.id.toString(),
+    title: adminBlog.title,
+    image: adminBlog.imageUrl,
+    alt: adminBlog.altText ?? "",
+    summary: adminBlog.summary,
+    author: adminBlog.author,
+    date: adminBlog.publishedAt,
+    content_path: adminBlog.contentUrl,
+  };
+};
+
+const parseBlogDate = (value: string): number => {
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? timestamp : 0;
+};
+
+export const sortBlogsByPublishedDate = (list: AdminBlog[]): AdminBlog[] =>
+  [...list].sort((a, b) => {
+    const diff = parseBlogDate(b.publishedAt) - parseBlogDate(a.publishedAt);
+    if (diff !== 0) {
+      return diff;
+    }
+    return a.title.localeCompare(b.title, "es", { sensitivity: "base" });
+  });
 
 type CartImageOverrides = Record<number, string>;
 
@@ -645,6 +817,100 @@ export const createProductReview = async (
   }
 };
 
+export const getAllProductReviews = async (
+  productList?: Product[]
+): Promise<ProductReview[]> => {
+  try {
+    const products = productList ?? (await getProducts());
+    if (!products.length) {
+      return [];
+    }
+
+    const reviewGroups = await Promise.all(
+      products.map(async (product) => {
+        try {
+          const productReviews = await getProductReviews(product.id);
+          return productReviews.map((review) => ({
+            ...review,
+            productName: review.productName ?? product.name,
+          }));
+        } catch (error) {
+          console.error(
+            `Error fetching reviews for product ${product.id}:`,
+            error
+          );
+          return [] as ProductReview[];
+        }
+      })
+    );
+
+    const flattened = reviewGroups.flat();
+    return flattened.sort((a, b) => {
+      const aDate = a.createdAt ? Date.parse(a.createdAt) : 0;
+      const bDate = b.createdAt ? Date.parse(b.createdAt) : 0;
+      if (Number.isNaN(aDate) || Number.isNaN(bDate)) {
+        return 0;
+      }
+      return bDate - aDate;
+    });
+  } catch (error) {
+    console.error("Error fetching product reviews:", error);
+    return [];
+  }
+};
+
+export const updateAdminReview = async (
+  reviewId: number,
+  payload: UpdateReviewPayload
+): Promise<ProductReview | null> => {
+  if (!reviewId) {
+    return null;
+  }
+
+  const requestBody: Record<string, unknown> = {};
+
+  if (payload.text !== undefined) {
+    requestBody.texto = payload.text.trim();
+  }
+
+  if (payload.rating !== undefined) {
+    requestBody.calificacion = payload.rating;
+  }
+
+  if (payload.visible !== undefined) {
+    requestBody.visible = payload.visible;
+  }
+
+  if (!Object.keys(requestBody).length) {
+    console.warn("No hay cambios para la reseña");
+    return null;
+  }
+
+  try {
+    const response = await apiClient.put<ReviewDTO>(
+      `reviews/${reviewId}`,
+      requestBody
+    );
+    return mapReviewDTOToReview(response.data);
+  } catch (error) {
+    console.error("Error updating admin review:", error);
+    throw error;
+  }
+};
+
+export const deleteAdminReview = async (reviewId: number): Promise<void> => {
+  if (!reviewId) {
+    return;
+  }
+
+  try {
+    await apiClient.delete(`reviews/${reviewId}`);
+  } catch (error) {
+    console.error("Error deleting admin review:", error);
+    throw error;
+  }
+};
+
 export const updateProduct = async (
   productId: number,
   payload: ProductUpdatePayload
@@ -680,6 +946,96 @@ export const deleteProduct = async (productId: number): Promise<void> => {
     await apiClient.delete(`products/${productId}`);
   } catch (error) {
     console.error("Error deleting product:", error);
+    throw error;
+  }
+};
+
+export const getProductCategories = async (): Promise<ProductCategory[]> => {
+  try {
+    const response = await apiClient.get<CategoryDTO[]>("categories");
+    return response.data?.map(mapCategoryDTOToCategory) ?? [];
+  } catch (error) {
+    console.error("Error fetching product categories:", error);
+    return [];
+  }
+};
+
+export const createProductCategory = async (
+  payload: CreateCategoryPayload
+): Promise<ProductCategory> => {
+  const requestBody = {
+    codigo: payload.code.trim(),
+    nombre: payload.name.trim(),
+    descripcion: payload.description?.trim() ?? "",
+    activo: payload.active ?? true,
+  };
+
+  try {
+    const response = await apiClient.post<CategoryDTO>(
+      "categories",
+      requestBody
+    );
+    return mapCategoryDTOToCategory(response.data);
+  } catch (error) {
+    console.error("Error creating product category:", error);
+    throw error;
+  }
+};
+
+export const updateProductCategory = async (
+  categoryId: number,
+  payload: UpdateCategoryPayload
+): Promise<ProductCategory | null> => {
+  if (!categoryId) {
+    return null;
+  }
+
+  const requestBody: Record<string, unknown> = {};
+
+  if (payload.code !== undefined) {
+    requestBody.codigo = payload.code.trim();
+  }
+
+  if (payload.name !== undefined) {
+    requestBody.nombre = payload.name.trim();
+  }
+
+  if (payload.description !== undefined) {
+    requestBody.descripcion = payload.description.trim();
+  }
+
+  if (payload.active !== undefined) {
+    requestBody.activo = payload.active;
+  }
+
+  if (!Object.keys(requestBody).length) {
+    console.warn("No hay cambios para la categoría");
+    return null;
+  }
+
+  try {
+    const response = await apiClient.put<CategoryDTO>(
+      `categories/${categoryId}`,
+      requestBody
+    );
+    return mapCategoryDTOToCategory(response.data);
+  } catch (error) {
+    console.error("Error updating product category:", error);
+    throw error;
+  }
+};
+
+export const deleteProductCategory = async (
+  categoryId: number
+): Promise<void> => {
+  if (!categoryId) {
+    return;
+  }
+
+  try {
+    await apiClient.delete(`categories/${categoryId}`);
+  } catch (error) {
+    console.error("Error deleting product category:", error);
     throw error;
   }
 };
@@ -841,6 +1197,163 @@ export const getUsers = async (): Promise<UserSummary[]> => {
   }
 };
 
+export const sortUsersByName = (list: UserSummary[]): UserSummary[] =>
+  [...list].sort((a, b) =>
+    a.fullName.localeCompare(b.fullName, "es", { sensitivity: "base" })
+  );
+
+const serializeCreateUserPayload = (
+  payload: CreateUserPayload
+): Record<string, unknown> => ({
+  run: payload.run,
+  nombre: payload.name,
+  apellidos: payload.lastName,
+  correo: payload.email,
+  contrasena: payload.password,
+  fechaNacimiento: payload.birthdate,
+  region: payload.region,
+  comuna: payload.commune,
+  direccion: payload.address,
+  rol: payload.role,
+  codigoReferido: payload.referralCode?.trim() || undefined,
+});
+
+const serializeUpdateUserPayload = (
+  payload: UpdateUserPayload
+): Record<string, unknown> => {
+  const body: Record<string, unknown> = {};
+
+  if (payload.name !== undefined) {
+    body.nombre = payload.name;
+  }
+
+  if (payload.lastName !== undefined) {
+    body.apellidos = payload.lastName;
+  }
+
+  if (payload.region !== undefined) {
+    body.region = payload.region;
+  }
+
+  if (payload.commune !== undefined) {
+    body.comuna = payload.commune;
+  }
+
+  if (payload.address !== undefined) {
+    body.direccion = payload.address;
+  }
+
+  return body;
+};
+
+const serializeBlogPayload = (
+  payload: CreateBlogPayload | UpdateBlogPayload
+): Record<string, unknown> => {
+  const body: Record<string, unknown> = {};
+
+  if (payload.title !== undefined) {
+    body.titulo = payload.title;
+  }
+
+  if (payload.author !== undefined) {
+    body.autor = payload.author;
+  }
+
+  if (payload.summary !== undefined) {
+    body.descripcionCorta = payload.summary;
+  }
+
+  if (payload.publishedAt !== undefined) {
+    body.fechaPublicacion = payload.publishedAt;
+  }
+
+  if (payload.contentPath !== undefined) {
+    body.contenidoUrl = payload.contentPath;
+  }
+
+  if (payload.imagePath !== undefined) {
+    body.imagenUrl = payload.imagePath;
+  }
+
+  if (payload.altText !== undefined) {
+    body.altImagen = payload.altText;
+  }
+
+  return body;
+};
+
+const serializeCreateBlogPayload = (
+  payload: CreateBlogPayload
+): Record<string, unknown> => serializeBlogPayload(payload);
+
+const serializeUpdateBlogPayload = (
+  payload: UpdateBlogPayload
+): Record<string, unknown> => serializeBlogPayload(payload);
+
+export const getUserById = async (
+  userId: number
+): Promise<UserDetail | null> => {
+  if (!userId) {
+    return null;
+  }
+  try {
+    const response = await apiClient.get<UserProfileDTO>(`users/${userId}`);
+    return mapUserProfileDTOToDetail(response.data);
+  } catch (error) {
+    console.error("Error fetching user detail:", error);
+    return null;
+  }
+};
+
+export const createUser = async (
+  payload: CreateUserPayload
+): Promise<UserDetail> => {
+  const response = await apiClient.post<UserProfileDTO>(
+    "users/admin",
+    serializeCreateUserPayload(payload)
+  );
+  return mapUserProfileDTOToDetail(response.data, { role: payload.role });
+};
+
+export const updateUser = async (
+  userId: number,
+  payload: UpdateUserPayload
+): Promise<UserDetail | null> => {
+  if (!userId) {
+    return null;
+  }
+  try {
+    const response = await apiClient.put<UserProfileDTO>(
+      `users/${userId}`,
+      serializeUpdateUserPayload(payload)
+    );
+    return mapUserProfileDTOToDetail(response.data);
+  } catch (error) {
+    console.error("Error updating user:", error);
+    throw error;
+  }
+};
+
+export const deleteUser = async (userId: number): Promise<void> => {
+  if (!userId) {
+    return;
+  }
+  await apiClient.delete(`users/${userId}`);
+};
+
+const DEFAULT_USER_ROLES = ["ADMINISTRADOR", "VENDEDOR", "CLIENTE"];
+
+export const getUserRoles = async (): Promise<string[]> => {
+  try {
+    const response = await apiClient.get<string[]>("users/roles");
+    const roles = response.data?.map((role) => role.toUpperCase()) ?? [];
+    return roles.length ? roles : DEFAULT_USER_ROLES;
+  } catch (error) {
+    console.error("Error fetching user roles:", error);
+    return DEFAULT_USER_ROLES;
+  }
+};
+
 export const getSellers = async (): Promise<UserSummary[]> => {
   const users = await getUsers();
   return users.filter((user) => user.role === "VENDEDOR");
@@ -853,6 +1366,97 @@ export const getBlogPosts = async (): Promise<Blog[]> => {
   } catch (error) {
     console.error("Error fetching blog posts:", error);
     return [];
+  }
+};
+
+export const getAdminBlogs = async (): Promise<AdminBlog[]> => {
+  try {
+    const response = await apiClient.get<BlogDTO[]>("blog-posts");
+    const mapped = response.data.map(mapBlogDTOtoAdminBlog);
+    return sortBlogsByPublishedDate(mapped);
+  } catch (error) {
+    console.error("Error fetching admin blog posts:", error);
+    return [];
+  }
+};
+
+export const getAdminBlogById = async (
+  blogId: number
+): Promise<AdminBlog | null> => {
+  if (!blogId) {
+    return null;
+  }
+
+  try {
+    const response = await apiClient.get<BlogDTO>(`blog-posts/${blogId}`);
+    return mapBlogDTOtoAdminBlog(response.data);
+  } catch (error) {
+    console.error("Error fetching admin blog detail:", error);
+    return null;
+  }
+};
+
+export const createBlogPost = async (
+  payload: CreateBlogPayload,
+  imageFile?: File
+): Promise<AdminBlog> => {
+  try {
+    const formData = new FormData();
+    const blogBody = serializeCreateBlogPayload(payload);
+    const blogBlob = new Blob([JSON.stringify(blogBody)], {
+      type: "application/json",
+    });
+
+    formData.append("blog", blogBlob);
+
+    if (imageFile) {
+      formData.append("imagen", imageFile);
+    }
+
+    const response = await apiClient.post<BlogDTO>("blog-posts", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    return mapBlogDTOtoAdminBlog(response.data);
+  } catch (error) {
+    console.error("Error creating blog post:", error);
+    throw error;
+  }
+};
+
+export const updateBlogPost = async (
+  blogId: number,
+  payload: UpdateBlogPayload
+): Promise<AdminBlog | null> => {
+  if (!blogId) {
+    return null;
+  }
+
+  const body = serializeUpdateBlogPayload(payload);
+  if (!Object.keys(body).length) {
+    console.warn("No se proporcionaron campos para actualizar el blog");
+    return null;
+  }
+
+  try {
+    const response = await apiClient.put<BlogDTO>(`blog-posts/${blogId}`, body);
+    return mapBlogDTOtoAdminBlog(response.data);
+  } catch (error) {
+    console.error("Error updating blog post:", error);
+    throw error;
+  }
+};
+
+export const deleteBlogPost = async (blogId: number): Promise<void> => {
+  if (!blogId) {
+    return;
+  }
+
+  try {
+    await apiClient.delete(`blog-posts/${blogId}`);
+  } catch (error) {
+    console.error("Error deleting blog post:", error);
+    throw error;
   }
 };
 
