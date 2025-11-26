@@ -34,6 +34,10 @@ const updateActiveBaseUrl = (nextIndex: number): void => {
 export const getActiveApiBaseUrl = (): string => activeBaseUrl;
 export const getActiveApiRootUrl = (): string => activeRootUrl;
 
+export const resetActiveApiBaseUrl = (): void => {
+  updateActiveBaseUrl(0);
+};
+
 export const apiClient = axios.create({
   baseURL: activeBaseUrl,
   headers: {

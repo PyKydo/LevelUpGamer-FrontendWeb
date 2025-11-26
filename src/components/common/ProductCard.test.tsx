@@ -1,11 +1,12 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { ProductCard } from './ProductCard';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { CartContext } from '../../hooks/CartContext';
 import { NotificationProvider } from '../../hooks/NotificationProvider';
 
 const mockProduct = {
+  id: 99,
   code: '1',
   name: 'Test Product',
   category: 'Test Category',
@@ -26,6 +27,10 @@ describe('ProductCard', () => {
     totalItems: 0,
   };
 
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('debería mostrar el nombre y el precio del producto', () => {
     render(
       <MemoryRouter>
@@ -44,7 +49,7 @@ describe('ProductCard', () => {
     expect(priceElement).toBeDefined();
   });
 
-  it('debería llamar a addToCart cuando se hace clic en el botón', () => {
+  it('debería llamar a addToCart cuando se hace clic en el botón', async () => {
     window.alert = vi.fn();
     render(
       <MemoryRouter>
@@ -56,8 +61,10 @@ describe('ProductCard', () => {
       </MemoryRouter>
     );
 
-    const addButton = screen.getByText(/Agregar/i);
-    fireEvent.click(addButton);
+    const addButton = screen.getByRole('button', { name: /agregar al carrito/i });
+    await act(async () => {
+      fireEvent.click(addButton);
+    });
 
     expect(mockCartContext.addToCart).toHaveBeenCalled();
   });
