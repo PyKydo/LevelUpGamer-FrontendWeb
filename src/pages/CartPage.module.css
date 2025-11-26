@@ -8,3 +8,50 @@
 .summaryCardBody {
   padding: 1.25rem;
 }
+
+.modalContent {
+  background-color: var(--card-bg, #1f1f1f);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  border-radius: var(--card-radius, 0.75rem);
+  box-shadow: var(--card-shadow, 0 10px 30px rgba(0, 0, 0, 0.45));
+}
+
+.modalHeader {
+  border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+}
+
+.modalFooter {
+  border-top: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+}
+
+.modalBadge {
+  color: var(--muted-text, rgba(255, 255, 255, 0.6));
+  font-size: 0.85rem;
+}
+
+.receiptCard {
+  border: 1px dashed var(--border-color, rgba(255, 255, 255, 0.2));
+  border-radius: var(--card-radius, 0.75rem);
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.receiptList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.receiptList li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.95rem;
+}
+
+.receiptTotal {
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin-top: 0.5rem;
+}

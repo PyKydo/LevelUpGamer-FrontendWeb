@@ -112,6 +112,12 @@ export interface Order {
   number?: string;
   issuedAt?: string;
   total: number;
+  status?: string;
+  clientId?: number;
+  clientName?: string;
+  clientEmail?: string;
+  couponCode?: string;
+  pointsAwarded?: number;
   details: OrderDetail[];
 }
 
@@ -327,6 +333,20 @@ interface BoletaDetalleDTO {
   precioUnitario?: number;
   unitPrice?: number;
   precio?: number;
+  subtotal?: number;
+  total?: number;
+  monto?: number;
+}
+
+interface BoletaClientDTO {
+  id?: number;
+  usuarioId?: number;
+  nombre?: string;
+  name?: string;
+  apellidos?: string;
+  lastName?: string;
+  correo?: string;
+  email?: string;
 }
 
 interface BoletaDTO {
@@ -341,6 +361,27 @@ interface BoletaDTO {
   montoTotal?: number;
   detalles?: BoletaDetalleDTO[];
   details?: BoletaDetalleDTO[];
+  estado?: string;
+  status?: string;
+  estadoActual?: string;
+  estadoBoleta?: string;
+  estadoPago?: string;
+  historialEstados?: Array<{ estado?: string }>;
+  cliente?: BoletaClientDTO | number;
+  clienteId?: number;
+  usuario?: BoletaClientDTO;
+  user?: BoletaClientDTO;
+  comprador?: BoletaClientDTO;
+  clienteNombre?: string;
+  usuarioNombre?: string;
+  nombreCliente?: string;
+  clienteCorreo?: string;
+  emailCliente?: string;
+  cuponCodigo?: string;
+  couponCode?: string;
+  codigoCupon?: string;
+  puntosOtorgados?: number;
+  pointsAwarded?: number;
 }
 
 interface UserDTO {
@@ -461,19 +502,134 @@ const mapOrderDetailDTO = (dto: BoletaDetalleDTO): OrderDetail => ({
   unitPrice: dto.unitPrice ?? dto.precioUnitario ?? dto.precio ?? 0,
 });
 
-const mapBoletaDTOToOrder = (dto: BoletaDTO): Order => ({
-  id: dto.id,
-  number: dto.numero ?? dto.number ?? dto.codigo,
-  issuedAt: dto.fechaEmision ?? dto.fecha ?? dto.createdAt,
-  total: dto.total ?? dto.montoTotal ?? 0,
-  details: (dto.detalles ?? dto.details ?? []).map(mapOrderDetailDTO),
-});
+const mapBoletaDTOToOrder = (dto: BoletaDTO): Order => {
+  const client = resolveBoletaClient(dto);
+  const status = normalizeOrderStatus(
+    dto.estado ??
+      dto.status ??
+      dto.estadoActual ??
+      dto.estadoBoleta ??
+      dto.estadoPago ??
+      (Array.isArray(dto.historialEstados)
+        ? dto.historialEstados.at(-1)?.estado
+        : undefined)
+  );
+
+  return {
+    id: dto.id,
+    number: dto.numero ?? dto.number ?? dto.codigo,
+    issuedAt: dto.fechaEmision ?? dto.fecha ?? dto.createdAt,
+    total: dto.total ?? dto.montoTotal ?? 0,
+    status,
+    clientId: client.id,
+    clientName: client.name,
+    clientEmail: client.email,
+    couponCode: dto.couponCode ?? dto.cuponCodigo ?? dto.codigoCupon,
+    pointsAwarded: dto.pointsAwarded ?? dto.puntosOtorgados,
+    details: (dto.detalles ?? dto.details ?? []).map(mapOrderDetailDTO),
+  };
+};
 
 const buildFullName = (nombre?: string, apellidos?: string): string => {
   const parts = [nombre ?? "", apellidos ?? ""]
     .map((value) => value?.trim())
     .filter(Boolean);
   return parts.join(" ") || nombre || apellidos || "Usuario";
+};
+
+const normalizeOrderStatus = (status?: string): string | undefined => {
+  if (!status) {
+    return undefined;
+  }
+
+  const normalized = status
+    .replace(/[_\-]+/g, " ")
+    .trim()
+    .toUpperCase();
+
+  if (normalized === "PREPARACIÓN") {
+    return "PREPARACION";
+  }
+
+  switch (normalized) {
+    case "PENDIENTE":
+    case "PAGADA":
+    case "PREPARACION":
+    case "DESPACHADA":
+    case "ENTREGADA":
+    case "CANCELADA":
+    case "EMITIDA":
+      return normalized;
+    default:
+      return normalized;
+  }
+};
+
+const resolveBoletaClient = (
+  dto: BoletaDTO
+): { id?: number; name?: string; email?: string } => {
+  let clientRecord: BoletaClientDTO | null = null;
+
+  if (dto.cliente && typeof dto.cliente === "object") {
+    clientRecord = dto.cliente;
+  } else if (dto.usuario && typeof dto.usuario === "object") {
+    clientRecord = dto.usuario;
+  } else if (dto.user && typeof dto.user === "object") {
+    clientRecord = dto.user;
+  } else if (dto.comprador && typeof dto.comprador === "object") {
+    clientRecord = dto.comprador;
+  }
+
+  const idCandidate =
+    (typeof dto.cliente === "number" ? dto.cliente : undefined) ??
+    clientRecord?.id ??
+    clientRecord?.usuarioId ??
+    dto.clienteId;
+
+  const nameFromRecord = clientRecord
+    ? buildFullName(
+        clientRecord.nombre ?? clientRecord.name,
+        clientRecord.apellidos ?? clientRecord.lastName
+      )
+    : undefined;
+
+  const fallbackName =
+    dto.clienteNombre ?? dto.usuarioNombre ?? dto.nombreCliente ?? undefined;
+
+  const emailFromRecord = clientRecord?.correo ?? clientRecord?.email;
+  const fallbackEmail = dto.clienteCorreo ?? dto.emailCliente ?? undefined;
+
+  return {
+    id: idCandidate,
+    name: nameFromRecord || fallbackName,
+    email: emailFromRecord || fallbackEmail,
+  };
+};
+
+const normalizeRole = (role?: string): string => {
+  if (!role) {
+    return "CLIENTE";
+  }
+
+  const cleaned = role
+    .replace(/^ROL(?:E)?[_-]?/i, "")
+    .replace(/^ROLE[_-]?/i, "")
+    .trim();
+  const upper = cleaned.toUpperCase();
+
+  if (upper.includes("ADMIN")) {
+    return "ADMINISTRADOR";
+  }
+
+  if (upper.includes("VEND")) {
+    return "VENDEDOR";
+  }
+
+  if (upper.includes("CLIENT")) {
+    return "CLIENTE";
+  }
+
+  return upper || "CLIENTE";
 };
 
 const mapUserDTOToSummary = (dto: UserDTO): UserSummary => ({
@@ -483,7 +639,7 @@ const mapUserDTOToSummary = (dto: UserDTO): UserSummary => ({
     dto.apellidos ?? dto.lastName
   ),
   email: dto.correo ?? dto.email ?? "",
-  role: (dto.rol ?? dto.role ?? "CLIENTE").toUpperCase(),
+  role: normalizeRole(dto.rol ?? dto.role ?? "CLIENTE"),
 });
 
 const mapUserProfileDTOToDetail = (
@@ -500,7 +656,7 @@ const mapUserProfileDTOToDetail = (
   address: dto.direccion,
   region: dto.region,
   commune: dto.comuna,
-  role: (overrides?.role ?? dto.rol ?? dto.role ?? "CLIENTE").toUpperCase(),
+  role: normalizeRole(overrides?.role ?? dto.rol ?? dto.role ?? "CLIENTE"),
 });
 
 const serializeProductUpdatePayload = (
@@ -1183,6 +1339,63 @@ export const createOrder = async (
     return mapBoletaDTOToOrder(response.data);
   } catch (error) {
     console.error("Error creating order:", error);
+    throw error;
+  }
+};
+
+export const getAllOrders = async (): Promise<Order[]> => {
+  try {
+    const response = await apiClient.get<BoletaDTO[]>("boletas");
+    return response.data?.map(mapBoletaDTOToOrder) ?? [];
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    throw error;
+  }
+};
+
+export const getOrderById = async (orderId: number): Promise<Order | null> => {
+  if (!orderId) {
+    return null;
+  }
+
+  try {
+    const response = await apiClient.get<BoletaDTO>(`boletas/${orderId}`);
+    return mapBoletaDTOToOrder(response.data);
+  } catch (error) {
+    console.error("Error fetching order detail:", error);
+    throw error;
+  }
+};
+
+export const updateOrderStatus = async (
+  orderId: number,
+  status: string
+): Promise<Order | null> => {
+  if (!orderId || !status) {
+    return null;
+  }
+
+  try {
+    const response = await apiClient.put<BoletaDTO>(
+      `boletas/${orderId}/estado`,
+      { estado: status, status }
+    );
+    return mapBoletaDTOToOrder(response.data);
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    throw error;
+  }
+};
+
+export const deleteOrder = async (orderId: number): Promise<void> => {
+  if (!orderId) {
+    return;
+  }
+
+  try {
+    await apiClient.delete(`boletas/${orderId}`);
+  } catch (error) {
+    console.error("Error deleting order:", error);
     throw error;
   }
 };

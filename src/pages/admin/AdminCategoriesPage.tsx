@@ -251,7 +251,7 @@ export const AdminCategoriesPage = () => {
                       <td>
                         <div>
                           <p className="mb-0 text-white fw-semibold">{category.name}</p>
-                          <small className={dashboardStyles.helperText}>ID: {category.id}</small>
+                          <small className={dashboardStyles.helperText}>#{category.id}</small>
                         </div>
                       </td>
                       <td>

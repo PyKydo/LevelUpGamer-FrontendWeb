@@ -10,6 +10,19 @@ import styles from './CartPage.module.css';
 import { formatCurrency } from '../helpers/formatting.helper';
 import { calculateSubtotal, calculateTotal } from '../helpers/cart.helper';
 import { createOrder } from '../helpers/api.helper';
+import type { CartItem } from '../hooks/CartContext';
+
+interface CheckoutContext {
+  clientId: number;
+  items: CartItem[];
+  subtotal: number;
+  discount: number;
+  total: number;
+}
+
+interface ReceiptData extends CheckoutContext {
+  orderLabel: string | number;
+}
 
 export const CartPage = () => {
   const navigate = useNavigate();
@@ -17,6 +30,10 @@ export const CartPage = () => {
   const { user } = useAuth();
   const { showNotification } = useNotification();
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [receiptModalOpen, setReceiptModalOpen] = useState(false);
+  const [checkoutContext, setCheckoutContext] = useState<CheckoutContext | null>(null);
+  const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
 
   const subtotal = calculateSubtotal(cart);
 
@@ -27,7 +44,7 @@ export const CartPage = () => {
 
   const finalTotal = calculateTotal(subtotal, discount);
 
-  const handleCheckout = async () => {
+  const handleCheckoutClick = () => {
     if (!user) {
       navigate('/login');
       return;
@@ -44,12 +61,35 @@ export const CartPage = () => {
       return;
     }
 
+    const snapshotItems = cart.map((item) => ({ ...item }));
+    const snapshotSubtotal = calculateSubtotal(snapshotItems);
+    const snapshotDiscount = isDuocEmail ? snapshotSubtotal * 0.2 : 0;
+    const snapshotTotal = calculateTotal(snapshotSubtotal, snapshotDiscount);
+
+    setCheckoutContext({
+      clientId,
+      items: snapshotItems,
+      subtotal: snapshotSubtotal,
+      discount: snapshotDiscount,
+      total: snapshotTotal,
+    });
+    setConfirmModalOpen(true);
+  };
+
+  const processCheckout = async () => {
+    if (!checkoutContext) {
+      setConfirmModalOpen(false);
+      return;
+    }
+
+    setConfirmModalOpen(false);
+
     setProcessingPayment(true);
     try {
       const orderPayload = {
-        clientId,
-        total: Number(finalTotal.toFixed(2)),
-        details: cart.map((item) => ({
+        clientId: checkoutContext.clientId,
+        total: Number(checkoutContext.total.toFixed(2)),
+        details: checkoutContext.items.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
         })),
@@ -63,21 +103,39 @@ export const CartPage = () => {
         `Pago confirmado. Boleta ${orderLabel} generada correctamente.`,
         'success'
       );
+      setReceiptData({
+        orderLabel,
+        items: checkoutContext.items,
+        subtotal: checkoutContext.subtotal,
+        discount: checkoutContext.discount,
+        total: checkoutContext.total,
+        clientId: checkoutContext.clientId,
+      });
+      setReceiptModalOpen(true);
     } catch (error) {
       console.error('No se pudo procesar el pago:', error);
-      const backendMessage =
+      const backendErrorResponse =
         typeof error === 'object' &&
         error !== null &&
-        'response' in error &&
-        (error as { response?: { data?: { error?: string; message?: string } } })
-          .response?.data?.error;
+        'response' in error
+          ? (error as { response?: { data?: { error?: string; message?: string } } })
+              .response?.data
+          : undefined;
+      const backendMessage =
+        backendErrorResponse?.error ?? backendErrorResponse?.message;
       showNotification(
         backendMessage ?? 'No se pudo procesar tu pago. Inténtalo más tarde.',
         'error'
       );
     } finally {
       setProcessingPayment(false);
+      setCheckoutContext(null);
     }
+  };
+
+  const closeReceiptModal = () => {
+    setReceiptModalOpen(false);
+    setReceiptData(null);
   };
 
   return (
@@ -116,7 +174,7 @@ export const CartPage = () => {
                 <button
                   className="btn btn-primary btn-lg"
                   disabled={cart.length === 0 || processingPayment}
-                  onClick={handleCheckout}
+                  onClick={handleCheckoutClick}
                   aria-label="Proceder al Pago"
                 >
                   {processingPayment ? 'Procesando...' : <IoCard size={28} />}
@@ -126,6 +184,137 @@ export const CartPage = () => {
           </div>
         </div>
       </div>
+
+      {confirmModalOpen && checkoutContext && (
+        <>
+          <div className="modal fade show d-block" role="dialog" aria-modal="true" tabIndex={-1}>
+            <div className="modal-dialog">
+              <div className={`modal-content bg-dark text-white ${styles.modalContent}`}>
+                <div className={`modal-header ${styles.modalHeader}`}>
+                  <h5 className="modal-title">Confirmar pago</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    aria-label="Cerrar"
+                    onClick={() => {
+                      setConfirmModalOpen(false);
+                      setCheckoutContext(null);
+                    }}
+                    disabled={processingPayment}
+                  />
+                </div>
+                <div className="modal-body">
+                  <p className="mb-3">
+                    Estás a punto de pagar {formatCurrency(checkoutContext.total)} por {checkoutContext.items.length} producto(s).
+                  </p>
+                  <ul className={styles.receiptList}>
+                    <li>
+                      <span>Subtotal</span>
+                      <span>{formatCurrency(checkoutContext.subtotal)}</span>
+                    </li>
+                    <li>
+                      <span>Descuento DUOC</span>
+                      <span>-{formatCurrency(checkoutContext.discount)}</span>
+                    </li>
+                    <li className={styles.receiptTotal}>
+                      <span>Total a pagar</span>
+                      <span>{formatCurrency(checkoutContext.total)}</span>
+                    </li>
+                  </ul>
+                  <p className={`mb-0 ${styles.modalBadge}`}>
+                    El cobro es simulado y sólo para fines demostrativos.
+                  </p>
+                </div>
+                <div className={`modal-footer ${styles.modalFooter}`}>
+                  <button
+                    type="button"
+                    className="btn btn-outline-light"
+                    onClick={() => {
+                      setConfirmModalOpen(false);
+                      setCheckoutContext(null);
+                    }}
+                    disabled={processingPayment}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => { void processCheckout(); }}
+                    disabled={processingPayment}
+                  >
+                    {processingPayment ? 'Procesando...' : 'Confirmar y pagar'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="modal-backdrop fade show" />
+        </>
+      )}
+
+      {receiptModalOpen && receiptData && (
+        <>
+          <div className="modal fade show d-block" role="dialog" aria-modal="true" tabIndex={-1}>
+            <div className="modal-dialog modal-lg">
+              <div className={`modal-content bg-dark text-white ${styles.modalContent}`}>
+                <div className={`modal-header ${styles.modalHeader}`}>
+                  <h5 className="modal-title">Resumen de boleta</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    aria-label="Cerrar"
+                    onClick={closeReceiptModal}
+                  />
+                </div>
+                <div className="modal-body">
+                  <div className={styles.receiptCard}>
+                    <p className="mb-1">Boleta</p>
+                    <h4 className="mb-3">{receiptData.orderLabel}</h4>
+                    <div className="mb-3">
+                      <small className={styles.modalBadge}>Cliente ID</small>
+                      <p className="mb-0">#{receiptData.clientId}</p>
+                    </div>
+                    <ul className={`${styles.receiptList} mb-3`}>
+                      {receiptData.items.map((item) => (
+                        <li key={`${item.productId}-${item.id}`}>
+                          <span>
+                            {item.name}
+                            <small className={`d-block ${styles.modalBadge}`}>
+                              Cantidad: {item.quantity}
+                            </small>
+                          </span>
+                          <span>{formatCurrency(item.price * item.quantity)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <ul className={styles.receiptList}>
+                      <li>
+                        <span>Subtotal</span>
+                        <span>{formatCurrency(receiptData.subtotal)}</span>
+                      </li>
+                      <li>
+                        <span>Descuento</span>
+                        <span>-{formatCurrency(receiptData.discount)}</span>
+                      </li>
+                      <li className={styles.receiptTotal}>
+                        <span>Total pagado</span>
+                        <span>{formatCurrency(receiptData.total)}</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div className={`modal-footer ${styles.modalFooter}`}>
+                  <button type="button" className="btn btn-primary" onClick={closeReceiptModal}>
+                    Cerrar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="modal-backdrop fade show" />
+        </>
+      )}
     </main>
   );
 };

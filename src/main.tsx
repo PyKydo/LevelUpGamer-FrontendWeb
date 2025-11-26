@@ -35,6 +35,7 @@ import { AdminUsersPage } from './pages/admin/AdminUsersPage';
 import { AdminBlogsPage } from './pages/admin/AdminBlogsPage';
 import { AdminCategoriesPage } from './pages/admin/AdminCategoriesPage';
 import { AdminReviewsPage } from './pages/admin/AdminReviewsPage';
+import { AdminOrdersPage } from './pages/admin/AdminOrdersPage';
 
 const router = createBrowserRouter([
   // Public / Client Routes
@@ -72,7 +73,7 @@ const router = createBrowserRouter([
       { path: 'products', element: <AdminProductsPage /> },
       { path: 'categories', element: <AdminCategoriesPage /> },
       { path: 'reviews', element: <AdminReviewsPage /> },
-      { path: 'orders', element: <div className="p-4"><h1>Gestión de Boletas</h1><p>Próximamente</p></div> },
+      { path: 'orders', element: <AdminOrdersPage /> },
     ],
   },
 

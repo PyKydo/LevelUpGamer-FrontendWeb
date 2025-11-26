@@ -281,10 +281,6 @@ export const AdminBlogsPage = () => {
   };
 
   const totalBlogs = blogs.length;
-  const postsWithoutAlt = useMemo(
-    () => blogs.filter((blog) => !blog.altText?.trim()).length,
-    [blogs]
-  );
   const latestPublished = useMemo(() => {
     if (!blogs.length) {
       return null;
@@ -317,9 +313,6 @@ export const AdminBlogsPage = () => {
           </span>
           <span className={`${dashboardStyles.metricsPill} ${dashboardStyles.badgeHealthy}`}>
             Última publicación: {latestPublished ? formatPublishedDate(latestPublished) : "N/D"}
-          </span>
-          <span className={`${dashboardStyles.metricsPill} ${dashboardStyles.badgeLowStock}`}>
-            Alt pendiente: {postsWithoutAlt}
           </span>
         </div>
 
@@ -371,11 +364,16 @@ export const AdminBlogsPage = () => {
                           <div>
                             <p className="mb-1 fw-semibold">{blog.title}</p>
                             <p className={`${dashboardStyles.helperText} mb-0`}>{blog.summary}</p>
+                            <small className={dashboardStyles.helperText}>#{blog.id}</small>
                           </div>
                         </div>
                       </td>
-                      <td className={dashboardStyles.tableValue}>{blog.author}</td>
-                      <td className={dashboardStyles.tableValue}>{formatPublishedDate(blog.publishedAt)}</td>
+                      <td className={`${dashboardStyles.tableValue} text-white`}>
+                        {blog.author}
+                      </td>
+                      <td className={`${dashboardStyles.tableValue} text-white`}>
+                        {formatPublishedDate(blog.publishedAt)}
+                      </td>
                       <td>
                         <div className={dashboardStyles.actionGroup}>
                           <button

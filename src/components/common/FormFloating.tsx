@@ -1,4 +1,4 @@
-import { InputHTMLAttributes } from 'react';
+import type { InputHTMLAttributes } from 'react';
 import styles from './FormFloating.module.css';
 
 interface FormFloatingProps extends InputHTMLAttributes<HTMLInputElement> {
