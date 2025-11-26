@@ -29,7 +29,7 @@ export const HomePage = () => {
       <div className="container">
         <Carousel products={carouselProducts} />
 
-        {/* Sección de Blogs Destacados */}
+        {}
         <h2 className="text-center mb-4 mt-5">Blogs Destacados</h2>
         <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
           {featuredBlogs.map((blog, index) => (

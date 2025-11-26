@@ -41,8 +41,6 @@ export const LoginPage = () => {
       if (foundUser) {
         login(foundUser);
         showNotification('Inicio de sesión exitoso.', 'success');
-
-        // Redirect based on role
         if (foundUser.role === 'ADMINISTRADOR') {
           navigate('/admin');
         } else if (foundUser.role === 'VENDEDOR') {

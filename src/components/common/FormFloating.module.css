@@ -68,7 +68,7 @@
     background-color: var(--input-bg) !important;
 }
 
-/* Autofill styles */
+
 .formControl:-webkit-autofill,
 .formControl:-webkit-autofill:hover,
 .formControl:-webkit-autofill:focus,

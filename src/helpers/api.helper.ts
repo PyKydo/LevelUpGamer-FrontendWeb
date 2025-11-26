@@ -281,8 +281,6 @@ interface SellerDTO {
   correo: string;
   corporativo: boolean;
 }
-
-// Product DTO from Backend
 interface ProductDTO {
   id: number;
   codigo: string;
@@ -297,8 +295,6 @@ interface ProductDTO {
   activo: boolean;
   vendedor?: SellerDTO;
 }
-
-// Blog DTO from Backend
 interface BlogDTO {
   id: number;
   titulo: string;
@@ -816,8 +812,6 @@ const serializeProductUpdatePayload = (
 
   return body;
 };
-
-// Mappers
 const DEFAULT_PRODUCT_IMAGE = "https://placehold.co/600x600?text=Producto";
 const DEFAULT_BLOG_IMAGE = "https://placehold.co/1200x600?text=Blog";
 

@@ -31,7 +31,6 @@ export const ProductsPage = () => {
 
   const categories = useMemo(() => {
     const allCategories = products.map((p) => p.category);
-    // Filter out empty strings to avoid duplicate keys with the default option
     return Array.from(new Set(allCategories)).filter(Boolean);
   }, [products]);
 

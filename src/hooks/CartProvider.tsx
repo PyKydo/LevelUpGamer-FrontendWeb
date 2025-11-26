@@ -19,8 +19,6 @@ import { reportError } from '../helpers/logging.helper';
 
 const isPlaceholderImage = (src?: string) => !src || src.includes('placehold');
 const LOCAL_CART_STORAGE_KEY = 'levelupgamer_local_cart';
-
-// Local cart fallback when there is no authenticated user
 const readLocalCart = (): CartItem[] =>
   getLocalStorageItem<CartItem[]>(LOCAL_CART_STORAGE_KEY, []) ?? [];
 

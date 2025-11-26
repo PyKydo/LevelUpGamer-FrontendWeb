@@ -1,6 +1,6 @@
-/* Bootstrap Overrides */
 
-/* Buttons */
+
+
 .btn {
     border-radius: var(--border-radius);
     font-weight: 500;
@@ -63,7 +63,7 @@
     color: var(--secondary-color);
 }
 
-/* Forms */
+
 .form-control,
 input,
 select,
@@ -127,7 +127,7 @@ textarea:disabled {
     opacity: 1 !important;
 }
 
-/* Tables */
+
 .table-dark {
     background-color: var(--header-color);
     color: var(--primary-color);

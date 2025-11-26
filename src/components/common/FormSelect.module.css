@@ -30,7 +30,7 @@
     opacity: 1 !important;
 }
 
-/* Floating label support for select */
+
 .formFloating>.formSelect~label,
 .formFloating>.formSelect:focus~label,
 .formFloating>.formSelect:not([value=""])~label {

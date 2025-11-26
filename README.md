@@ -1,73 +1,46 @@
-# React + TypeScript + Vite
+# LevelUpGamer Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Esta app web en React + TypeScript + Vite es un E-commerce para una tienda llamada Level-Up Gamer. El sitio muestra productos gamer, entradas de blog y un carrito sencillo.
 
-Currently, two official plugins are available:
+## Stack tecnico
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Elegimos herramientas conocidas en el curso para no complicarnos de mas:
 
-## React Compiler
+- `React 18` con `TypeScript` para ganar tipado y componentes declarativos.
+- `Vite` porque levanta el entorno en segundos y facilita el HMR.
+- `React Context` y hooks personalizados (`src/hooks`) para manejar autenticacion, carrito, busquedas y notificaciones.
+- `Vitest` + `React Testing Library` (tests en `src/**/*.test.ts(x)`) para comprobar helpers y escenarios criticos.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Estructura principal
 
-## Expanding the ESLint configuration
+- `src/components`: UI reutilizable dividida en `auth`, `common`, `layout` y `products`.
+- `src/pages`: vistas completas como inicio, tienda, blog, carrito y detalle.
+- `src/hooks`: proveedores y hooks (`AuthProvider`, `CartProvider`, `SearchProvider`, `useNotification`, etc.).
+- `src/helpers`: utilidades puras para API mock, formato de datos, validaciones y almacenamiento local.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Flujo funcional destacado
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+1. **Explorar productos**: la pagina principal permite filtrar por categoria y agregar items al carrito global.
+2. **Blog**: hay pagina de listado y detalle con navegacion sencilla.
+3. **Carrito**: `CartContext` maneja cantidades, totales y persistencia en `localStorage` (helper `storage.helper.ts`).
+4. **Autenticacion basica**: `AuthContext` simula login/registro con datos de usuarios para proteger secciones.
+5. **Notificaciones**: `NotificationProvider` muestra avisos rapidos (por ejemplo, producto agregado o error de validacion).
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Como ejecutar el proyecto
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+El servidor de desarrollo queda en `http://localhost:5173`. Cuando necesitamos demostrar funcionalidades en laboratorio corremos las pruebas automaticas:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run test
 ```
+
+## Buenas practicas aplicadas
+
+- Tipados compartidos en `src/types` para evitar any.
+- ESLint + TypeScript estrictos (`tsconfig.*`) para mantener calidad.
+- Helpers con pruebas unitarias (`api.helper.test.ts`, `cart.helper.test.ts`, etc.).

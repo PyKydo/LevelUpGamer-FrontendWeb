@@ -58,8 +58,6 @@ export const resolveApiUrl = (path: string): string => {
     return new URL(path, getActiveApiRootUrl()).toString();
   }
 };
-
-// Request interceptor to add the token
 apiClient.interceptors.request.use(
   (config) => {
     const token = getLocalStorageItem<string>("token");
@@ -74,8 +72,6 @@ apiClient.interceptors.request.use(
 );
 
 const FALLBACK_FLAG = "__retriedWithSecondary";
-
-// Response interceptor to handle auth errors and fallback routing
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
