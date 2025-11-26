@@ -10,6 +10,7 @@ import {
   type ProductReview,
 } from "../../helpers/api.helper";
 import { reportError } from "../../helpers/logging.helper";
+import styles from "./ProductReviews.module.css";
 
 interface ProductReviewsProps {
   productId: number;
@@ -192,7 +193,7 @@ export const ProductReviews = ({ productId, productName }: ProductReviewsProps) 
 
   const renderRating = (value: number) => {
     return (
-      <span className="text-warning" aria-label={`Calificación ${value} de 5`}>
+      <span className={styles.ratingStars} aria-label={`Calificación ${value} de 5`}>
         {"★".repeat(value)}
         {"☆".repeat(5 - value)}
       </span>
@@ -200,34 +201,36 @@ export const ProductReviews = ({ productId, productName }: ProductReviewsProps) 
   };
 
   const renderEligibilityMessage = () => {
+    const messageClass = styles.eligibilityMessage;
+
     switch (eligibility) {
       case "guest":
         return (
-          <p className="text-muted">
+          <p className={messageClass}>
             Inicia sesión como cliente para compartir tu experiencia.
           </p>
         );
       case "not-client":
         return (
-          <p className="text-muted">
+          <p className={messageClass}>
             Solo los clientes pueden publicar reseñas en esta sección.
           </p>
         );
       case "checking":
         return (
-          <p className="text-muted">
+          <p className={messageClass}>
             Verificando tus compras para habilitar la reseña…
           </p>
         );
       case "ineligible":
         return (
-          <p className="text-muted">
+          <p className={messageClass}>
             Solo los clientes que compraron este producto pueden reseñarlo.
           </p>
         );
       case "eligible":
         return (
-          <p className="text-muted">
+          <p className={messageClass}>
             Tu reseña aparecerá públicamente luego de enviarla.
           </p>
         );
@@ -237,97 +240,103 @@ export const ProductReviews = ({ productId, productName }: ProductReviewsProps) 
   };
 
   return (
-    <section className="mt-5" aria-labelledby="product-reviews-title">
-      <div className="d-flex justify-content-between align-items-center mb-3">
+    <section
+      className={`mt-5 ${styles.reviewsSection}`}
+      aria-labelledby="product-reviews-title"
+    >
+      <div className={styles.sectionHeader}>
         <div>
-          <h3 id="product-reviews-title" className="mb-1">
+          <h3 id="product-reviews-title" className={styles.sectionTitle}>
             Reseñas de clientes
           </h3>
-          <p className="text-muted mb-0">{reviewCountLabel}</p>
+          <p className={styles.reviewCount}>{reviewCountLabel}</p>
         </div>
-        <span className="badge bg-secondary">{productName}</span>
+        <span className={styles.productTag}>{productName}</span>
       </div>
 
       {loadingReviews ? (
-        <div className="text-center py-4">
+        <div className={styles.loadingState}>
           <div
-            className="spinner-border"
+            className={`spinner-border ${styles.loadingSpinner}`}
             role="status"
             aria-label="Cargando reseñas"
           />
         </div>
       ) : reviews.length === 0 ? (
-        <p className="text-muted">Sé la primera persona en reseñar este producto.</p>
+        <p className={styles.emptyState}>
+          Sé la primera persona en reseñar este producto.
+        </p>
       ) : (
-        <ul className="list-group mb-4">
+        <ul className={styles.reviewsList}>
           {reviews.map((review) => (
-            <li key={review.id} className="list-group-item">
-              <div className="d-flex justify-content-between align-items-start">
+            <li key={review.id} className={styles.reviewItem}>
+              <div className={styles.reviewMeta}>
                 <div>
-                  <strong>{review.userName}</strong>
+                  <strong className={styles.reviewUser}>{review.userName}</strong>
                   <div>{renderRating(review.rating)}</div>
                 </div>
-                <small className="text-muted">{formatDate(review.createdAt)}</small>
+                <small className={styles.reviewDate}>
+                  {formatDate(review.createdAt)}
+                </small>
               </div>
-              <p className="mb-0 mt-2">{review.text}</p>
+              <p className={styles.reviewText}>{review.text}</p>
             </li>
           ))}
         </ul>
       )}
 
-      <div className="card shadow-sm">
-        <div className="card-body">
-          <h4 className="h5 mb-3">Comparte tu experiencia</h4>
-          {renderEligibilityMessage()}
+      <div className={styles.formCard}>
+        <h4 className={styles.formTitle}>Comparte tu experiencia</h4>
+        {renderEligibilityMessage()}
 
-          {eligibility === "eligible" && (
-            <form onSubmit={handleSubmit} className="mt-3">
-              <div className="row g-3">
-                <div className="col-md-4">
-                  <label htmlFor="review-rating" className="form-label">
-                    Calificación
-                  </label>
-                  <select
-                    id="review-rating"
-                    className="form-select"
-                    value={rating}
-                    onChange={(event) => setRating(Number(event.target.value))}
-                    disabled={submitting}
-                  >
-                    {RATING_OPTIONS.map((value) => (
-                      <option key={value} value={value}>
-                        {value} estrellas
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="col-12">
-                  <label htmlFor="review-comment" className="form-label">
-                    Comentario
-                  </label>
-                  <textarea
-                    id="review-comment"
-                    className="form-control"
-                    rows={4}
-                    value={comment}
-                    onChange={(event) => setComment(event.target.value)}
-                    maxLength={1000}
-                    placeholder="Cuenta qué te pareció este producto"
-                    disabled={submitting}
-                    required
-                  />
-                </div>
-              </div>
+        {eligibility === "eligible" && (
+          <form onSubmit={handleSubmit} className={styles.reviewForm}>
+            <div className={styles.fieldGroup}>
+              <label htmlFor="review-rating" className={styles.label}>
+                Calificación
+              </label>
+              <select
+                id="review-rating"
+                className={styles.select}
+                value={rating}
+                onChange={(event) => setRating(Number(event.target.value))}
+                disabled={submitting}
+              >
+                {RATING_OPTIONS.map((value) => (
+                  <option key={value} value={value}>
+                    {value} estrellas
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className={styles.fieldGroup}>
+              <label htmlFor="review-comment" className={styles.label}>
+                Comentario
+              </label>
+              <textarea
+                id="review-comment"
+                className={styles.textarea}
+                value={comment}
+                onChange={(event) => setComment(event.target.value)}
+                maxLength={1000}
+                placeholder="Cuenta qué te pareció este producto"
+                disabled={submitting}
+                required
+              />
+            </div>
+
+            <div className={styles.actions}>
               <button
                 type="submit"
-                className="btn btn-primary mt-3"
+                className={styles.submitButton}
                 disabled={submitting}
               >
                 {submitting ? "Enviando reseña..." : "Enviar reseña"}
               </button>
-            </form>
-          )}
-        </div>
+            </div>
+          </form>
+        )}
       </div>
     </section>
   );
