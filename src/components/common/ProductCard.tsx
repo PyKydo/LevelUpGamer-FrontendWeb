@@ -16,10 +16,21 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
   const { code, name, category, image, description, price, originalPrice } = product;
   const fallbackProductImage = 'https://placehold.co/600x600?text=Producto';
+  const isInactive = product.active === false;
+  const isOutOfStock = typeof product.stock === 'number' ? product.stock <= 0 : false;
+  const isUnavailable = isInactive || isOutOfStock;
 
   const handleAddToCart = async () => {
     if (typeof product.id !== 'number') {
       showNotification('No se pudo identificar el producto seleccionado.', 'error');
+      return;
+    }
+
+    if (isUnavailable) {
+      const reason = isInactive
+        ? 'Este producto ya no está disponible.'
+        : 'El producto está actualmente sin stock.';
+      showNotification(reason, 'error');
       return;
     }
 
@@ -80,10 +91,20 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           )}
         </div>
         <div className="d-flex justify-content-between align-items-center mt-3">
-          <button className={`btn btn-primary add-to-cart ${styles.addToCartBtn}`} onClick={handleAddToCart} aria-label="Agregar al carrito">
+          <button
+            className={`btn btn-primary add-to-cart ${styles.addToCartBtn}`}
+            onClick={handleAddToCart}
+            aria-label={isUnavailable ? 'Producto no disponible' : 'Agregar al carrito'}
+            disabled={isUnavailable}
+          >
             <FaCartPlus size={24} />
-            <span className="ms-2">Agregar al Carrito</span>
+            <span className="ms-2">{isUnavailable ? 'No disponible' : 'Agregar al Carrito'}</span>
           </button>
+          {isUnavailable && (
+            <span className="badge bg-danger ms-2">
+              {isInactive ? 'Desactivado' : 'Sin stock'}
+            </span>
+          )}
         </div>
       </div>
     </div>

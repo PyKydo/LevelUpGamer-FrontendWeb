@@ -11,6 +11,7 @@ import {
   type CreateBlogPayload,
   type UpdateBlogPayload,
 } from "../../helpers/api.helper";
+import { reportError } from "../../helpers/logging.helper";
 import { useNotification } from "../../hooks/useNotification";
 import dashboardStyles from "../dashboard/Dashboard.module.css";
 
@@ -89,7 +90,7 @@ export const AdminBlogsPage = () => {
       const data = await getAdminBlogs();
       setBlogs(sortBlogsByPublishedDate(data));
     } catch (error) {
-      console.error("Error loading blogs:", error);
+      reportError("AdminBlogsPage:loadBlogs", error);
       showNotification("No se pudieron cargar los blogs.", "error");
     } finally {
       setLoadingBlogs(false);
@@ -132,7 +133,7 @@ export const AdminBlogsPage = () => {
         altText: source.altText ?? "",
       });
     } catch (error) {
-      console.error("Error loading blog detail:", error);
+      reportError("AdminBlogsPage:loadBlogDetail", error);
       showNotification("No se pudo obtener la información del blog.", "error");
       closeBlogFormModal();
     } finally {
@@ -237,7 +238,7 @@ export const AdminBlogsPage = () => {
 
       closeBlogFormModal();
     } catch (error) {
-      console.error("Error saving blog:", error);
+      reportError("AdminBlogsPage:saveBlog", error);
       showNotification("No se pudo guardar el blog.", "error");
     } finally {
       setBlogFormSubmitting(false);
@@ -253,7 +254,7 @@ export const AdminBlogsPage = () => {
       const detail = await getAdminBlogById(blog.id);
       setDetailBlog(detail ?? blog);
     } catch (error) {
-      console.error("Error loading blog detail:", error);
+      reportError("AdminBlogsPage:loadDetailModal", error);
       showNotification("No se pudo cargar el detalle del blog.", "error");
       setDetailModalOpen(false);
     } finally {
@@ -273,7 +274,7 @@ export const AdminBlogsPage = () => {
       showNotification("Blog eliminado correctamente.", "success");
       setDeleteTarget(null);
     } catch (error) {
-      console.error("Error deleting blog:", error);
+      reportError("AdminBlogsPage:deleteBlog", error);
       showNotification("No se pudo eliminar el blog.", "error");
     } finally {
       setDeletingBlog(false);

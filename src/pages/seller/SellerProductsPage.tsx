@@ -1,15 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
-import type { ChangeEvent, FormEvent, SyntheticEvent } from "react";
+import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent, type SyntheticEvent } from "react";
 import {
   createProduct,
   deleteProduct,
   getProducts,
-  getSellers,
   sortProductsByIdAndName,
   updateProduct,
   type CreateProductPayload,
   type Product,
-  type UserSummary,
 } from "../../helpers/api.helper";
 import { formatCurrency } from "../../helpers/formatting.helper";
 import { reportError } from "../../helpers/logging.helper";
@@ -17,14 +14,7 @@ import { useNotification } from "../../hooks/useNotification";
 import { useProductCategories } from "../../hooks/useProductCategories";
 import dashboardStyles from "../dashboard/Dashboard.module.css";
 
-const CORPORATE_OWNER_VALUE = "corporate";
-
-const resolveSellerValue = (product: Product | null): string => {
-  if (!product?.seller || product.seller.corporate) {
-    return CORPORATE_OWNER_VALUE;
-  }
-  return product.seller.id.toString();
-};
+const FALLBACK_IMAGE = "https://placehold.co/80x80?text=Producto";
 
 type ProductFormMode = "create" | "edit";
 
@@ -54,30 +44,18 @@ const initialProductFormState: ProductFormState = {
   active: true,
 };
 
-export const AdminProductsPage = () => {
+const parseOptionalNumber = (value: string): number | undefined => {
+  if (!value?.trim()) {
+    return undefined;
+  }
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+};
+
+export const SellerProductsPage = () => {
   const { showNotification } = useNotification();
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
-  const [sellers, setSellers] = useState<UserSummary[]>([]);
-  const [loadingSellers, setLoadingSellers] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [selectedSellerValue, setSelectedSellerValue] = useState<string>(
-    CORPORATE_OWNER_VALUE
-  );
-  const [savingOwner, setSavingOwner] = useState(false);
-  const fallbackImage = "https://placehold.co/80x80?text=Producto";
-  const [productFormMode, setProductFormMode] = useState<ProductFormMode>("create");
-  const [productFormState, setProductFormState] = useState<ProductFormState>(
-    initialProductFormState
-  );
-  const [productFormImage, setProductFormImage] = useState<File | null>(null);
-  const [productFormOpen, setProductFormOpen] = useState(false);
-  const [productFormSubmitting, setProductFormSubmitting] = useState(false);
-  const [productFormTarget, setProductFormTarget] = useState<Product | null>(null);
-  const [detailProduct, setDetailProduct] = useState<Product | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
-  const [deletingProduct, setDeletingProduct] = useState(false);
   const {
     categories,
     loading: loadingCategories,
@@ -97,10 +75,109 @@ export const AdminProductsPage = () => {
     return match?.id?.toString() ?? "";
   };
 
+  const [productFormMode, setProductFormMode] = useState<ProductFormMode>("create");
+  const [productFormOpen, setProductFormOpen] = useState(false);
+  const [productFormState, setProductFormState] = useState<ProductFormState>(
+    initialProductFormState
+  );
+  const [productFormImage, setProductFormImage] = useState<File | null>(null);
+  const [productFormTarget, setProductFormTarget] = useState<Product | null>(null);
+  const [productFormSubmitting, setProductFormSubmitting] = useState(false);
+
+  const [detailProduct, setDetailProduct] = useState<Product | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
+  const [deletingProduct, setDeletingProduct] = useState(false);
+  const categoryOptions = useMemo(
+    () =>
+      categories.map((category) => ({
+        id: category.id,
+        label: category.name ?? category.code ?? "Categoría sin nombre",
+      })),
+    [categories]
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadProducts = async () => {
+      setLoadingProducts(true);
+      try {
+        const data = await getProducts({ includeInactive: true });
+        if (isMounted) {
+          setProducts(sortProductsByIdAndName(data));
+        }
+      } catch (error) {
+        reportError("SellerProductsPage:loadProducts", error);
+        if (isMounted) {
+          showNotification("No se pudieron cargar tus productos.", "error");
+        }
+      } finally {
+        if (isMounted) {
+          setLoadingProducts(false);
+        }
+      }
+    };
+
+    void loadProducts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [showNotification]);
+
+  useEffect(() => {
+    if (categoriesError) {
+      showNotification("No se pudieron cargar las categorías.", "error");
+    }
+  }, [categoriesError, showNotification]);
+
+  useEffect(() => {
+    if (!productFormOpen) {
+      return;
+    }
+    if (!productFormState.categoryName?.trim()) {
+      return;
+    }
+    const hasNumericCategoryId =
+      Boolean(productFormState.categoryId) &&
+      /^\d+$/.test(productFormState.categoryId.trim());
+    if (hasNumericCategoryId) {
+      return;
+    }
+
+    const normalized = productFormState.categoryName.trim().toLowerCase();
+    const match = categories.find((category) => {
+      const candidateName = category.name?.trim().toLowerCase();
+      const candidateCode = category.code?.trim().toLowerCase();
+      return candidateName === normalized || candidateCode === normalized;
+    });
+
+    if (match?.id) {
+      setProductFormState((current) => ({
+        ...current,
+        categoryId: match.id.toString(),
+      }));
+    }
+  }, [categories, productFormOpen, productFormState.categoryId, productFormState.categoryName]);
+
+  const totalProducts = products.length;
+  const activeProducts = useMemo(
+    () => products.filter((product) => product.active !== false).length,
+    [products]
+  );
+  const lowStockProducts = useMemo(
+    () => products.filter((product) => product.stock <= (product.stockCritical ?? 5)).length,
+    [products]
+  );
+
+  const handleImageError = (event: SyntheticEvent<HTMLImageElement>) => {
+    event.currentTarget.src = FALLBACK_IMAGE;
+  };
+
   const resetProductForm = () => {
     setProductFormState(initialProductFormState);
-    setProductFormImage(null);
     setProductFormTarget(null);
+    setProductFormImage(null);
   };
 
   const openCreateProductModal = () => {
@@ -144,6 +221,7 @@ export const AdminProductsPage = () => {
       | HTMLTextAreaElement
       | HTMLSelectElement;
     const { name, value } = target;
+
     if (name === "categoryId") {
       const selectedLabel =
         target instanceof HTMLSelectElement
@@ -156,34 +234,24 @@ export const AdminProductsPage = () => {
       }));
       return;
     }
+
     const nextValue =
       target instanceof HTMLInputElement && target.type === "checkbox"
         ? target.checked
         : value;
+
     setProductFormState((current) => ({
       ...current,
       [name]: nextValue,
     }));
   };
 
-  const handleProductFormImageChange = (
-    event: ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleProductFormImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     setProductFormImage(file ?? null);
   };
 
-  const parseOptionalNumber = (value: string): number | undefined => {
-    if (!value?.trim()) {
-      return undefined;
-    }
-    const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : undefined;
-  };
-
-  const handleProductFormSubmit = async (
-    event: FormEvent<HTMLFormElement>
-  ) => {
+  const handleProductFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!productFormState.name.trim() || !productFormState.code.trim()) {
@@ -245,9 +313,9 @@ export const AdminProductsPage = () => {
           productFormImage ?? undefined
         );
         setProducts((current) =>
-          sortProductsByIdAndName([...current, createdProduct])
+          sortProductsByIdAndName([...(current ?? []), createdProduct])
         );
-        showNotification("Producto creado correctamente.", "success");
+        showNotification("Producto publicado correctamente.", "success");
       } else if (productFormTarget) {
         const updatedProduct = await updateProduct(productFormTarget.id, {
           name: commonPayload.name,
@@ -274,7 +342,7 @@ export const AdminProductsPage = () => {
       }
       closeProductFormModal();
     } catch (error) {
-      reportError("AdminProductsPage:saveProduct", error);
+      reportError("SellerProductsPage:saveProduct", error);
       showNotification("No se pudo guardar el producto.", "error");
     } finally {
       setProductFormSubmitting(false);
@@ -314,194 +382,26 @@ export const AdminProductsPage = () => {
       showNotification("Producto eliminado correctamente.", "success");
       closeDeleteModal();
     } catch (error) {
-      reportError("AdminProductsPage:deleteProduct", error);
+      reportError("SellerProductsPage:deleteProduct", error);
       showNotification("No se pudo eliminar el producto.", "error");
       setDeletingProduct(false);
     }
   };
-
-  useEffect(() => {
-    let isMounted = true;
-    const loadProducts = async () => {
-      try {
-        const data = await getProducts({ includeInactive: true });
-        if (isMounted) {
-          setProducts(sortProductsByIdAndName(data));
-        }
-      } catch (error) {
-        reportError("AdminProductsPage:loadProducts", error);
-      } finally {
-        if (isMounted) {
-          setLoadingProducts(false);
-        }
-      }
-    };
-
-    void loadProducts();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    let isMounted = true;
-    const loadSellers = async () => {
-      try {
-        const data = await getSellers();
-        if (isMounted) {
-          setSellers(data);
-        }
-      } catch (error) {
-        reportError("AdminProductsPage:loadSellers", error);
-      } finally {
-        if (isMounted) {
-          setLoadingSellers(false);
-        }
-      }
-    };
-
-    void loadSellers();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const totalProducts = products.length;
-  const activeProducts = useMemo(
-    () => products.filter((product) => product.active !== false).length,
-    [products]
-  );
-  const corporateProducts = useMemo(
-    () => products.filter((product) => product.seller?.corporate).length,
-    [products]
-  );
-
-  const handleImageError = (event: SyntheticEvent<HTMLImageElement>) => {
-    event.currentTarget.src = fallbackImage;
-  };
-
-  const openOwnerModal = (product: Product) => {
-    setSelectedProduct(product);
-    setSelectedSellerValue(resolveSellerValue(product));
-    setModalOpen(true);
-  };
-
-  const closeOwnerModal = () => {
-    setModalOpen(false);
-    setSelectedProduct(null);
-    setSelectedSellerValue(CORPORATE_OWNER_VALUE);
-  };
-
-  const handleOwnerSave = async () => {
-    if (!selectedProduct) {
-      return;
-    }
-
-    const sellerId =
-      selectedSellerValue === CORPORATE_OWNER_VALUE
-        ? null
-        : Number(selectedSellerValue);
-
-    setSavingOwner(true);
-    try {
-      const updatedProduct = await updateProduct(selectedProduct.id, {
-        sellerId,
-      });
-
-      if (!updatedProduct) {
-        showNotification("No se pudo actualizar el producto.", "error");
-        return;
-      }
-
-      setProducts((current) =>
-        sortProductsByIdAndName(
-          current.map((product) =>
-            product.id === updatedProduct.id ? updatedProduct : product
-          )
-        )
-      );
-      showNotification("Producto actualizado correctamente.", "success");
-      closeOwnerModal();
-    } catch (error) {
-      reportError("AdminProductsPage:updateOwner", error);
-      showNotification("No se pudo actualizar el dueño del producto.", "error");
-    } finally {
-      setSavingOwner(false);
-    }
-  };
-
-  const sellerOptions = useMemo(
-    () =>
-      sellers.map((seller) => ({
-        value: seller.id.toString(),
-        label: `${seller.fullName} (${seller.email})`,
-      })),
-    [sellers]
-  );
-
-  const categoryOptions = useMemo(
-    () =>
-      categories.map((category) => ({
-        id: category.id,
-        label: category.name ?? category.code ?? "Categoría sin nombre",
-      })),
-    [categories]
-  );
-
-  useEffect(() => {
-    if (categoriesError) {
-      showNotification("No se pudieron cargar las categorías.", "error");
-    }
-  }, [categoriesError, showNotification]);
-
-  useEffect(() => {
-    if (!productFormOpen) {
-      return;
-    }
-    if (!productFormState.categoryName?.trim()) {
-      return;
-    }
-    const hasNumericCategoryId =
-      Boolean(productFormState.categoryId) &&
-      /^\d+$/.test(productFormState.categoryId.trim());
-    if (hasNumericCategoryId) {
-      return;
-    }
-
-    const normalized = productFormState.categoryName.trim().toLowerCase();
-    const match = categories.find((category) => {
-      const candidateName = category.name?.trim().toLowerCase();
-      const candidateCode = category.code?.trim().toLowerCase();
-      return candidateName === normalized || candidateCode === normalized;
-    });
-
-    if (match?.id) {
-      setProductFormState((current) => ({
-        ...current,
-        categoryId: match.id.toString(),
-      }));
-    }
-  }, [categories, productFormOpen, productFormState.categoryId, productFormState.categoryName]);
-
-  const selectedProductSellerValue = resolveSellerValue(selectedProduct);
-  const hasOwnerChanges = selectedSellerValue !== selectedProductSellerValue;
 
   return (
     <div className={dashboardStyles.dashboardWrapper}>
       <div className="container">
         <header className={`${dashboardStyles.dashboardHeader} mb-4`}>
           <div className={dashboardStyles.headerContent}>
-            <p className={dashboardStyles.dashboardEyebrow}>Control de catálogo</p>
-            <h1 className={dashboardStyles.dashboardHeadline}>Gestión de Productos</h1>
+            <p className={dashboardStyles.dashboardEyebrow}>Inventario personal</p>
+            <h1 className={dashboardStyles.dashboardHeadline}>Mis productos</h1>
             <p className={dashboardStyles.dashboardDescription}>
-              Revisa el inventario completo y reasigna propietarios cuando se
-              requiera continuidad operacional.
+              Crea, actualiza o retira productos de tu catálogo. Los cambios se
+              reflejan de inmediato para tus clientes.
             </p>
           </div>
-          <span className={`${dashboardStyles.roleBadge} ${dashboardStyles.roleAdmin}`}>
-            Administrador
+          <span className={`${dashboardStyles.roleBadge} ${dashboardStyles.roleSeller}`}>
+            Vendedor
           </span>
         </header>
 
@@ -513,22 +413,22 @@ export const AdminProductsPage = () => {
             Total catálogo: {totalProducts}
           </span>
           <span className={`${dashboardStyles.metricsPill} ${dashboardStyles.badgeLowStock}`}>
-            Corporativos: {corporateProducts}
+            Stock crítico: {lowStockProducts}
           </span>
         </div>
 
         <div className={dashboardStyles.tableCard}>
           <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
             <div>
-              <p className={dashboardStyles.dashboardEyebrow}>Inventario global</p>
-              <h2 className={dashboardStyles.tableTitle}>Productos registrados</h2>
+              <p className={dashboardStyles.dashboardEyebrow}>Control de catálogo</p>
+              <h2 className={dashboardStyles.tableTitle}>Inventario publicado</h2>
             </div>
             <button
               type="button"
               className={dashboardStyles.primaryButton}
               onClick={openCreateProductModal}
             >
-              Nuevo producto
+              Crear producto
             </button>
           </div>
 
@@ -537,7 +437,7 @@ export const AdminProductsPage = () => {
               <div className="spinner-border text-light" role="status" aria-label="Cargando productos" />
             </div>
           ) : products.length === 0 ? (
-            <p className="text-muted mb-0">No hay productos registrados todavía.</p>
+            <p className="text-muted mb-0">Aún no has publicado productos.</p>
           ) : (
             <div className={dashboardStyles.tableResponsive}>
               <table className={`table ${dashboardStyles.table}`}>
@@ -548,7 +448,7 @@ export const AdminProductsPage = () => {
                     <th>Categoría</th>
                     <th>Precio</th>
                     <th>Stock</th>
-                    <th>Vendedor</th>
+                    <th>Estado</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>
@@ -558,18 +458,15 @@ export const AdminProductsPage = () => {
                     const stockBadge = isLowStock
                       ? dashboardStyles.badgeLowStock
                       : dashboardStyles.badgeHealthy;
-                    const sellerBadge = product.seller?.corporate
-                      ? dashboardStyles.badgeNeutral
-                      : dashboardStyles.badgeHealthy;
-
                     return (
                       <tr key={product.id}>
                         <td>
                           <div className="d-flex align-items-center gap-3">
                             <img
-                              src={product.image || fallbackImage}
+                              src={product.image || FALLBACK_IMAGE}
                               alt={product.name}
                               className={dashboardStyles.tableImage}
+                              loading="lazy"
                               onError={handleImageError}
                             />
                             <div>
@@ -585,12 +482,12 @@ export const AdminProductsPage = () => {
                         </td>
                         <td>
                           <span className={`${dashboardStyles.tableBadge} ${dashboardStyles.badgeNeutral}`}>
-                            {product.category}
+                            {product.category || "Sin categoría"}
                           </span>
                         </td>
                         <td>
                           <span className={`${dashboardStyles.tableValue} ${dashboardStyles.tablePrice}`}>
-                            {formatCurrency(product.price)}
+                            {formatCurrency(product.price ?? 0)}
                           </span>
                         </td>
                         <td>
@@ -599,16 +496,9 @@ export const AdminProductsPage = () => {
                           </span>
                         </td>
                         <td>
-                          <div>
-                            <span className={`${dashboardStyles.tableBadge} ${sellerBadge}`}>
-                              {product.seller?.name ?? "LevelUp"}
-                            </span>
-                            <small className={`d-block ${dashboardStyles.helperText}`}>
-                              {product.seller?.corporate
-                                ? "Corporativo"
-                                : product.seller?.email ?? "Sin correo"}
-                            </small>
-                          </div>
+                          <span className={`${dashboardStyles.tableBadge} ${product.active === false ? dashboardStyles.badgeLowStock : dashboardStyles.badgeHealthy}`}>
+                            {product.active === false ? "Inactivo" : "Activo"}
+                          </span>
                         </td>
                         <td>
                           <div className={dashboardStyles.actionGroup}>
@@ -632,13 +522,6 @@ export const AdminProductsPage = () => {
                               onClick={() => openDeleteModal(product)}
                             >
                               Eliminar
-                            </button>
-                            <button
-                              type="button"
-                              className={dashboardStyles.tableAction}
-                              onClick={() => openOwnerModal(product)}
-                            >
-                              Dueño
                             </button>
                           </div>
                         </td>
@@ -673,11 +556,11 @@ export const AdminProductsPage = () => {
                   <div className="modal-body">
                     <div className={dashboardStyles.modalFormGrid}>
                       <div className={dashboardStyles.modalFormField}>
-                        <label className={dashboardStyles.formLabel} htmlFor="product-code">
+                        <label className={dashboardStyles.formLabel} htmlFor="seller-product-code">
                           Código
                         </label>
                         <input
-                          id="product-code"
+                          id="seller-product-code"
                           name="code"
                           type="text"
                           className={dashboardStyles.darkField}
@@ -687,11 +570,11 @@ export const AdminProductsPage = () => {
                         />
                       </div>
                       <div className={dashboardStyles.modalFormField}>
-                        <label className={dashboardStyles.formLabel} htmlFor="product-name">
+                        <label className={dashboardStyles.formLabel} htmlFor="seller-product-name">
                           Nombre
                         </label>
                         <input
-                          id="product-name"
+                          id="seller-product-name"
                           name="name"
                           type="text"
                           className={dashboardStyles.darkField}
@@ -701,11 +584,11 @@ export const AdminProductsPage = () => {
                         />
                       </div>
                       <div className={dashboardStyles.modalFormField}>
-                        <label className={dashboardStyles.formLabel} htmlFor="product-category">
+                        <label className={dashboardStyles.formLabel} htmlFor="seller-product-category">
                           Categoría
                         </label>
                         <select
-                          id="product-category"
+                          id="seller-product-category"
                           name="categoryId"
                           className={dashboardStyles.darkField}
                           value={productFormState.categoryId}
@@ -725,16 +608,16 @@ export const AdminProductsPage = () => {
                         </select>
                         {!loadingCategories && categoryOptions.length === 0 && (
                           <small className={dashboardStyles.helperText}>
-                            No hay categorías activas. Crea una en el módulo de categorías.
+                            No tienes categorías activas disponibles. Crea una nueva desde tu panel administrador.
                           </small>
                         )}
                       </div>
                       <div className={dashboardStyles.modalFormField}>
-                        <label className={dashboardStyles.formLabel} htmlFor="product-price">
+                        <label className={dashboardStyles.formLabel} htmlFor="seller-product-price">
                           Precio
                         </label>
                         <input
-                          id="product-price"
+                          id="seller-product-price"
                           name="price"
                           type="number"
                           min="0"
@@ -746,11 +629,11 @@ export const AdminProductsPage = () => {
                         />
                       </div>
                       <div className={dashboardStyles.modalFormField}>
-                        <label className={dashboardStyles.formLabel} htmlFor="product-stock">
+                        <label className={dashboardStyles.formLabel} htmlFor="seller-product-stock">
                           Stock
                         </label>
                         <input
-                          id="product-stock"
+                          id="seller-product-stock"
                           name="stock"
                           type="number"
                           min="0"
@@ -761,11 +644,11 @@ export const AdminProductsPage = () => {
                         />
                       </div>
                       <div className={dashboardStyles.modalFormField}>
-                        <label className={dashboardStyles.formLabel} htmlFor="product-stock-critical">
+                        <label className={dashboardStyles.formLabel} htmlFor="seller-product-stock-critical">
                           Stock crítico
                         </label>
                         <input
-                          id="product-stock-critical"
+                          id="seller-product-stock-critical"
                           name="stockCritical"
                           type="number"
                           min="0"
@@ -775,11 +658,11 @@ export const AdminProductsPage = () => {
                         />
                       </div>
                       <div className={dashboardStyles.modalFormField}>
-                        <label className={dashboardStyles.formLabel} htmlFor="product-points">
+                        <label className={dashboardStyles.formLabel} htmlFor="seller-product-points">
                           Puntos LevelUp
                         </label>
                         <input
-                          id="product-points"
+                          id="seller-product-points"
                           name="pointsLevelUp"
                           type="number"
                           min="0"
@@ -789,29 +672,23 @@ export const AdminProductsPage = () => {
                         />
                       </div>
                       <div className={dashboardStyles.modalFormField}>
-                        <label className={dashboardStyles.formLabel} htmlFor="product-image">
+                        <label className={dashboardStyles.formLabel} htmlFor="seller-product-image">
                           Imagen (opcional)
                         </label>
                         <input
-                          id="product-image"
+                          id="seller-product-image"
                           type="file"
                           accept="image/*"
                           className={`${dashboardStyles.darkField} ${dashboardStyles.fileInput}`}
                           onChange={handleProductFormImageChange}
-                          disabled={productFormMode === "edit"}
                         />
-                        {productFormMode === "edit" && (
-                          <small className={dashboardStyles.helperText}>
-                            La imagen solo se puede actualizar mediante soporte técnico.
-                          </small>
-                        )}
                       </div>
                       <div className={`${dashboardStyles.modalFormField} ${dashboardStyles.modalFormFieldFull}`}>
-                        <label className={dashboardStyles.formLabel} htmlFor="product-description">
+                        <label className={dashboardStyles.formLabel} htmlFor="seller-product-description">
                           Descripción
                         </label>
                         <textarea
-                          id="product-description"
+                          id="seller-product-description"
                           name="description"
                           className={`${dashboardStyles.darkField} ${dashboardStyles.darkTextarea}`}
                           value={productFormState.description}
@@ -821,14 +698,17 @@ export const AdminProductsPage = () => {
                       <div className={`${dashboardStyles.modalFormField} ${dashboardStyles.modalFormFieldFull}`}>
                         <div className={`form-check form-switch ${dashboardStyles.switchField}`}>
                           <input
-                            id="product-active"
+                            id="seller-product-active"
                             className="form-check-input"
                             type="checkbox"
                             name="active"
                             checked={productFormState.active}
                             onChange={handleProductFormFieldChange}
                           />
-                          <label className={`form-check-label ${dashboardStyles.switchLabel}`} htmlFor="product-active">
+                          <label
+                            className={`form-check-label ${dashboardStyles.switchLabel}`}
+                            htmlFor="seller-product-active"
+                          >
                             Producto activo en catálogo
                           </label>
                         </div>
@@ -853,8 +733,8 @@ export const AdminProductsPage = () => {
                         {productFormSubmitting
                           ? "Guardando..."
                           : productFormMode === "create"
-                            ? "Crear producto"
-                            : "Actualizar producto"}
+                          ? "Crear producto"
+                          : "Actualizar producto"}
                       </button>
                     </div>
                   </div>
@@ -873,7 +753,7 @@ export const AdminProductsPage = () => {
               <div className={`modal-content ${dashboardStyles.modalContentDark}`}>
                 <div className={`modal-header ${dashboardStyles.modalHeaderDark}`}>
                   <h5 className={`modal-title ${dashboardStyles.modalTitle}`}>
-                    Detalle de producto
+                    Detalle del producto
                   </h5>
                   <button
                     type="button"
@@ -894,7 +774,7 @@ export const AdminProductsPage = () => {
                     </div>
                     <div className="col-md-4">
                       <p className="mb-1 text-muted">Precio</p>
-                      <p className="text-white fw-semibold">{formatCurrency(detailProduct.price)}</p>
+                      <p className="text-white fw-semibold">{formatCurrency(detailProduct.price ?? 0)}</p>
                     </div>
                     <div className="col-md-4">
                       <p className="mb-1 text-muted">Stock</p>
@@ -904,12 +784,6 @@ export const AdminProductsPage = () => {
                       <p className="mb-1 text-muted">Stock crítico</p>
                       <p className="text-white fw-semibold">{detailProduct.stockCritical ?? "No definido"}</p>
                     </div>
-                    <div className="col-12">
-                      <p className="mb-1 text-muted">Descripción</p>
-                      <p className={dashboardStyles.helperText}>
-                        {detailProduct.description || "Sin descripción registrada."}
-                      </p>
-                    </div>
                     <div className="col-md-6">
                       <p className="mb-1 text-muted">Estado</p>
                       <p className="text-white fw-semibold">
@@ -917,9 +791,13 @@ export const AdminProductsPage = () => {
                       </p>
                     </div>
                     <div className="col-md-6">
-                      <p className="mb-1 text-muted">Vendedor</p>
-                      <p className="text-white fw-semibold">
-                        {detailProduct.seller?.name ?? "LevelUp"}
+                      <p className="mb-1 text-muted">Puntos LevelUp</p>
+                      <p className="text-white fw-semibold">{detailProduct.pointsLevelUp ?? 0}</p>
+                    </div>
+                    <div className="col-12">
+                      <p className="mb-1 text-muted">Descripción</p>
+                      <p className={dashboardStyles.helperText}>
+                        {detailProduct.description || "Sin descripción registrada."}
                       </p>
                     </div>
                   </div>
@@ -964,7 +842,7 @@ export const AdminProductsPage = () => {
                     <span className="fw-semibold">{deleteTarget.name}</span>?
                   </p>
                   <p className={dashboardStyles.helperText}>
-                    Esta acción no se puede deshacer y el producto dejará de estar disponible en el catálogo.
+                    Esta acción no se puede deshacer y el producto dejará de estar disponible para tus clientes.
                   </p>
                 </div>
                 <div className={`modal-footer ${dashboardStyles.modalFooterDark}`}>
@@ -984,81 +862,6 @@ export const AdminProductsPage = () => {
                       disabled={deletingProduct}
                     >
                       {deletingProduct ? "Eliminando..." : "Eliminar"}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="modal-backdrop fade show" />
-        </>
-      )}
-
-      {modalOpen && selectedProduct && (
-        <>
-          <div className="modal fade show d-block" role="dialog" aria-modal="true" tabIndex={-1}>
-            <div className="modal-dialog modal-lg">
-              <div className={`modal-content ${dashboardStyles.modalContentDark}`}>
-                <div className={`modal-header ${dashboardStyles.modalHeaderDark}`}>
-                  <h5 className={`modal-title ${dashboardStyles.modalTitle}`}>Reasignar producto</h5>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    aria-label="Cerrar"
-                    onClick={closeOwnerModal}
-                    disabled={savingOwner}
-                  />
-                </div>
-                <div className="modal-body">
-                  <p className={dashboardStyles.helperText}>{selectedProduct.name}</p>
-                  <p className={dashboardStyles.helperText}>Código: {selectedProduct.code}</p>
-
-                  <div className="mb-3">
-                    <label htmlFor="seller-select" className={dashboardStyles.formLabel}>
-                      Asignar a
-                    </label>
-                    <select
-                      id="seller-select"
-                      className={`form-select ${dashboardStyles.darkField} ${dashboardStyles.darkSelect}`}
-                      value={selectedSellerValue}
-                      onChange={(event) => setSelectedSellerValue(event.target.value)}
-                      disabled={savingOwner}
-                    >
-                      <option value={CORPORATE_OWNER_VALUE}>LevelUp (Corporativo)</option>
-                      {sellerOptions.map((seller) => (
-                        <option key={seller.value} value={seller.value}>
-                          {seller.label}
-                        </option>
-                      ))}
-                    </select>
-                    {loadingSellers ? (
-                      <small className={dashboardStyles.helperText}>Cargando vendedores...</small>
-                    ) : sellerOptions.length === 0 ? (
-                      <small className={dashboardStyles.helperText}>No hay vendedores disponibles todavía.</small>
-                    ) : (
-                      <small className={dashboardStyles.helperText}>
-                        Selecciona un vendedor activo o vuelve a marcarlo como corporativo.
-                      </small>
-                    )}
-                  </div>
-                </div>
-                <div className={`modal-footer ${dashboardStyles.modalFooterDark}`}>
-                  <div className={dashboardStyles.modalActions}>
-                    <button
-                      type="button"
-                      className={dashboardStyles.ghostButton}
-                      onClick={closeOwnerModal}
-                      disabled={savingOwner}
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      type="button"
-                      className={dashboardStyles.primaryButton}
-                      onClick={handleOwnerSave}
-                      disabled={!hasOwnerChanges || savingOwner}
-                    >
-                      {savingOwner ? "Guardando..." : "Guardar cambios"}
                     </button>
                   </div>
                 </div>

@@ -9,7 +9,7 @@ import {
   type CreateReviewPayload,
   type ProductReview,
 } from "../../helpers/api.helper";
-import styles from "./ProductReviews.module.css";
+import { reportError } from "../../helpers/logging.helper";
 
 interface ProductReviewsProps {
   productId: number;
@@ -28,7 +28,6 @@ const RATING_OPTIONS = [5, 4, 3, 2, 1];
 export const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
   const { user, isClient } = useAuth();
   const { showNotification } = useNotification();
-  const userId = user?.id;
   const [reviews, setReviews] = useState<ProductReview[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -53,7 +52,7 @@ export const ProductReviews = ({ productId, productName }: ProductReviewsProps) 
           setReviews(data);
         }
       } catch (error) {
-        console.error("Error loading product reviews:", error);
+        reportError("ProductReviews:loadReviews", error);
       } finally {
         if (isMounted) {
           setLoadingReviews(false);
@@ -70,6 +69,8 @@ export const ProductReviews = ({ productId, productName }: ProductReviewsProps) 
 
   useEffect(() => {
     let isMounted = true;
+    const userId = user?.id;
+
     if (!productId) {
       setEligibility("ineligible");
       return () => {
@@ -104,7 +105,7 @@ export const ProductReviews = ({ productId, productName }: ProductReviewsProps) 
         );
         setEligibility(purchased ? "eligible" : "ineligible");
       } catch (error) {
-        console.error("Error verifying purchase history:", error);
+        reportError("ProductReviews:verifyPurchase", error);
         if (isMounted) {
           setEligibility("ineligible");
         }
@@ -116,7 +117,7 @@ export const ProductReviews = ({ productId, productName }: ProductReviewsProps) 
     return () => {
       isMounted = false;
     };
-  }, [productId, userId, isClient]);
+  }, [productId, user?.id, isClient]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -145,7 +146,6 @@ export const ProductReviews = ({ productId, productName }: ProductReviewsProps) 
       setRating(5);
       showNotification("Gracias por compartir tu experiencia.", "success");
     } catch (error) {
-      console.error("Unable to create review:", error);
       const isForbidden =
         typeof error === "object" &&
         error !== null &&
@@ -190,42 +190,44 @@ export const ProductReviews = ({ productId, productName }: ProductReviewsProps) 
     });
   };
 
-  const renderRating = (value: number) => (
-    <span className={styles.ratingStars} aria-label={`Calificación ${value} de 5`}>
-      {"★".repeat(value)}
-      {"☆".repeat(5 - value)}
-    </span>
-  );
+  const renderRating = (value: number) => {
+    return (
+      <span className="text-warning" aria-label={`Calificación ${value} de 5`}>
+        {"★".repeat(value)}
+        {"☆".repeat(5 - value)}
+      </span>
+    );
+  };
 
   const renderEligibilityMessage = () => {
     switch (eligibility) {
       case "guest":
         return (
-          <p className={styles.eligibilityMessage}>
+          <p className="text-muted">
             Inicia sesión como cliente para compartir tu experiencia.
           </p>
         );
       case "not-client":
         return (
-          <p className={styles.eligibilityMessage}>
+          <p className="text-muted">
             Solo los clientes pueden publicar reseñas en esta sección.
           </p>
         );
       case "checking":
         return (
-          <p className={styles.eligibilityMessage}>
-            Verificando tus compras para habilitar la reseña...
+          <p className="text-muted">
+            Verificando tus compras para habilitar la reseña…
           </p>
         );
       case "ineligible":
         return (
-          <p className={styles.eligibilityMessage}>
+          <p className="text-muted">
             Solo los clientes que compraron este producto pueden reseñarlo.
           </p>
         );
       case "eligible":
         return (
-          <p className={styles.eligibilityMessage}>
+          <p className="text-muted">
             Tu reseña aparecerá públicamente luego de enviarla.
           </p>
         );
@@ -235,100 +237,97 @@ export const ProductReviews = ({ productId, productName }: ProductReviewsProps) 
   };
 
   return (
-    <section
-      className={`mt-5 ${styles.reviewsSection}`}
-      aria-labelledby="product-reviews-title"
-    >
-      <div className={styles.sectionHeader}>
+    <section className="mt-5" aria-labelledby="product-reviews-title">
+      <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
-          <h3 id="product-reviews-title" className={styles.sectionTitle}>
+          <h3 id="product-reviews-title" className="mb-1">
             Reseñas de clientes
           </h3>
-          <p className={styles.reviewCount}>{reviewCountLabel}</p>
+          <p className="text-muted mb-0">{reviewCountLabel}</p>
         </div>
-        <span className={styles.productTag}>{productName}</span>
+        <span className="badge bg-secondary">{productName}</span>
       </div>
 
       {loadingReviews ? (
-        <div className={styles.loadingState}>
+        <div className="text-center py-4">
           <div
-            className={`spinner-border ${styles.loadingSpinner}`}
+            className="spinner-border"
             role="status"
             aria-label="Cargando reseñas"
           />
         </div>
       ) : reviews.length === 0 ? (
-        <p className={styles.emptyState}>
-          Sé la primera persona en reseñar este producto.
-        </p>
+        <p className="text-muted">Sé la primera persona en reseñar este producto.</p>
       ) : (
-        <ul className={styles.reviewsList}>
+        <ul className="list-group mb-4">
           {reviews.map((review) => (
-            <li key={review.id} className={styles.reviewItem}>
-              <div className={styles.reviewMeta}>
+            <li key={review.id} className="list-group-item">
+              <div className="d-flex justify-content-between align-items-start">
                 <div>
-                  <span className={styles.reviewUser}>{review.userName}</span>
+                  <strong>{review.userName}</strong>
                   <div>{renderRating(review.rating)}</div>
                 </div>
-                <span className={styles.reviewDate}>{formatDate(review.createdAt)}</span>
+                <small className="text-muted">{formatDate(review.createdAt)}</small>
               </div>
-              <p className={styles.reviewText}>{review.text}</p>
+              <p className="mb-0 mt-2">{review.text}</p>
             </li>
           ))}
         </ul>
       )}
 
-      <div className={styles.formCard}>
-        <h4 className={styles.formTitle}>Comparte tu experiencia</h4>
-        {renderEligibilityMessage()}
+      <div className="card shadow-sm">
+        <div className="card-body">
+          <h4 className="h5 mb-3">Comparte tu experiencia</h4>
+          {renderEligibilityMessage()}
 
-        {eligibility === "eligible" && (
-          <form onSubmit={handleSubmit} className={styles.reviewForm}>
-            <div className={styles.fieldGroup}>
-              <label htmlFor="review-rating" className={styles.label}>
-                Calificación
-              </label>
-              <select
-                id="review-rating"
-                className={styles.select}
-                value={rating}
-                onChange={(event) => setRating(Number(event.target.value))}
-                disabled={submitting}
-              >
-                {RATING_OPTIONS.map((value) => (
-                  <option key={value} value={value}>
-                    {value} estrellas
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className={styles.fieldGroup}>
-              <label htmlFor="review-comment" className={styles.label}>
-                Comentario
-              </label>
-              <textarea
-                id="review-comment"
-                className={styles.textarea}
-                rows={4}
-                value={comment}
-                onChange={(event) => setComment(event.target.value)}
-                maxLength={1000}
-                placeholder="Cuenta qué te pareció este producto"
-                disabled={submitting}
-                required
-              />
-            </div>
-            <div className={styles.actions}>
+          {eligibility === "eligible" && (
+            <form onSubmit={handleSubmit} className="mt-3">
+              <div className="row g-3">
+                <div className="col-md-4">
+                  <label htmlFor="review-rating" className="form-label">
+                    Calificación
+                  </label>
+                  <select
+                    id="review-rating"
+                    className="form-select"
+                    value={rating}
+                    onChange={(event) => setRating(Number(event.target.value))}
+                    disabled={submitting}
+                  >
+                    {RATING_OPTIONS.map((value) => (
+                      <option key={value} value={value}>
+                        {value} estrellas
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-12">
+                  <label htmlFor="review-comment" className="form-label">
+                    Comentario
+                  </label>
+                  <textarea
+                    id="review-comment"
+                    className="form-control"
+                    rows={4}
+                    value={comment}
+                    onChange={(event) => setComment(event.target.value)}
+                    maxLength={1000}
+                    placeholder="Cuenta qué te pareció este producto"
+                    disabled={submitting}
+                    required
+                  />
+                </div>
+              </div>
               <button
                 type="submit"
-                className={styles.submitButton}
+                className="btn btn-primary mt-3"
                 disabled={submitting}
               >
                 {submitting ? "Enviando reseña..." : "Enviar reseña"}
               </button>
-            </div>
-          </form>
-        )}
+            </form>
+          )}
+        </div>
       </div>
     </section>
   );

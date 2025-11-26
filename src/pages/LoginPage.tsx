@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { isAxiosError } from 'axios';
 import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../hooks/useNotification';
 import { authenticateUser } from '../helpers/api.helper';
@@ -9,6 +10,7 @@ import {
 } from '../helpers/validation.helper';
 import { FormFloating } from '../components/common/FormFloating';
 import { FormSelect } from '../components/common/FormSelect';
+import { reportError } from '../helpers/logging.helper';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -49,11 +51,15 @@ export const LoginPage = () => {
           navigate('/');
         }
       }
-    } catch (error: any) {
-      console.error(error);
-      if (error.code === 'ERR_NETWORK') {
+    } catch (error) {
+      reportError('LoginPage:authenticate', error);
+      if (isAxiosError(error) && error.code === 'ERR_NETWORK') {
         showNotification('No se pudo conectar con el servidor. Asegúrate de que el backend esté corriendo en el puerto 8081.', 'error');
-      } else if (error.response && (error.response.status === 401 || error.response.status === 404)) {
+      } else if (
+        isAxiosError(error) &&
+        error.response &&
+        (error.response.status === 401 || error.response.status === 404)
+      ) {
         showNotification('Credenciales incorrectas o usuario no encontrado.', 'error');
       } else {
         showNotification('Ocurrió un error al iniciar sesión.', 'error');

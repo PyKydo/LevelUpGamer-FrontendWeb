@@ -14,6 +14,7 @@ import { simpleHash } from '../helpers/security.helper';
 import type { UserWithPassword } from '../hooks/AuthContext';
 import { FormFloating } from '../components/common/FormFloating';
 import { FormSelect } from '../components/common/FormSelect';
+import { reportError } from '../helpers/logging.helper';
 
 export const RegisterPage = () => {
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ export const RegisterPage = () => {
         const data = await getRegions();
         setRegions(data);
       } catch (error) {
-        console.error('No se ha podido obtener la región:', error);
+        reportError('RegisterPage:fetchRegions', error);
         showNotification('Error al cargar las regiones.', 'error');
       }
     };
@@ -59,7 +60,7 @@ export const RegisterPage = () => {
           const data = await getCommunesByRegion(formData.region);
           setCommunes(data);
         } catch (error) {
-          console.error('No se ha podido obtener las comunas:', error);
+          reportError('RegisterPage:fetchCommunes', error);
           showNotification('Error al cargar las comunas.', 'error');
         } finally {
           setLoadingCommunes(false);

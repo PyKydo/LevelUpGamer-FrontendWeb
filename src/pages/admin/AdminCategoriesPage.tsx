@@ -9,6 +9,7 @@ import {
   type ProductCategory,
   type UpdateCategoryPayload,
 } from "../../helpers/api.helper";
+import { reportError } from "../../helpers/logging.helper";
 import { useNotification } from "../../hooks/useNotification";
 import dashboardStyles from "../dashboard/Dashboard.module.css";
 
@@ -46,7 +47,7 @@ export const AdminCategoriesPage = () => {
       const data = await getProductCategories();
       setCategories(sortCategoriesByName(data));
     } catch (error) {
-      console.error("Error loading categories:", error);
+      reportError("AdminCategoriesPage:loadCategories", error);
       showNotification("No se pudieron cargar las categorías.", "error");
     } finally {
       setLoadingCategories(false);
@@ -154,7 +155,7 @@ export const AdminCategoriesPage = () => {
       await refreshCategories();
       closeFormModal();
     } catch (error) {
-      console.error("Error saving category:", error);
+      reportError("AdminCategoriesPage:saveCategory", error);
       showNotification("No se pudo guardar la categoría.", "error");
     } finally {
       setFormSubmitting(false);
@@ -177,7 +178,7 @@ export const AdminCategoriesPage = () => {
       showNotification("Categoría eliminada correctamente.", "success");
       setDeleteTarget(null);
     } catch (error) {
-      console.error("Error deleting category:", error);
+      reportError("AdminCategoriesPage:deleteCategory", error);
       showNotification("No se pudo eliminar la categoría.", "error");
     } finally {
       setDeletingCategory(false);

@@ -15,6 +15,7 @@ import {
   removeLocalStorageItem,
   setLocalStorageItem,
 } from '../helpers/storage.helper';
+import { reportError } from '../helpers/logging.helper';
 
 const isPlaceholderImage = (src?: string) => !src || src.includes('placehold');
 const LOCAL_CART_STORAGE_KEY = 'levelupgamer_local_cart';
@@ -101,7 +102,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       const enriched = await enrichCartImages(items);
       setCart(enriched);
     } catch (error) {
-      console.error('No se pudo cargar el carrito:', error);
+      reportError('CartProvider:refreshCart', error);
       setCart([]);
     } finally {
       setLoading(false);
@@ -136,7 +137,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
 
       clearLocalCartStorage();
     } catch (error) {
-      console.error('No se pudo sincronizar el carrito local con el backend:', error);
+      reportError('CartProvider:syncLocalCartWithBackend', error);
     }
   }, [imageCache, user?.id]);
 
@@ -159,7 +160,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       const enriched = await enrichCartImages(items);
       setCart(enriched);
     } catch (error) {
-      console.error('No se pudo actualizar el carrito:', error);
+      reportError('CartProvider:updateCartFromOperation', error);
     }
   }, [enrichCartImages]);
 
@@ -287,7 +288,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       await clearUserCartApi(userId);
       setCart([]);
     } catch (error) {
-      console.error('No se pudo limpiar el carrito:', error);
+      reportError('CartProvider:clearCart', error);
     }
   };
 

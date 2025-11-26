@@ -71,8 +71,8 @@ const adminActions = [
         description: 'Visualiza los pedidos realizados por los usuarios.',
         Icon: FaChartLine,
         accent: 'Info' as Accent,
-        ctaLabel: 'Ver reportes (pronto)',
-        disabled: true,
+        ctaLabel: 'Gestionar boletas',
+        to: '/admin/orders',
     },
 ];
 
@@ -97,7 +97,7 @@ export const AdminDashboard = () => {
                 </header>
 
                 <div className="row g-4">
-                    {adminActions.map(({ key, title, description, Icon, accent, ctaLabel, to, disabled }) => {
+                    {adminActions.map(({ key, title, description, Icon, accent, ctaLabel, to }) => {
                         const cardAccent = accentCardClass[accent];
                         const buttonAccent = accentButtonClass[accent];
 
@@ -109,22 +109,12 @@ export const AdminDashboard = () => {
                                     </div>
                                     <h3 className={dashboardStyles.infoCardTitle}>{title}</h3>
                                     <p className={dashboardStyles.infoCardText}>{description}</p>
-                                    {to ? (
-                                        <Link
-                                            to={to}
-                                            className={`${dashboardStyles.actionLink} ${buttonAccent}`}
-                                        >
-                                            {ctaLabel}
-                                        </Link>
-                                    ) : (
-                                        <button
-                                            type="button"
-                                            className={`${dashboardStyles.actionButton} ${buttonAccent}`}
-                                            disabled={disabled}
-                                        >
-                                            {ctaLabel}
-                                        </button>
-                                    )}
+                                    <Link
+                                        to={to}
+                                        className={`${dashboardStyles.actionLink} ${buttonAccent}`}
+                                    >
+                                        {ctaLabel}
+                                    </Link>
                                 </div>
                             </div>
                         );

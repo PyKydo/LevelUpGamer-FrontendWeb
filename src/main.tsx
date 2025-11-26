@@ -30,6 +30,7 @@ import { SearchProvider } from './hooks/SearchProvider';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { SellerDashboard } from './pages/seller/SellerDashboard';
+import { SellerProductsPage } from './pages/seller/SellerProductsPage';
 import { AdminProductsPage } from './pages/admin/AdminProductsPage';
 import { AdminUsersPage } from './pages/admin/AdminUsersPage';
 import { AdminBlogsPage } from './pages/admin/AdminBlogsPage';
@@ -38,7 +39,7 @@ import { AdminReviewsPage } from './pages/admin/AdminReviewsPage';
 import { AdminOrdersPage } from './pages/admin/AdminOrdersPage';
 
 const router = createBrowserRouter([
-  // Public / Client Routes
+  
   {
     element: <Layout />,
     children: [
@@ -61,13 +62,13 @@ const router = createBrowserRouter([
     ],
   },
 
-  // Admin Routes
+  
   {
     path: '/admin',
     element: <ProtectedRoute allowedRoles={['ADMINISTRADOR']}><DashboardLayout role="ADMINISTRADOR" /></ProtectedRoute>,
     children: [
       { index: true, element: <AdminDashboard /> },
-      // Placeholders for CRUD
+      
       { path: 'users', element: <AdminUsersPage /> },
       { path: 'blogs', element: <AdminBlogsPage /> },
       { path: 'products', element: <AdminProductsPage /> },
@@ -77,13 +78,13 @@ const router = createBrowserRouter([
     ],
   },
 
-  // Seller Routes
+  
   {
     path: '/seller',
     element: <ProtectedRoute allowedRoles={['VENDEDOR']}><DashboardLayout role="VENDEDOR" /></ProtectedRoute>,
     children: [
       { index: true, element: <SellerDashboard /> },
-      { path: 'products', element: <SellerDashboard /> }, // Reusing dashboard for now as it has the table
+      { path: 'products', element: <SellerProductsPage /> },
       { path: 'orders', element: <div className="p-4"><h1>Gestión de Boletas</h1><p>Próximamente</p></div> },
     ],
   },

@@ -8,6 +8,7 @@ import {
   type Blog,
 } from '../helpers/api.helper';
 import { formatDate } from '../helpers/formatting.helper';
+import { reportError } from '../helpers/logging.helper';
 
 export const BlogDetailPage = () => {
   const { blogId } = useParams<{ blogId: string }>();
@@ -41,7 +42,7 @@ export const BlogDetailPage = () => {
         }
         setPost(foundPost || null);
       } catch (error) {
-        console.error('No se ha podido obtener la publicación:', error);
+        reportError('BlogDetailPage:fetchPost', error);
         if (isMounted) {
           setPostError('No se pudo cargar esta publicación.');
         }
@@ -74,7 +75,7 @@ export const BlogDetailPage = () => {
           setMarkdownContent(content);
         }
       } catch (error) {
-        console.error('No se ha podido obtener el contenido del blog:', error);
+        reportError('BlogDetailPage:fetchContent', error);
         if (isMounted) {
           setContentError('No se pudo cargar el contenido del blog.');
         }

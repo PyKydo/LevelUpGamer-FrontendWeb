@@ -11,6 +11,7 @@ import {
   type ProductReview,
   type UpdateReviewPayload,
 } from "../../helpers/api.helper";
+import { reportError } from "../../helpers/logging.helper";
 import { useNotification } from "../../hooks/useNotification";
 import dashboardStyles from "../dashboard/Dashboard.module.css";
 
@@ -83,7 +84,7 @@ export const AdminReviewsPage = () => {
         const data = await getAllProductReviews(sourceProducts);
         setReviews(data);
       } catch (error) {
-        console.error("Error loading reviews:", error);
+        reportError("AdminReviewsPage:refreshReviews", error);
         showNotification("No se pudieron cargar las reseñas.", "error");
       } finally {
         setLoadingReviews(false);
@@ -95,12 +96,12 @@ export const AdminReviewsPage = () => {
   const loadProducts = useCallback(async () => {
     setLoadingProducts(true);
     try {
-      const data = await getProducts();
+      const data = await getProducts({ includeInactive: true });
       productsRef.current = data;
       setProducts(data);
       await refreshReviews(data);
     } catch (error) {
-      console.error("Error loading products:", error);
+      reportError("AdminReviewsPage:loadProducts", error);
     } finally {
       setLoadingProducts(false);
     }
@@ -267,7 +268,7 @@ export const AdminReviewsPage = () => {
       await refreshReviews();
       closeReviewFormModal();
     } catch (error) {
-      console.error("Error saving review:", error);
+      reportError("AdminReviewsPage:saveReview", error);
       showNotification("No se pudo guardar la reseña.", "error");
     } finally {
       setReviewFormSubmitting(false);
@@ -288,7 +289,7 @@ export const AdminReviewsPage = () => {
       showNotification("Reseña eliminada correctamente.", "success");
       setDeleteTarget(null);
     } catch (error) {
-      console.error("Error deleting review:", error);
+      reportError("AdminReviewsPage:deleteReview", error);
       showNotification("No se pudo eliminar la reseña.", "error");
     } finally {
       setDeletingReview(false);

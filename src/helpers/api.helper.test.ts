@@ -112,6 +112,74 @@ describe("Ayudantes de API", () => {
       ).toEqual(["1-Alfa", "1-Beta", "2-Zelda"]);
     });
 
+    it("excluye productos inactivos por defecto", async () => {
+      (apiClient.get as vi.Mock).mockResolvedValueOnce({
+        data: [
+          {
+            id: 1,
+            codigo: "PRD-1",
+            nombre: "Activo",
+            descripcion: "",
+            precio: 1,
+            stock: 1,
+            categoria: "Consolas",
+            imagenes: [],
+            activo: true,
+          },
+          {
+            id: 2,
+            codigo: "PRD-2",
+            nombre: "Inactivo",
+            descripcion: "",
+            precio: 1,
+            stock: 1,
+            categoria: "Consolas",
+            imagenes: [],
+            activo: false,
+          },
+        ],
+      });
+
+      const products = await getProducts();
+
+      expect(products).toHaveLength(1);
+      expect(products[0].name).toBe("Activo");
+    });
+
+    it("incluye productos inactivos cuando se solicita", async () => {
+      (apiClient.get as vi.Mock).mockResolvedValueOnce({
+        data: [
+          {
+            id: 1,
+            codigo: "PRD-1",
+            nombre: "Activo",
+            descripcion: "",
+            precio: 1,
+            stock: 1,
+            categoria: "Consolas",
+            imagenes: [],
+            activo: true,
+          },
+          {
+            id: 2,
+            codigo: "PRD-2",
+            nombre: "Inactivo",
+            descripcion: "",
+            precio: 1,
+            stock: 1,
+            categoria: "Consolas",
+            imagenes: [],
+            activo: false,
+          },
+        ],
+      });
+
+      const products = await getProducts({ includeInactive: true });
+
+      expect(products).toHaveLength(2);
+      expect(products.map((p) => p.name)).toContain("Inactivo");
+    });
+
     it("devuelve un arreglo vacío cuando la API falla", async () => {
       (apiClient.get as vi.Mock).mockRejectedValueOnce(
         new Error("Network error")

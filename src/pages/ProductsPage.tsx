@@ -5,6 +5,7 @@ import { FormFloating } from '../components/common/FormFloating';
 import { FormSelect } from '../components/common/FormSelect';
 import { getProducts, type Product } from '../helpers/api.helper';
 import { useSearch } from '../hooks/useSearch';
+import { reportError } from '../helpers/logging.helper';
 
 export const ProductsPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -19,7 +20,7 @@ export const ProductsPage = () => {
         const data = await getProducts();
         setProducts(data);
       } catch (error) {
-        console.error('Failed to load products in page:', error);
+        reportError('ProductsPage:fetchProducts', error);
       }
     };
     fetchProducts();

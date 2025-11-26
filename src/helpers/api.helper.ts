@@ -19,6 +19,22 @@ const BLOG_ASSETS_BASE_URL = ensureTrailingSlash(
     "https://level-up-gamer.s3.amazonaws.com/"
 );
 
+const logApiHelperError = (context: string, error: unknown): void => {
+  if (
+    typeof console === "undefined" ||
+    (typeof import.meta !== "undefined" &&
+      import.meta.env?.MODE === "production")
+  ) {
+    return;
+  }
+  console.error(`[api.helper] ${context}`, error);
+};
+
+const logAndReturn = <T>(context: string, error: unknown, fallback: T): T => {
+  logApiHelperError(context, error);
+  return fallback;
+};
+
 export interface ProductSeller {
   id: number;
   name: string;
@@ -36,6 +52,7 @@ export interface Product {
   stock: number;
   stockCritical?: number;
   category: string;
+  categoryId?: number;
   image: string;
   images?: string[];
   pointsLevelUp?: number;
@@ -47,7 +64,8 @@ export interface CreateProductPayload {
   code: string;
   name: string;
   description: string;
-  category: string;
+  category?: string;
+  categoryId?: number;
   price: number;
   stock: number;
   stockCritical?: number;
@@ -184,6 +202,7 @@ export interface ProductUpdatePayload {
   stock?: number;
   stockCritical?: number;
   category?: string;
+  categoryId?: number;
   image?: string;
   pointsLevelUp?: number;
   active?: boolean;
@@ -242,6 +261,10 @@ export interface Region {
 export interface Commune {
   codigo: string;
   nombre: string;
+}
+
+export interface GetProductsOptions {
+  includeInactive?: boolean;
 }
 
 interface CategoryDTO {
@@ -559,10 +582,7 @@ const normalizeOrderStatus = (status?: string): string | undefined => {
     return undefined;
   }
 
-  const normalized = status
-    .replace(/[_\-]+/g, " ")
-    .trim()
-    .toUpperCase();
+  const normalized = status.replace(/[_-]+/g, " ").trim().toUpperCase();
 
   if (normalized === "PREPARACIÓN") {
     return "PREPARACION";
@@ -774,6 +794,10 @@ const serializeProductUpdatePayload = (
     body.categoria = payload.category;
   }
 
+  if (payload.categoryId !== undefined) {
+    body.categoriaId = payload.categoryId;
+  }
+
   if (payload.image !== undefined) {
     body.imagenPrincipal = payload.image;
   }
@@ -802,10 +826,16 @@ const mapProductDTOtoProduct = (dto: ProductDTO): Product => {
   const resolvedImages = images
     .map((img) => toAbsoluteUrl(img))
     .filter((img): img is string => Boolean(img));
-  const categoryName =
-    typeof dto.categoria === "string"
-      ? dto.categoria
-      : dto.categoria?.nombre ?? "Sin categoría";
+  const categoryInfo =
+    dto.categoria && typeof dto.categoria === "object"
+      ? (dto.categoria as CategoryDTO)
+      : undefined;
+  const categoryName = categoryInfo
+    ? categoryInfo.nombre ?? "Sin categoría"
+    : typeof dto.categoria === "string"
+    ? dto.categoria
+    : "Sin categoría";
+  const categoryId = categoryInfo?.id;
 
   return {
     id: dto.id,
@@ -816,6 +846,7 @@ const mapProductDTOtoProduct = (dto: ProductDTO): Product => {
     stock: dto.stock,
     stockCritical: dto.stockCritico,
     category: categoryName,
+    categoryId,
     image: resolvedImages[0] ?? DEFAULT_PRODUCT_IMAGE,
     images: resolvedImages,
     originalPrice: undefined,
@@ -861,11 +892,18 @@ const mapCreateProductPayloadToRequest = (
     codigo: payload.code,
     nombre: payload.name,
     descripcion: payload.description,
-    categoria: payload.category,
     precio: payload.price,
     stock: payload.stock,
     activo: payload.active ?? true,
   };
+
+  if (payload.categoryId !== undefined) {
+    body.categoriaId = payload.categoryId;
+  }
+
+  if (payload.category !== undefined) {
+    body.categoria = payload.category;
+  }
 
   if (payload.stockCritical !== undefined) {
     body.stockCritico = payload.stockCritical;
@@ -947,14 +985,19 @@ const mapCartDTOToCartItems = (
 ): CartItem[] =>
   dto.items?.map((item) => mapCartItemDTOToCartItem(item, overrides)) ?? [];
 
-export const getProducts = async (): Promise<Product[]> => {
+export const getProducts = async (
+  options?: GetProductsOptions
+): Promise<Product[]> => {
   try {
     const response = await apiClient.get<ProductDTO[]>("products");
     const mapped = response.data.map(mapProductDTOtoProduct);
-    return sortProductsByIdAndName(mapped);
-  } catch (error) {
-    console.error("Error fetching products:", error);
-    return [];
+    const includeInactive = options?.includeInactive === true;
+    const filtered = includeInactive
+      ? mapped
+      : mapped.filter((product) => product.active !== false);
+    return sortProductsByIdAndName(filtered);
+  } catch (error: unknown) {
+    return logAndReturn("getProducts", error, []);
   }
 };
 
@@ -962,30 +1005,25 @@ export const createProduct = async (
   payload: CreateProductPayload,
   imageFile?: File
 ): Promise<Product> => {
-  try {
-    const formData = new FormData();
-    const productBody = mapCreateProductPayloadToRequest(payload);
-    const productBlob = new Blob([JSON.stringify(productBody)], {
-      type: "application/json",
-    });
+  const formData = new FormData();
+  const productBody = mapCreateProductPayloadToRequest(payload);
+  const productBlob = new Blob([JSON.stringify(productBody)], {
+    type: "application/json",
+  });
 
-    formData.append("producto", productBlob);
+  formData.append("producto", productBlob);
 
-    if (imageFile) {
-      formData.append("imagen", imageFile);
-    }
-
-    const response = await apiClient.post<ProductDTO>("products", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-
-    return mapProductDTOtoProduct(response.data);
-  } catch (error) {
-    console.error("Error creating product:", error);
-    throw error;
+  if (imageFile) {
+    formData.append("imagen", imageFile);
   }
+
+  const response = await apiClient.post<ProductDTO>("products", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return mapProductDTOtoProduct(response.data);
 };
 
 export const getProductById = async (
@@ -1002,9 +1040,8 @@ export const getProductById = async (
 
     const products = await getProducts();
     return products.find((p) => p.code === id);
-  } catch (error) {
-    console.error("Error fetching product by id:", error);
-    return undefined;
+  } catch (error: unknown) {
+    return logAndReturn("getProductById", error, undefined);
   }
 };
 
@@ -1018,9 +1055,8 @@ export const getProductByBackendId = async (
   try {
     const response = await apiClient.get<ProductDTO>(`products/${backendId}`);
     return mapProductDTOtoProduct(response.data);
-  } catch (error) {
-    console.error("Error fetching product by backend id:", error);
-    return undefined;
+  } catch (error: unknown) {
+    return logAndReturn("getProductByBackendId", error, undefined);
   }
 };
 
@@ -1036,34 +1072,29 @@ export const getProductReviews = async (
       `products/${productId}/reviews`
     );
     return response.data?.map(mapReviewDTOToReview) ?? [];
-  } catch (error) {
-    console.error("Error fetching product reviews:", error);
-    return [];
+  } catch (error: unknown) {
+    return logAndReturn(`getProductReviews:${productId}`, error, []);
   }
 };
 
 export const createProductReview = async (
   payload: CreateReviewPayload
 ): Promise<ProductReview> => {
-  try {
-    const requestBody = {
-      productoId: payload.productId,
-      texto: payload.text?.trim(),
-      calificacion: payload.rating,
-    };
-    const response = await apiClient.post<ReviewDTO>("reviews", requestBody);
-    return mapReviewDTOToReview(response.data);
-  } catch (error) {
-    console.error("Error creating product review:", error);
-    throw error;
-  }
+  const requestBody = {
+    productoId: payload.productId,
+    texto: payload.text?.trim(),
+    calificacion: payload.rating,
+  };
+  const response = await apiClient.post<ReviewDTO>("reviews", requestBody);
+  return mapReviewDTOToReview(response.data);
 };
 
 export const getAllProductReviews = async (
   productList?: Product[]
 ): Promise<ProductReview[]> => {
   try {
-    const products = productList ?? (await getProducts());
+    const products =
+      productList ?? (await getProducts({ includeInactive: true }));
     if (!products.length) {
       return [];
     }
@@ -1076,12 +1107,12 @@ export const getAllProductReviews = async (
             ...review,
             productName: review.productName ?? product.name,
           }));
-        } catch (error) {
-          console.error(
-            `Error fetching reviews for product ${product.id}:`,
-            error
+        } catch (error: unknown) {
+          return logAndReturn(
+            `getAllProductReviews:product:${product.id}`,
+            error,
+            [] as ProductReview[]
           );
-          return [] as ProductReview[];
         }
       })
     );
@@ -1095,9 +1126,8 @@ export const getAllProductReviews = async (
       }
       return bDate - aDate;
     });
-  } catch (error) {
-    console.error("Error fetching product reviews:", error);
-    return [];
+  } catch (error: unknown) {
+    return logAndReturn("getAllProductReviews", error, []);
   }
 };
 
@@ -1124,20 +1154,14 @@ export const updateAdminReview = async (
   }
 
   if (!Object.keys(requestBody).length) {
-    console.warn("No hay cambios para la reseña");
     return null;
   }
 
-  try {
-    const response = await apiClient.put<ReviewDTO>(
-      `reviews/${reviewId}`,
-      requestBody
-    );
-    return mapReviewDTOToReview(response.data);
-  } catch (error) {
-    console.error("Error updating admin review:", error);
-    throw error;
-  }
+  const response = await apiClient.put<ReviewDTO>(
+    `reviews/${reviewId}`,
+    requestBody
+  );
+  return mapReviewDTOToReview(response.data);
 };
 
 export const deleteAdminReview = async (reviewId: number): Promise<void> => {
@@ -1145,12 +1169,7 @@ export const deleteAdminReview = async (reviewId: number): Promise<void> => {
     return;
   }
 
-  try {
-    await apiClient.delete(`reviews/${reviewId}`);
-  } catch (error) {
-    console.error("Error deleting admin review:", error);
-    throw error;
-  }
+  await apiClient.delete(`reviews/${reviewId}`);
 };
 
 export const updateProduct = async (
@@ -1163,20 +1182,14 @@ export const updateProduct = async (
 
   const body = serializeProductUpdatePayload(payload);
   if (!Object.keys(body).length) {
-    console.warn("No se proporcionaron campos para actualizar el producto");
     return undefined;
   }
 
-  try {
-    const response = await apiClient.put<ProductDTO>(
-      `products/${productId}`,
-      body
-    );
-    return mapProductDTOtoProduct(response.data);
-  } catch (error) {
-    console.error("Error updating product:", error);
-    throw error;
-  }
+  const response = await apiClient.put<ProductDTO>(
+    `products/${productId}`,
+    body
+  );
+  return mapProductDTOtoProduct(response.data);
 };
 
 export const deleteProduct = async (productId: number): Promise<void> => {
@@ -1184,21 +1197,15 @@ export const deleteProduct = async (productId: number): Promise<void> => {
     return;
   }
 
-  try {
-    await apiClient.delete(`products/${productId}`);
-  } catch (error) {
-    console.error("Error deleting product:", error);
-    throw error;
-  }
+  await apiClient.delete(`products/${productId}`);
 };
 
 export const getProductCategories = async (): Promise<ProductCategory[]> => {
   try {
     const response = await apiClient.get<CategoryDTO[]>("categories");
     return response.data?.map(mapCategoryDTOToCategory) ?? [];
-  } catch (error) {
-    console.error("Error fetching product categories:", error);
-    return [];
+  } catch (error: unknown) {
+    return logAndReturn("getProductCategories", error, []);
   }
 };
 
@@ -1212,16 +1219,8 @@ export const createProductCategory = async (
     activo: payload.active ?? true,
   };
 
-  try {
-    const response = await apiClient.post<CategoryDTO>(
-      "categories",
-      requestBody
-    );
-    return mapCategoryDTOToCategory(response.data);
-  } catch (error) {
-    console.error("Error creating product category:", error);
-    throw error;
-  }
+  const response = await apiClient.post<CategoryDTO>("categories", requestBody);
+  return mapCategoryDTOToCategory(response.data);
 };
 
 export const updateProductCategory = async (
@@ -1251,20 +1250,14 @@ export const updateProductCategory = async (
   }
 
   if (!Object.keys(requestBody).length) {
-    console.warn("No hay cambios para la categoría");
     return null;
   }
 
-  try {
-    const response = await apiClient.put<CategoryDTO>(
-      `categories/${categoryId}`,
-      requestBody
-    );
-    return mapCategoryDTOToCategory(response.data);
-  } catch (error) {
-    console.error("Error updating product category:", error);
-    throw error;
-  }
+  const response = await apiClient.put<CategoryDTO>(
+    `categories/${categoryId}`,
+    requestBody
+  );
+  return mapCategoryDTOToCategory(response.data);
 };
 
 export const deleteProductCategory = async (
@@ -1274,12 +1267,7 @@ export const deleteProductCategory = async (
     return;
   }
 
-  try {
-    await apiClient.delete(`categories/${categoryId}`);
-  } catch (error) {
-    console.error("Error deleting product category:", error);
-    throw error;
-  }
+  await apiClient.delete(`categories/${categoryId}`);
 };
 
 export const fetchUserCart = async (
@@ -1293,9 +1281,8 @@ export const fetchUserCart = async (
   try {
     const response = await apiClient.get<CartDTO>(`cart/${userId}`);
     return mapCartDTOToCartItems(response.data, overrides);
-  } catch (error) {
-    console.error("Error fetching user cart:", error);
-    return [];
+  } catch (error: unknown) {
+    return logAndReturn("fetchUserCart", error, []);
   }
 };
 
@@ -1309,15 +1296,10 @@ export const addProductToCartApi = async (
     return [];
   }
 
-  try {
-    const response = await apiClient.post<CartDTO>(`cart/${userId}/add`, null, {
-      params: { productId, quantity },
-    });
-    return mapCartDTOToCartItems(response.data, overrides);
-  } catch (error) {
-    console.error("Error adding product to cart:", error);
-    throw error;
-  }
+  const response = await apiClient.post<CartDTO>(`cart/${userId}/add`, null, {
+    params: { productId, quantity },
+  });
+  return mapCartDTOToCartItems(response.data, overrides);
 };
 
 export const removeProductFromCartApi = async (
@@ -1329,15 +1311,10 @@ export const removeProductFromCartApi = async (
     return [];
   }
 
-  try {
-    const response = await apiClient.delete<CartDTO>(`cart/${userId}/remove`, {
-      params: { productId },
-    });
-    return mapCartDTOToCartItems(response.data, overrides);
-  } catch (error) {
-    console.error("Error removing product from cart:", error);
-    throw error;
-  }
+  const response = await apiClient.delete<CartDTO>(`cart/${userId}/remove`, {
+    params: { productId },
+  });
+  return mapCartDTOToCartItems(response.data, overrides);
 };
 
 export const setCartItemQuantityApi = async (
@@ -1363,12 +1340,7 @@ export const clearUserCartApi = async (userId: string): Promise<void> => {
     return;
   }
 
-  try {
-    await apiClient.delete(`cart/${userId}`);
-  } catch (error) {
-    console.error("Error clearing cart:", error);
-    throw error;
-  }
+  await apiClient.delete(`cart/${userId}`);
 };
 
 export const getUserOrders = async (userId: string): Promise<Order[]> => {
@@ -1379,9 +1351,8 @@ export const getUserOrders = async (userId: string): Promise<Order[]> => {
   try {
     const response = await apiClient.get<BoletaDTO[]>(`boletas/user/${userId}`);
     return response.data?.map(mapBoletaDTOToOrder) ?? [];
-  } catch (error) {
-    console.error("Error fetching user orders:", error);
-    return [];
+  } catch (error: unknown) {
+    return logAndReturn("getUserOrders", error, []);
   }
 };
 
@@ -1417,26 +1388,16 @@ export const createOrder = async (
     throw new Error("No se puede crear una boleta sin productos");
   }
 
-  try {
-    const response = await apiClient.post<BoletaDTO>(
-      "boletas",
-      serializeBoletaPayload(payload)
-    );
-    return mapBoletaDTOToOrder(response.data);
-  } catch (error) {
-    console.error("Error creating order:", error);
-    throw error;
-  }
+  const response = await apiClient.post<BoletaDTO>(
+    "boletas",
+    serializeBoletaPayload(payload)
+  );
+  return mapBoletaDTOToOrder(response.data);
 };
 
 export const getAllOrders = async (): Promise<Order[]> => {
-  try {
-    const response = await apiClient.get<BoletaDTO[]>("boletas");
-    return response.data?.map(mapBoletaDTOToOrder) ?? [];
-  } catch (error) {
-    console.error("Error fetching orders:", error);
-    throw error;
-  }
+  const response = await apiClient.get<BoletaDTO[]>("boletas");
+  return response.data?.map(mapBoletaDTOToOrder) ?? [];
 };
 
 export const getOrderById = async (orderId: number): Promise<Order | null> => {
@@ -1444,13 +1405,8 @@ export const getOrderById = async (orderId: number): Promise<Order | null> => {
     return null;
   }
 
-  try {
-    const response = await apiClient.get<BoletaDTO>(`boletas/${orderId}`);
-    return mapBoletaDTOToOrder(response.data);
-  } catch (error) {
-    console.error("Error fetching order detail:", error);
-    throw error;
-  }
+  const response = await apiClient.get<BoletaDTO>(`boletas/${orderId}`);
+  return mapBoletaDTOToOrder(response.data);
 };
 
 export const updateOrderStatus = async (
@@ -1461,17 +1417,11 @@ export const updateOrderStatus = async (
     return null;
   }
 
-  try {
-    const normalizedStatus = status.toUpperCase();
-    const response = await apiClient.put<BoletaDTO>(
-      `boletas/${orderId}/estado`,
-      { estado: normalizedStatus }
-    );
-    return mapBoletaDTOToOrder(response.data);
-  } catch (error) {
-    console.error("Error updating order status:", error);
-    throw error;
-  }
+  const normalizedStatus = status.toUpperCase();
+  const response = await apiClient.put<BoletaDTO>(`boletas/${orderId}/estado`, {
+    estado: normalizedStatus,
+  });
+  return mapBoletaDTOToOrder(response.data);
 };
 
 export const deleteOrder = async (orderId: number): Promise<void> => {
@@ -1479,21 +1429,15 @@ export const deleteOrder = async (orderId: number): Promise<void> => {
     return;
   }
 
-  try {
-    await apiClient.delete(`boletas/${orderId}`);
-  } catch (error) {
-    console.error("Error deleting order:", error);
-    throw error;
-  }
+  await apiClient.delete(`boletas/${orderId}`);
 };
 
 export const getUsers = async (): Promise<UserSummary[]> => {
   try {
     const response = await apiClient.get<UserDTO[]>("users");
     return response.data?.map(mapUserDTOToSummary) ?? [];
-  } catch (error) {
-    console.error("Error fetching users:", error);
-    return [];
+  } catch (error: unknown) {
+    return logAndReturn("getUsers", error, []);
   }
 };
 
@@ -1599,9 +1543,8 @@ export const getUserById = async (
   try {
     const response = await apiClient.get<UserProfileDTO>(`users/${userId}`);
     return mapUserProfileDTOToDetail(response.data);
-  } catch (error) {
-    console.error("Error fetching user detail:", error);
-    return null;
+  } catch (error: unknown) {
+    return logAndReturn("getUserById", error, null);
   }
 };
 
@@ -1622,16 +1565,11 @@ export const updateUser = async (
   if (!userId) {
     return null;
   }
-  try {
-    const response = await apiClient.put<UserProfileDTO>(
-      `users/${userId}`,
-      serializeUpdateUserPayload(payload)
-    );
-    return mapUserProfileDTOToDetail(response.data);
-  } catch (error) {
-    console.error("Error updating user:", error);
-    throw error;
-  }
+  const response = await apiClient.put<UserProfileDTO>(
+    `users/${userId}`,
+    serializeUpdateUserPayload(payload)
+  );
+  return mapUserProfileDTOToDetail(response.data);
 };
 
 export const deleteUser = async (userId: number): Promise<void> => {
@@ -1648,9 +1586,8 @@ export const getUserRoles = async (): Promise<string[]> => {
     const response = await apiClient.get<string[]>("users/roles");
     const roles = response.data?.map((role) => role.toUpperCase()) ?? [];
     return roles.length ? roles : DEFAULT_USER_ROLES;
-  } catch (error) {
-    console.error("Error fetching user roles:", error);
-    return DEFAULT_USER_ROLES;
+  } catch (error: unknown) {
+    return logAndReturn("getUserRoles", error, DEFAULT_USER_ROLES);
   }
 };
 
@@ -1663,9 +1600,8 @@ export const getBlogPosts = async (): Promise<Blog[]> => {
   try {
     const response = await apiClient.get<BlogDTO[]>("blog-posts");
     return response.data.map(mapBlogDTOtoBlog);
-  } catch (error) {
-    console.error("Error fetching blog posts:", error);
-    return [];
+  } catch (error: unknown) {
+    return logAndReturn("getBlogPosts", error, []);
   }
 };
 
@@ -1674,9 +1610,8 @@ export const getAdminBlogs = async (): Promise<AdminBlog[]> => {
     const response = await apiClient.get<BlogDTO[]>("blog-posts");
     const mapped = response.data.map(mapBlogDTOtoAdminBlog);
     return sortBlogsByPublishedDate(mapped);
-  } catch (error) {
-    console.error("Error fetching admin blog posts:", error);
-    return [];
+  } catch (error: unknown) {
+    return logAndReturn("getAdminBlogs", error, []);
   }
 };
 
@@ -1690,9 +1625,8 @@ export const getAdminBlogById = async (
   try {
     const response = await apiClient.get<BlogDTO>(`blog-posts/${blogId}`);
     return mapBlogDTOtoAdminBlog(response.data);
-  } catch (error) {
-    console.error("Error fetching admin blog detail:", error);
-    return null;
+  } catch (error: unknown) {
+    return logAndReturn("getAdminBlogById", error, null);
   }
 };
 
@@ -1700,28 +1634,23 @@ export const createBlogPost = async (
   payload: CreateBlogPayload,
   imageFile?: File
 ): Promise<AdminBlog> => {
-  try {
-    const formData = new FormData();
-    const blogBody = serializeCreateBlogPayload(payload);
-    const blogBlob = new Blob([JSON.stringify(blogBody)], {
-      type: "application/json",
-    });
+  const formData = new FormData();
+  const blogBody = serializeCreateBlogPayload(payload);
+  const blogBlob = new Blob([JSON.stringify(blogBody)], {
+    type: "application/json",
+  });
 
-    formData.append("blog", blogBlob);
+  formData.append("blog", blogBlob);
 
-    if (imageFile) {
-      formData.append("imagen", imageFile);
-    }
-
-    const response = await apiClient.post<BlogDTO>("blog-posts", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-
-    return mapBlogDTOtoAdminBlog(response.data);
-  } catch (error) {
-    console.error("Error creating blog post:", error);
-    throw error;
+  if (imageFile) {
+    formData.append("imagen", imageFile);
   }
+
+  const response = await apiClient.post<BlogDTO>("blog-posts", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+  return mapBlogDTOtoAdminBlog(response.data);
 };
 
 export const updateBlogPost = async (
@@ -1734,17 +1663,11 @@ export const updateBlogPost = async (
 
   const body = serializeUpdateBlogPayload(payload);
   if (!Object.keys(body).length) {
-    console.warn("No se proporcionaron campos para actualizar el blog");
     return null;
   }
 
-  try {
-    const response = await apiClient.put<BlogDTO>(`blog-posts/${blogId}`, body);
-    return mapBlogDTOtoAdminBlog(response.data);
-  } catch (error) {
-    console.error("Error updating blog post:", error);
-    throw error;
-  }
+  const response = await apiClient.put<BlogDTO>(`blog-posts/${blogId}`, body);
+  return mapBlogDTOtoAdminBlog(response.data);
 };
 
 export const deleteBlogPost = async (blogId: number): Promise<void> => {
@@ -1752,12 +1675,7 @@ export const deleteBlogPost = async (blogId: number): Promise<void> => {
     return;
   }
 
-  try {
-    await apiClient.delete(`blog-posts/${blogId}`);
-  } catch (error) {
-    console.error("Error deleting blog post:", error);
-    throw error;
-  }
+  await apiClient.delete(`blog-posts/${blogId}`);
 };
 
 export const getBlogPostById = async (
@@ -1769,9 +1687,8 @@ export const getBlogPostById = async (
   try {
     const response = await apiClient.get<BlogDTO>(`blog-posts/${id}`);
     return mapBlogDTOtoBlog(response.data);
-  } catch (error) {
-    console.error("Error fetching blog post by id:", error);
-    return undefined;
+  } catch (error: unknown) {
+    return logAndReturn("getBlogPostById", error, undefined);
   }
 };
 
@@ -1816,7 +1733,6 @@ export const authenticateUser = async (
 
     return user;
   } catch (error: unknown) {
-    console.error("Login error:", error);
     if (
       typeof error === "object" &&
       error !== null &&
@@ -1826,11 +1742,30 @@ export const authenticateUser = async (
       const response = (
         error as { response?: { data?: unknown; status?: unknown } }
       ).response;
-      if (response) {
-        console.error("Server Error Data:", response.data);
-        console.error("Server Error Status:", response.status);
+      const message = (() => {
+        if (!response?.data) {
+          return undefined;
+        }
+        if (typeof response.data === "string") {
+          return response.data;
+        }
+        if (
+          typeof response.data === "object" &&
+          "message" in response.data &&
+          typeof (response.data as { message?: unknown }).message === "string"
+        ) {
+          return (response.data as { message?: string }).message;
+        }
+        return undefined;
+      })();
+
+      if (message?.trim()) {
+        logApiHelperError("authenticateUser", error);
+        throw new Error(message.trim());
       }
     }
+
+    logApiHelperError("authenticateUser", error);
     throw error;
   }
 };
@@ -1858,9 +1793,8 @@ const fetchBlogContentFromEndpoint = async (
       : response.data != null
       ? String(response.data)
       : "";
-  } catch (error) {
-    console.error("Error fetching blog content via endpoint:", error);
-    return null;
+  } catch (error: unknown) {
+    return logAndReturn("fetchBlogContentFromEndpoint", error, null);
   }
 };
 

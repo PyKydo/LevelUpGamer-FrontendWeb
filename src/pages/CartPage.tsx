@@ -113,7 +113,6 @@ export const CartPage = () => {
       });
       setReceiptModalOpen(true);
     } catch (error) {
-      console.error('No se pudo procesar el pago:', error);
       const backendErrorResponse =
         typeof error === 'object' &&
         error !== null &&

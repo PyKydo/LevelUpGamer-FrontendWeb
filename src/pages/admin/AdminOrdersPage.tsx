@@ -15,6 +15,7 @@ import {
   type UserSummary,
 } from "../../helpers/api.helper";
 import { formatCurrency } from "../../helpers/formatting.helper";
+import { reportError } from "../../helpers/logging.helper";
 import { useNotification } from "../../hooks/useNotification";
 import dashboardStyles from "../dashboard/Dashboard.module.css";
 
@@ -154,7 +155,7 @@ export const AdminOrdersPage = () => {
       const data = await getAllOrders();
       setOrders(sortOrdersByIssuedDate(data));
     } catch (error) {
-      console.error("Error loading orders:", error);
+      reportError("AdminOrdersPage:loadOrders", error);
       showNotification("No se pudieron cargar las boletas.", "error");
     } finally {
       setLoadingOrders(false);
@@ -170,13 +171,16 @@ export const AdminOrdersPage = () => {
     const loadReferenceData = async () => {
       setReferenceLoading(true);
       try {
-        const [userList, productList] = await Promise.all([getUsers(), getProducts()]);
+        const [userList, productList] = await Promise.all([
+          getUsers(),
+          getProducts({ includeInactive: true }),
+        ]);
         if (isMounted) {
           setUsers(sortUsersByName(userList));
           setProducts(productList);
         }
       } catch (error) {
-        console.error("Error loading reference data:", error);
+        reportError("AdminOrdersPage:loadReferenceData", error);
         showNotification("No se pudieron cargar usuarios o productos.", "error");
       } finally {
         if (isMounted) {
@@ -342,7 +346,7 @@ export const AdminOrdersPage = () => {
       showNotification("Boleta creada correctamente.", "success");
       closeCreateOrderModal();
     } catch (error) {
-      console.error("Error creating order:", error);
+      reportError("AdminOrdersPage:createOrder", error);
       showNotification("No se pudo crear la boleta.", "error");
     } finally {
       setOrderFormSubmitting(false);
@@ -356,7 +360,7 @@ export const AdminOrdersPage = () => {
       const detail = await getOrderById(order.id);
       setDetailOrder(detail ?? order);
     } catch (error) {
-      console.error("Error fetching order detail:", error);
+      reportError("AdminOrdersPage:loadOrderDetail", error);
       showNotification("No se pudo cargar el detalle de la boleta.", "error");
       setDetailModalOpen(false);
     } finally {
@@ -400,7 +404,7 @@ export const AdminOrdersPage = () => {
       }
       closeStatusModal();
     } catch (error) {
-      console.error("Error updating order status:", error);
+      reportError("AdminOrdersPage:updateStatus", error);
       showNotification("No se pudo actualizar el estado de la boleta.", "error");
     } finally {
       setStatusSubmitting(false);
@@ -427,7 +431,7 @@ export const AdminOrdersPage = () => {
       showNotification("Boleta eliminada correctamente.", "success");
       closeDeleteModal();
     } catch (error) {
-      console.error("Error deleting order:", error);
+      reportError("AdminOrdersPage:deleteOrder", error);
       showNotification("No se pudo eliminar la boleta.", "error");
     } finally {
       setDeletingOrder(false);

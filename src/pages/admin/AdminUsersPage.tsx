@@ -13,6 +13,7 @@ import {
   type UserDetail,
   type UserSummary,
 } from "../../helpers/api.helper";
+import { reportError } from "../../helpers/logging.helper";
 import { useNotification } from "../../hooks/useNotification";
 import dashboardStyles from "../dashboard/Dashboard.module.css";
 
@@ -77,7 +78,7 @@ export const AdminUsersPage = () => {
           setUsers(sortUsersByName(data));
         }
       } catch (error) {
-        console.error("Error loading users:", error);
+        reportError("AdminUsersPage:loadUsers", error);
         showNotification("No se pudieron cargar los usuarios.", "error");
       } finally {
         if (isMounted) {
@@ -170,7 +171,7 @@ export const AdminUsersPage = () => {
         referralCode: "",
       });
     } catch (error) {
-      console.error("Error loading user detail:", error);
+      reportError("AdminUsersPage:loadUserDetailForEdit", error);
       showNotification("No se pudo obtener la información del usuario.", "error");
       closeUserFormModal();
     } finally {
@@ -192,7 +193,7 @@ export const AdminUsersPage = () => {
       }
       setDetailUser({ ...detail, role: user.role });
     } catch (error) {
-      console.error("Error loading user detail:", error);
+      reportError("AdminUsersPage:loadUserDetail", error);
       showNotification("No se pudo cargar el detalle del usuario.", "error");
       setDetailModalOpen(false);
     } finally {
@@ -286,7 +287,7 @@ export const AdminUsersPage = () => {
 
       closeUserFormModal();
     } catch (error) {
-      console.error("Error saving user:", error);
+      reportError("AdminUsersPage:saveUser", error);
       showNotification("No se pudo guardar el usuario.", "error");
     } finally {
       setUserFormSubmitting(false);
@@ -305,7 +306,7 @@ export const AdminUsersPage = () => {
       showNotification("Usuario eliminado correctamente.", "success");
       setDeleteTarget(null);
     } catch (error) {
-      console.error("Error deleting user:", error);
+      reportError("AdminUsersPage:deleteUser", error);
       showNotification("No se pudo eliminar el usuario.", "error");
     } finally {
       setDeletingUser(false);

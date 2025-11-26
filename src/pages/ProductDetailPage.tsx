@@ -7,6 +7,7 @@ import { useNotification } from '../hooks/useNotification';
 import { ProductReviews } from '../components/products/ProductReviews';
 import { getProductById, type Product } from '../helpers/api.helper';
 import { formatCurrency } from '../helpers/formatting.helper';
+import { reportError } from '../helpers/logging.helper';
 
 export const ProductDetailPage = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -15,6 +16,9 @@ export const ProductDetailPage = () => {
   const [error, setError] = useState<string | null>(null);
   const { addToCart } = useCart();
   const { showNotification } = useNotification();
+  const isInactive = product?.active === false;
+  const isOutOfStock = typeof product?.stock === 'number' ? product.stock <= 0 : false;
+  const isUnavailable = isInactive || isOutOfStock;
 
   useEffect(() => {
     let isMounted = true;
@@ -37,8 +41,8 @@ export const ProductDetailPage = () => {
           setProduct(null);
           setError('Producto no encontrado.');
         }
-      } catch (err) {
-        console.error('Error cargando el producto:', err);
+      } catch (error) {
+        reportError('ProductDetailPage:fetchProduct', error);
         if (isMounted) {
           setError('No se pudo cargar la información del producto.');
         }
@@ -61,6 +65,14 @@ export const ProductDetailPage = () => {
 
     if (typeof product.id !== 'number') {
       showNotification('No se pudo identificar el producto seleccionado.', 'error');
+      return;
+    }
+
+    if (isUnavailable) {
+      const reason = isInactive
+        ? 'Este producto ya no está disponible para la venta.'
+        : 'El producto está sin stock por ahora.';
+      showNotification(reason, 'error');
       return;
     }
 
@@ -111,8 +123,19 @@ export const ProductDetailPage = () => {
           <h2>{product.name}</h2>
           <p className="lead">{product.description}</p>
           <h3 className="my-4">{formatCurrency(product.price)}</h3>
-          <button className="btn btn-primary btn-lg" onClick={handleAddToCart}>
-            <IoCart /> Añadir al Carrito
+          {isUnavailable && (
+            <div className="alert alert-warning" role="status">
+              {isInactive
+                ? 'Este producto fue retirado del catálogo.'
+                : 'Producto sin stock disponible por el momento.'}
+            </div>
+          )}
+          <button
+            className="btn btn-primary btn-lg"
+            onClick={handleAddToCart}
+            disabled={isUnavailable}
+          >
+            <IoCart /> {isUnavailable ? 'No disponible' : 'Añadir al Carrito'}
           </button>
         </div>
       </div>

@@ -3,7 +3,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { getProducts, type Product } from '../../helpers/api.helper';
 import { Link } from 'react-router-dom';
-import { FaBoxOpen, FaFileInvoiceDollar, FaChartLine, FaHeadset } from 'react-icons/fa6';
+import { FaBoxOpen, FaFileInvoiceDollar, FaHeadset } from 'react-icons/fa6';
+import { reportError } from '../../helpers/logging.helper';
 import dashboardStyles from '../dashboard/Dashboard.module.css';
 
 type Accent = 'Primary' | 'Success' | 'Info' | 'Danger';
@@ -29,8 +30,8 @@ const quickActions = [
         description: 'Administra tu catálogo y mantén precios actualizados.',
         Icon: FaBoxOpen,
         accent: 'Primary' as Accent,
-        ctaLabel: 'Ver productos',
-        to: '/products',
+        ctaLabel: 'Gestionar productos',
+        to: '/seller/products',
     },
     {
         key: 'orders',
@@ -38,17 +39,8 @@ const quickActions = [
         description: 'Revisa ventas recientes y el detalle de cada pedido.',
         Icon: FaFileInvoiceDollar,
         accent: 'Success' as Accent,
-        ctaLabel: 'Consultar órdenes (pronto)',
-        disabled: true,
-    },
-    {
-        key: 'analytics',
-        title: 'Rendimiento',
-        description: 'Analiza unidades vendidas y márgenes proyectados.',
-        Icon: FaChartLine,
-        accent: 'Info' as Accent,
-        ctaLabel: 'Ver métricas (pronto)',
-        disabled: true,
+        ctaLabel: 'Consultar boletas',
+        to: '/seller/orders',
     },
     {
         key: 'support',
@@ -70,10 +62,10 @@ export const SellerDashboard = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const data = await getProducts();
+                const data = await getProducts({ includeInactive: true });
                 setProducts(data);
             } catch (error) {
-                console.error('Error loading products:', error);
+                reportError('SellerDashboard:fetchProducts', error);
             } finally {
                 setLoading(false);
             }
@@ -110,7 +102,7 @@ export const SellerDashboard = () => {
                 </header>
 
                 <div className="row g-4 mb-4">
-                    {quickActions.map(({ key, title, description, Icon, accent, ctaLabel, to, disabled }) => {
+                    {quickActions.map(({ key, title, description, Icon, accent, ctaLabel, to }) => {
                         const cardAccent = accentCardClass[accent];
                         const buttonAccent = accentButtonClass[accent];
 
@@ -122,22 +114,12 @@ export const SellerDashboard = () => {
                                     </div>
                                     <h3 className={dashboardStyles.infoCardTitle}>{title}</h3>
                                     <p className={dashboardStyles.infoCardText}>{description}</p>
-                                    {to ? (
-                                        <Link
-                                            to={to}
-                                            className={`${dashboardStyles.actionLink} ${buttonAccent}`}
-                                        >
-                                            {ctaLabel}
-                                        </Link>
-                                    ) : (
-                                        <button
-                                            type="button"
-                                            className={`${dashboardStyles.actionButton} ${buttonAccent}`}
-                                            disabled={disabled}
-                                        >
-                                            {ctaLabel}
-                                        </button>
-                                    )}
+                                    <Link
+                                        to={to}
+                                        className={`${dashboardStyles.actionLink} ${buttonAccent}`}
+                                    >
+                                        {ctaLabel}
+                                    </Link>
                                 </div>
                             </div>
                         );

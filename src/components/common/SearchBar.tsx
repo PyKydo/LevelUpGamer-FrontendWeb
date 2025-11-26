@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { IoSearch } from 'react-icons/io5';
 import { useSearch } from '../../hooks/useSearch';
 import { getProducts, type Product } from '../../helpers/api.helper';
+import { reportError } from '../../helpers/logging.helper';
 import styles from './SearchBar.module.css';
 
 const THUMB_FALLBACK = 'https://placehold.co/64x64?text=IMG';
@@ -21,7 +22,7 @@ export const SearchBar = () => {
                 const products = await getProducts();
                 setAvailableProducts(products);
             } catch (error) {
-                console.error('Error loading products for search suggestions:', error);
+                reportError('SearchBar:fetchProducts', error);
             }
         };
 
