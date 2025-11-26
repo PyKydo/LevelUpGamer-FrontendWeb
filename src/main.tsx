@@ -30,6 +30,7 @@ import { SearchProvider } from './hooks/SearchProvider';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { SellerDashboard } from './pages/seller/SellerDashboard';
+import { AdminProductsPage } from './pages/admin/AdminProductsPage';
 
 const router = createBrowserRouter([
   // Public / Client Routes
@@ -63,7 +64,7 @@ const router = createBrowserRouter([
       { index: true, element: <AdminDashboard /> },
       // Placeholders for CRUD
       { path: 'users', element: <div className="p-4"><h1>Gestión de Usuarios</h1><p>Próximamente</p></div> },
-      { path: 'products', element: <div className="p-4"><h1>Gestión de Productos</h1><p>Próximamente</p></div> },
+      { path: 'products', element: <AdminProductsPage /> },
       { path: 'blogs', element: <div className="p-4"><h1>Gestión de Blogs</h1><p>Próximamente</p></div> },
       { path: 'categories', element: <div className="p-4"><h1>Gestión de Categorías</h1><p>Próximamente</p></div> },
       { path: 'reviews', element: <div className="p-4"><h1>Gestión de Reseñas</h1><p>Próximamente</p></div> },

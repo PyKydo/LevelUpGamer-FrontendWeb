@@ -66,6 +66,52 @@ describe("Ayudantes de API", () => {
       });
     });
 
+    it("ordena los productos por id y luego por nombre", async () => {
+      (apiClient.get as vi.Mock).mockResolvedValueOnce({
+        data: [
+          {
+            id: 2,
+            codigo: "PRD-2",
+            nombre: "Zelda",
+            descripcion: "",
+            precio: 1000,
+            stock: 3,
+            categoria: "Consolas",
+            imagenes: [],
+            activo: true,
+          },
+          {
+            id: 1,
+            codigo: "PRD-1B",
+            nombre: "Beta",
+            descripcion: "",
+            precio: 1000,
+            stock: 3,
+            categoria: "Consolas",
+            imagenes: [],
+            activo: true,
+          },
+          {
+            id: 1,
+            codigo: "PRD-1A",
+            nombre: "Alfa",
+            descripcion: "",
+            precio: 1000,
+            stock: 3,
+            categoria: "Consolas",
+            imagenes: [],
+            activo: true,
+          },
+        ],
+      });
+
+      const products = await getProducts();
+
+      expect(
+        products.map((product) => `${product.id}-${product.name}`)
+      ).toEqual(["1-Alfa", "1-Beta", "2-Zelda"]);
+    });
+
     it("devuelve un arreglo vacío cuando la API falla", async () => {
       (apiClient.get as vi.Mock).mockRejectedValueOnce(
         new Error("Network error")

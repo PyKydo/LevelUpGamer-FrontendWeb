@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { IoCart } from 'react-icons/io5';
 import { useCart } from '../hooks/useCart';
 import { useNotification } from '../hooks/useNotification';
+import { ProductReviews } from '../components/products/ProductReviews';
 import { getProductById, type Product } from '../helpers/api.helper';
 import { formatCurrency } from '../helpers/formatting.helper';
 
@@ -115,6 +116,7 @@ export const ProductDetailPage = () => {
           </button>
         </div>
       </div>
+      <ProductReviews productId={product.id} productName={product.name} />
     </main>
   );
 };

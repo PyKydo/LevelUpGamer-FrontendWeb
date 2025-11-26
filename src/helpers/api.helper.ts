@@ -43,6 +43,81 @@ export interface Product {
   seller?: ProductSeller;
 }
 
+export interface CreateProductPayload {
+  code: string;
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+  stock: number;
+  stockCritical?: number;
+  pointsLevelUp?: number;
+  active?: boolean;
+}
+
+export interface ProductReview {
+  id: number;
+  productId: number;
+  rating: number;
+  text: string;
+  userName: string;
+  createdAt: string;
+}
+
+export interface CreateReviewPayload {
+  productId: number;
+  text: string;
+  rating: number;
+}
+
+export interface OrderDetail {
+  productId: number;
+  productName: string;
+  quantity: number;
+  unitPrice: number;
+}
+
+export interface Order {
+  id: number;
+  number?: string;
+  issuedAt?: string;
+  total: number;
+  details: OrderDetail[];
+}
+
+export interface CreateOrderDetailPayload {
+  productId: number;
+  quantity: number;
+}
+
+export interface CreateOrderPayload {
+  clientId: number;
+  total: number;
+  details: CreateOrderDetailPayload[];
+  couponId?: number;
+  couponCode?: string;
+}
+
+export interface UserSummary {
+  id: number;
+  fullName: string;
+  email: string;
+  role: string;
+}
+
+export interface ProductUpdatePayload {
+  name?: string;
+  description?: string;
+  price?: number;
+  stock?: number;
+  stockCritical?: number;
+  category?: string;
+  image?: string;
+  pointsLevelUp?: number;
+  active?: boolean;
+  sellerId?: number | null;
+}
+
 export interface Blog {
   id: string;
   title: string;
@@ -122,6 +197,79 @@ interface CartDTO {
   total: number;
 }
 
+interface ReviewDTO {
+  id: number;
+  productoId?: number;
+  productId?: number;
+  texto?: string;
+  text?: string;
+  calificacion?: number;
+  rating?: number;
+  nombreUsuario?: string;
+  userName?: string;
+  createdAt?: string;
+  fechaCreacion?: string;
+}
+
+interface BoletaDetalleDTO {
+  productoId?: number;
+  productId?: number;
+  productoNombre?: string;
+  productName?: string;
+  producto?: { id?: number; nombre?: string };
+  cantidad?: number;
+  quantity?: number;
+  unidades?: number;
+  precioUnitario?: number;
+  unitPrice?: number;
+  precio?: number;
+}
+
+interface BoletaDTO {
+  id: number;
+  numero?: string;
+  number?: string;
+  codigo?: string;
+  fechaEmision?: string;
+  fecha?: string;
+  createdAt?: string;
+  total?: number;
+  montoTotal?: number;
+  detalles?: BoletaDetalleDTO[];
+  details?: BoletaDetalleDTO[];
+}
+
+interface UserDTO {
+  id?: number;
+  usuarioId?: number;
+  nombre?: string;
+  name?: string;
+  apellidos?: string;
+  lastName?: string;
+  correo?: string;
+  email?: string;
+  rol?: string;
+  role?: string;
+}
+
+interface LoginResponseDTO {
+  accessToken: string;
+  refreshToken?: string;
+  usuarioId: number;
+}
+
+interface UserProfileDTO {
+  id: number;
+  nombre: string;
+  apellidos: string;
+  correo: string;
+  run: string;
+  fechaNacimiento: string;
+  direccion: string;
+  region: string;
+  comuna: string;
+}
+
 const stripProtocolAndLeadingSlash = (path: string): string =>
   path
     .replace(/^https?:\/\/[^/]+\//i, "")
@@ -181,6 +329,96 @@ const resolveBlogAssetUrl = (
   }
 };
 
+const mapReviewDTOToReview = (dto: ReviewDTO): ProductReview => ({
+  id: dto.id,
+  productId: dto.productId ?? dto.productoId ?? 0,
+  rating: dto.rating ?? dto.calificacion ?? 0,
+  text: dto.text ?? dto.texto ?? "",
+  userName: dto.userName ?? dto.nombreUsuario ?? "Usuario",
+  createdAt: dto.createdAt ?? dto.fechaCreacion ?? new Date().toISOString(),
+});
+
+const mapOrderDetailDTO = (dto: BoletaDetalleDTO): OrderDetail => ({
+  productId: dto.productId ?? dto.productoId ?? dto.producto?.id ?? 0,
+  productName:
+    dto.productName ?? dto.productoNombre ?? dto.producto?.nombre ?? "Producto",
+  quantity: dto.quantity ?? dto.cantidad ?? dto.unidades ?? 0,
+  unitPrice: dto.unitPrice ?? dto.precioUnitario ?? dto.precio ?? 0,
+});
+
+const mapBoletaDTOToOrder = (dto: BoletaDTO): Order => ({
+  id: dto.id,
+  number: dto.numero ?? dto.number ?? dto.codigo,
+  issuedAt: dto.fechaEmision ?? dto.fecha ?? dto.createdAt,
+  total: dto.total ?? dto.montoTotal ?? 0,
+  details: (dto.detalles ?? dto.details ?? []).map(mapOrderDetailDTO),
+});
+
+const buildFullName = (nombre?: string, apellidos?: string): string => {
+  const parts = [nombre ?? "", apellidos ?? ""]
+    .map((value) => value?.trim())
+    .filter(Boolean);
+  return parts.join(" ") || nombre || apellidos || "Usuario";
+};
+
+const mapUserDTOToSummary = (dto: UserDTO): UserSummary => ({
+  id: Number(dto.id ?? dto.usuarioId ?? 0),
+  fullName: buildFullName(
+    dto.nombre ?? dto.name,
+    dto.apellidos ?? dto.lastName
+  ),
+  email: dto.correo ?? dto.email ?? "",
+  role: (dto.rol ?? dto.role ?? "CLIENTE").toUpperCase(),
+});
+
+const serializeProductUpdatePayload = (
+  payload: ProductUpdatePayload
+): Record<string, unknown> => {
+  const body: Record<string, unknown> = {};
+
+  if (payload.name !== undefined) {
+    body.nombre = payload.name;
+  }
+
+  if (payload.description !== undefined) {
+    body.descripcion = payload.description;
+  }
+
+  if (payload.price !== undefined) {
+    body.precio = payload.price;
+  }
+
+  if (payload.stock !== undefined) {
+    body.stock = payload.stock;
+  }
+
+  if (payload.stockCritical !== undefined) {
+    body.stockCritico = payload.stockCritical;
+  }
+
+  if (payload.category !== undefined) {
+    body.categoria = payload.category;
+  }
+
+  if (payload.image !== undefined) {
+    body.imagenPrincipal = payload.image;
+  }
+
+  if (payload.pointsLevelUp !== undefined) {
+    body.puntosLevelUp = payload.pointsLevelUp;
+  }
+
+  if (payload.active !== undefined) {
+    body.activo = payload.active;
+  }
+
+  if (payload.sellerId !== undefined) {
+    body.vendedorId = payload.sellerId;
+  }
+
+  return body;
+};
+
 // Mappers
 const DEFAULT_PRODUCT_IMAGE = "https://placehold.co/600x600?text=Producto";
 
@@ -217,6 +455,44 @@ const mapProductDTOtoProduct = (dto: ProductDTO): Product => {
         }
       : undefined,
   };
+};
+
+const productNameCollator = new Intl.Collator("es", { sensitivity: "base" });
+
+export const sortProductsByIdAndName = (list: Product[]): Product[] =>
+  list.sort((a, b) => {
+    const idDiff = (a.id ?? 0) - (b.id ?? 0);
+    if (idDiff !== 0) {
+      return idDiff;
+    }
+
+    const nameA = a.name ?? "";
+    const nameB = b.name ?? "";
+    return productNameCollator.compare(nameA, nameB);
+  });
+
+const mapCreateProductPayloadToRequest = (
+  payload: CreateProductPayload
+): Record<string, unknown> => {
+  const body: Record<string, unknown> = {
+    codigo: payload.code,
+    nombre: payload.name,
+    descripcion: payload.description,
+    categoria: payload.category,
+    precio: payload.price,
+    stock: payload.stock,
+    activo: payload.active ?? true,
+  };
+
+  if (payload.stockCritical !== undefined) {
+    body.stockCritico = payload.stockCritical;
+  }
+
+  if (payload.pointsLevelUp !== undefined) {
+    body.puntosLevelUp = payload.pointsLevelUp;
+  }
+
+  return body;
 };
 
 const mapBlogDTOtoBlog = (dto: BlogDTO): Blog => {
@@ -260,10 +536,41 @@ const mapCartDTOToCartItems = (
 export const getProducts = async (): Promise<Product[]> => {
   try {
     const response = await apiClient.get<ProductDTO[]>("products");
-    return response.data.map(mapProductDTOtoProduct);
+    const mapped = response.data.map(mapProductDTOtoProduct);
+    return sortProductsByIdAndName(mapped);
   } catch (error) {
     console.error("Error fetching products:", error);
     return [];
+  }
+};
+
+export const createProduct = async (
+  payload: CreateProductPayload,
+  imageFile?: File
+): Promise<Product> => {
+  try {
+    const formData = new FormData();
+    const productBody = mapCreateProductPayloadToRequest(payload);
+    const productBlob = new Blob([JSON.stringify(productBody)], {
+      type: "application/json",
+    });
+
+    formData.append("producto", productBlob);
+
+    if (imageFile) {
+      formData.append("imagen", imageFile);
+    }
+
+    const response = await apiClient.post<ProductDTO>("products", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return mapProductDTOtoProduct(response.data);
+  } catch (error) {
+    console.error("Error creating product:", error);
+    throw error;
   }
 };
 
@@ -300,6 +607,80 @@ export const getProductByBackendId = async (
   } catch (error) {
     console.error("Error fetching product by backend id:", error);
     return undefined;
+  }
+};
+
+export const getProductReviews = async (
+  productId: number
+): Promise<ProductReview[]> => {
+  if (!productId) {
+    return [];
+  }
+
+  try {
+    const response = await apiClient.get<ReviewDTO[]>(
+      `products/${productId}/reviews`
+    );
+    return response.data?.map(mapReviewDTOToReview) ?? [];
+  } catch (error) {
+    console.error("Error fetching product reviews:", error);
+    return [];
+  }
+};
+
+export const createProductReview = async (
+  payload: CreateReviewPayload
+): Promise<ProductReview> => {
+  try {
+    const requestBody = {
+      productoId: payload.productId,
+      texto: payload.text?.trim(),
+      calificacion: payload.rating,
+    };
+    const response = await apiClient.post<ReviewDTO>("reviews", requestBody);
+    return mapReviewDTOToReview(response.data);
+  } catch (error) {
+    console.error("Error creating product review:", error);
+    throw error;
+  }
+};
+
+export const updateProduct = async (
+  productId: number,
+  payload: ProductUpdatePayload
+): Promise<Product | undefined> => {
+  if (!productId) {
+    return undefined;
+  }
+
+  const body = serializeProductUpdatePayload(payload);
+  if (!Object.keys(body).length) {
+    console.warn("No se proporcionaron campos para actualizar el producto");
+    return undefined;
+  }
+
+  try {
+    const response = await apiClient.put<ProductDTO>(
+      `products/${productId}`,
+      body
+    );
+    return mapProductDTOtoProduct(response.data);
+  } catch (error) {
+    console.error("Error updating product:", error);
+    throw error;
+  }
+};
+
+export const deleteProduct = async (productId: number): Promise<void> => {
+  if (!productId) {
+    return;
+  }
+
+  try {
+    await apiClient.delete(`products/${productId}`);
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    throw error;
   }
 };
 
@@ -392,6 +773,79 @@ export const clearUserCartApi = async (userId: string): Promise<void> => {
   }
 };
 
+export const getUserOrders = async (userId: string): Promise<Order[]> => {
+  if (!userId) {
+    return [];
+  }
+
+  try {
+    const response = await apiClient.get<BoletaDTO[]>(`boletas/user/${userId}`);
+    return response.data?.map(mapBoletaDTOToOrder) ?? [];
+  } catch (error) {
+    console.error("Error fetching user orders:", error);
+    return [];
+  }
+};
+
+const serializeBoletaPayload = (payload: CreateOrderPayload) => {
+  const body: Record<string, unknown> = {
+    cliente: payload.clientId,
+    total: Number(payload.total.toFixed(2)),
+    detalles: payload.details.map((detail) => ({
+      productoId: detail.productId,
+      cantidad: detail.quantity,
+    })),
+  };
+
+  if (payload.couponId !== undefined) {
+    body.cuponId = payload.couponId;
+  }
+
+  if (payload.couponCode) {
+    body.codigoCupon = payload.couponCode;
+  }
+
+  return body;
+};
+
+export const createOrder = async (
+  payload: CreateOrderPayload
+): Promise<Order> => {
+  if (!payload.clientId) {
+    throw new Error("Debe indicar un cliente para generar la boleta");
+  }
+
+  if (!payload.details?.length) {
+    throw new Error("No se puede crear una boleta sin productos");
+  }
+
+  try {
+    const response = await apiClient.post<BoletaDTO>(
+      "boletas",
+      serializeBoletaPayload(payload)
+    );
+    return mapBoletaDTOToOrder(response.data);
+  } catch (error) {
+    console.error("Error creating order:", error);
+    throw error;
+  }
+};
+
+export const getUsers = async (): Promise<UserSummary[]> => {
+  try {
+    const response = await apiClient.get<UserDTO[]>("users");
+    return response.data?.map(mapUserDTOToSummary) ?? [];
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return [];
+  }
+};
+
+export const getSellers = async (): Promise<UserSummary[]> => {
+  const users = await getUsers();
+  return users.filter((user) => user.role === "VENDEDOR");
+};
+
 export const getBlogPosts = async (): Promise<Blog[]> => {
   try {
     const response = await apiClient.get<BlogDTO[]>("blog-posts");
@@ -428,12 +882,18 @@ export const authenticateUser = async (
       contrasena: password,
       rol: role,
     };
-    const loginResponse = await apiClient.post<any>("auth/login", loginPayload);
+    const loginResponse = await apiClient.post<LoginResponseDTO>(
+      "auth/login",
+      loginPayload
+    );
     const { accessToken, usuarioId } = loginResponse.data;
 
-    const userResponse = await apiClient.get<any>(`users/${usuarioId}`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
+    const userResponse = await apiClient.get<UserProfileDTO>(
+      `users/${usuarioId}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    );
     const userData = userResponse.data;
 
     const user: User = {
@@ -451,11 +911,21 @@ export const authenticateUser = async (
     };
 
     return user;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Login error:", error);
-    if (error.response) {
-      console.error("Server Error Data:", error.response.data);
-      console.error("Server Error Status:", error.response.status);
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "response" in error &&
+      typeof (error as { response?: unknown }).response === "object"
+    ) {
+      const response = (
+        error as { response?: { data?: unknown; status?: unknown } }
+      ).response;
+      if (response) {
+        console.error("Server Error Data:", response.data);
+        console.error("Server Error Status:", response.status);
+      }
     }
     throw error;
   }

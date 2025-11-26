@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IoCard } from 'react-icons/io5';
 import { useCart } from '../hooks/useCart';
@@ -8,12 +9,14 @@ import styles from './CartPage.module.css';
 
 import { formatCurrency } from '../helpers/formatting.helper';
 import { calculateSubtotal, calculateTotal } from '../helpers/cart.helper';
+import { createOrder } from '../helpers/api.helper';
 
 export const CartPage = () => {
   const navigate = useNavigate();
   const { cart, clearCart } = useCart();
   const { user } = useAuth();
   const { showNotification } = useNotification();
+  const [processingPayment, setProcessingPayment] = useState(false);
 
   const subtotal = calculateSubtotal(cart);
 
@@ -30,9 +33,51 @@ export const CartPage = () => {
       return;
     }
 
-    showNotification('¡Pago realizado exitosamente! Gracias por tu compra.', 'success');
+    if (!cart.length) {
+      showNotification('Tu carrito está vacío.', 'error');
+      return;
+    }
 
-    await clearCart();
+    const clientId = Number(user.id);
+    if (Number.isNaN(clientId)) {
+      showNotification('No se pudo validar tu sesión. Intenta nuevamente.', 'error');
+      return;
+    }
+
+    setProcessingPayment(true);
+    try {
+      const orderPayload = {
+        clientId,
+        total: Number(finalTotal.toFixed(2)),
+        details: cart.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+        })),
+      };
+
+      const order = await createOrder(orderPayload);
+      await clearCart();
+
+      const orderLabel = order.number ?? order.id;
+      showNotification(
+        `Pago confirmado. Boleta ${orderLabel} generada correctamente.`,
+        'success'
+      );
+    } catch (error) {
+      console.error('No se pudo procesar el pago:', error);
+      const backendMessage =
+        typeof error === 'object' &&
+        error !== null &&
+        'response' in error &&
+        (error as { response?: { data?: { error?: string; message?: string } } })
+          .response?.data?.error;
+      showNotification(
+        backendMessage ?? 'No se pudo procesar tu pago. Inténtalo más tarde.',
+        'error'
+      );
+    } finally {
+      setProcessingPayment(false);
+    }
   };
 
   return (
@@ -70,11 +115,11 @@ export const CartPage = () => {
               <div className="d-grid mt-4">
                 <button
                   className="btn btn-primary btn-lg"
-                  disabled={cart.length === 0}
+                  disabled={cart.length === 0 || processingPayment}
                   onClick={handleCheckout}
                   aria-label="Proceder al Pago"
                 >
-                  <IoCard size={28} />
+                  {processingPayment ? 'Procesando...' : <IoCard size={28} />}
                 </button>
               </div>
             </div>
