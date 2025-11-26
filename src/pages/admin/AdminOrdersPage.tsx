@@ -18,15 +18,28 @@ import { formatCurrency } from "../../helpers/formatting.helper";
 import { useNotification } from "../../hooks/useNotification";
 import dashboardStyles from "../dashboard/Dashboard.module.css";
 
-const ORDER_STATUS_FALLBACKS = [
+const ORDER_STATUS_ALLOWED = [
   "PENDIENTE",
-  "EMITIDA",
-  "PAGADA",
-  "PREPARACION",
-  "DESPACHADA",
-  "ENTREGADA",
-  "CANCELADA",
-];
+  "PAGADO",
+  "ENVIADO",
+  "CANCELADO",
+] as const;
+
+type AllowedOrderStatus = (typeof ORDER_STATUS_ALLOWED)[number];
+
+const DEFAULT_ORDER_STATUS: AllowedOrderStatus = ORDER_STATUS_ALLOWED[0];
+
+const normalizeAllowedStatus = (value?: string): AllowedOrderStatus => {
+  if (!value) {
+    return DEFAULT_ORDER_STATUS;
+  }
+  const normalized = value.toUpperCase();
+  if (normalized === "PAGADA") {
+    return "PAGADO";
+  }
+  const match = ORDER_STATUS_ALLOWED.find((status) => status === normalized);
+  return match ?? DEFAULT_ORDER_STATUS;
+};
 
 type OrderFormDetailRow = {
   rowId: string;
@@ -127,7 +140,9 @@ export const AdminOrdersPage = () => {
 
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [statusTarget, setStatusTarget] = useState<Order | null>(null);
-  const [statusValue, setStatusValue] = useState("PENDIENTE");
+  const [statusValue, setStatusValue] = useState<AllowedOrderStatus>(
+    DEFAULT_ORDER_STATUS
+  );
   const [statusSubmitting, setStatusSubmitting] = useState(false);
 
   const [deleteTarget, setDeleteTarget] = useState<Order | null>(null);
@@ -182,12 +197,10 @@ export const AdminOrdersPage = () => {
     return clients.length ? clients : users;
   }, [users]);
 
-  const statusOptions = useMemo(() => {
-    const dynamic = orders
-      .map((order) => order.status?.toUpperCase())
-      .filter((value): value is string => Boolean(value));
-    return Array.from(new Set([...ORDER_STATUS_FALLBACKS, ...dynamic]));
-  }, [orders]);
+  const statusOptions = useMemo<AllowedOrderStatus[]>(
+    () => [...ORDER_STATUS_ALLOWED],
+    []
+  );
 
   const productDictionary = useMemo(() => {
     const map = new Map<number, Product>();
@@ -358,14 +371,14 @@ export const AdminOrdersPage = () => {
 
   const openStatusModal = (order: Order) => {
     setStatusTarget(order);
-    setStatusValue(order.status ?? "PENDIENTE");
+    setStatusValue(normalizeAllowedStatus(order.status));
     setStatusModalOpen(true);
   };
 
   const closeStatusModal = () => {
     setStatusModalOpen(false);
     setStatusTarget(null);
-    setStatusValue("PENDIENTE");
+    setStatusValue(DEFAULT_ORDER_STATUS);
   };
 
   const handleStatusSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -444,17 +457,39 @@ export const AdminOrdersPage = () => {
 
     return orders.map((order) => (
       <tr key={order.id}>
-        <td className={dashboardStyles.tableValue}>
-          {order.number ?? `#${order.id}`}
-        </td>
-        <td>{order.clientName ?? "Sin cliente"}</td>
         <td>
-          <span className={`${dashboardStyles.metricsPill} ${getStatusBadgeClass(order.status)}`}>
+          <span
+            className={`${dashboardStyles.tableValue} ${dashboardStyles.tableValueLight}`}
+          >
+            {order.number ?? `#${order.id}`}
+          </span>
+        </td>
+        <td>
+          <span
+            className={`${dashboardStyles.tableValue} ${dashboardStyles.tableValueLight}`}
+          >
+            {order.clientName ?? "Sin cliente"}
+          </span>
+        </td>
+        <td>
+          <span className={`${dashboardStyles.tableBadge} ${getStatusBadgeClass(order.status)}`}>
             {formatStatusLabel(order.status)}
           </span>
         </td>
-        <td>{formatOrderDate(order.issuedAt)}</td>
-        <td className="text-end fw-semibold">{formatCurrency(order.total ?? 0)}</td>
+        <td>
+          <span
+            className={`${dashboardStyles.tableValue} ${dashboardStyles.tableValueLight}`}
+          >
+            {formatOrderDate(order.issuedAt)}
+          </span>
+        </td>
+        <td className="text-end">
+          <span
+            className={`${dashboardStyles.tableValue} ${dashboardStyles.tableValueLight} ${dashboardStyles.tablePrice}`}
+          >
+            {formatCurrency(order.total ?? 0)}
+          </span>
+        </td>
         <td>
           <div className="d-flex flex-wrap gap-2">
             <button
@@ -619,7 +654,9 @@ export const AdminOrdersPage = () => {
                     id="orderStatus"
                     className={`${dashboardStyles.darkField} ${dashboardStyles.darkSelect}`}
                     value={statusValue}
-                    onChange={(event) => setStatusValue(event.target.value)}
+                    onChange={(event) =>
+                      setStatusValue(normalizeAllowedStatus(event.target.value))
+                    }
                   >
                     {statusOptions.map((status) => (
                       <option key={status} value={status}>
@@ -849,10 +886,10 @@ export const AdminOrdersPage = () => {
             </div>
             <button
               type="button"
-              className={`${dashboardStyles.actionButton} ${dashboardStyles.btnSuccess}`}
+              className={dashboardStyles.primaryButton}
               onClick={openCreateOrderModal}
             >
-              Nueva boleta
+              Crear boleta
             </button>
           </div>
 

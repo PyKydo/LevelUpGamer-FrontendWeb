@@ -238,6 +238,11 @@
   color: rgba(255, 255, 255, 0.92);
 }
 
+.tableValueLight {
+  color: rgba(255, 255, 255, 0.99);
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.35);
+}
+
 .tableCode {
   letter-spacing: 0.08em;
   text-transform: uppercase;

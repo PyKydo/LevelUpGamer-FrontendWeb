@@ -345,8 +345,15 @@ interface BoletaClientDTO {
   name?: string;
   apellidos?: string;
   lastName?: string;
+  fullName?: string;
+  nombreCompleto?: string;
+  nombreUsuario?: string;
   correo?: string;
   email?: string;
+  correoElectronico?: string;
+  correoCliente?: string;
+  correoUsuario?: string;
+  correoPrincipal?: string;
 }
 
 interface BoletaDTO {
@@ -369,14 +376,24 @@ interface BoletaDTO {
   historialEstados?: Array<{ estado?: string }>;
   cliente?: BoletaClientDTO | number;
   clienteId?: number;
-  usuario?: BoletaClientDTO;
-  user?: BoletaClientDTO;
-  comprador?: BoletaClientDTO;
+  usuarioId?: number;
+  usuario?: BoletaClientDTO | string;
+  user?: BoletaClientDTO | string;
+  comprador?: BoletaClientDTO | string;
   clienteNombre?: string;
   usuarioNombre?: string;
   nombreCliente?: string;
+  clienteFullName?: string;
+  clientName?: string;
+  compradorNombre?: string;
   clienteCorreo?: string;
   emailCliente?: string;
+  clienteEmail?: string;
+  clientEmail?: string;
+  correoCliente?: string;
+  correoUsuario?: string;
+  usuarioCorreo?: string;
+  compradorCorreo?: string;
   cuponCodigo?: string;
   couponCode?: string;
   codigoCupon?: string;
@@ -568,41 +585,110 @@ const normalizeOrderStatus = (status?: string): string | undefined => {
 const resolveBoletaClient = (
   dto: BoletaDTO
 ): { id?: number; name?: string; email?: string } => {
-  let clientRecord: BoletaClientDTO | null = null;
+  let clientRecord: BoletaClientDTO | undefined;
+  const scalarNames: string[] = [];
 
-  if (dto.cliente && typeof dto.cliente === "object") {
-    clientRecord = dto.cliente;
-  } else if (dto.usuario && typeof dto.usuario === "object") {
-    clientRecord = dto.usuario;
-  } else if (dto.user && typeof dto.user === "object") {
-    clientRecord = dto.user;
-  } else if (dto.comprador && typeof dto.comprador === "object") {
-    clientRecord = dto.comprador;
-  }
+  const considerSource = (source: unknown) => {
+    if (!source) {
+      return;
+    }
+    if (typeof source === "string") {
+      scalarNames.push(source);
+      return;
+    }
+    if (typeof source === "object" && !Array.isArray(source) && !clientRecord) {
+      clientRecord = source as BoletaClientDTO;
+    }
+  };
 
-  const idCandidate =
-    (typeof dto.cliente === "number" ? dto.cliente : undefined) ??
-    clientRecord?.id ??
-    clientRecord?.usuarioId ??
-    dto.clienteId;
+  considerSource(dto.cliente);
+  considerSource(dto.usuario);
+  considerSource(dto.user);
+  considerSource(dto.comprador);
 
-  const nameFromRecord = clientRecord
-    ? buildFullName(
-        clientRecord.nombre ?? clientRecord.name,
-        clientRecord.apellidos ?? clientRecord.lastName
+  const firstValidNumber = (
+    ...values: Array<number | undefined>
+  ): number | undefined => {
+    for (const value of values) {
+      if (typeof value === "number" && Number.isFinite(value)) {
+        return value;
+      }
+    }
+    return undefined;
+  };
+
+  const firstNonEmptyString = (
+    ...values: Array<string | undefined>
+  ): string | undefined => {
+    for (const value of values) {
+      const trimmed = value?.trim();
+      if (trimmed) {
+        return trimmed;
+      }
+    }
+    return undefined;
+  };
+
+  const resolvedClient: BoletaClientDTO | undefined = clientRecord;
+
+  const idCandidate = firstValidNumber(
+    typeof dto.cliente === "number" ? dto.cliente : undefined,
+    dto.clienteId,
+    dto.usuarioId,
+    resolvedClient?.id,
+    resolvedClient?.usuarioId
+  );
+
+  const recordDisplayName = resolvedClient
+    ? firstNonEmptyString(
+        resolvedClient.nombreCompleto,
+        resolvedClient.fullName,
+        resolvedClient.nombreUsuario,
+        buildFullName(
+          resolvedClient.nombre ?? resolvedClient.name,
+          resolvedClient.apellidos ?? resolvedClient.lastName
+        )
       )
     : undefined;
 
-  const fallbackName =
-    dto.clienteNombre ?? dto.usuarioNombre ?? dto.nombreCliente ?? undefined;
+  const fallbackName = firstNonEmptyString(
+    recordDisplayName,
+    dto.clienteFullName,
+    dto.clientName,
+    dto.clienteNombre,
+    dto.usuarioNombre,
+    dto.nombreCliente,
+    dto.compradorNombre,
+    scalarNames[0]
+  );
 
-  const emailFromRecord = clientRecord?.correo ?? clientRecord?.email;
-  const fallbackEmail = dto.clienteCorreo ?? dto.emailCliente ?? undefined;
+  const emailFromRecord = resolvedClient
+    ? firstNonEmptyString(
+        resolvedClient.correo,
+        resolvedClient.email,
+        resolvedClient.correoElectronico,
+        resolvedClient.correoCliente,
+        resolvedClient.correoUsuario,
+        resolvedClient.correoPrincipal
+      )
+    : undefined;
+
+  const fallbackEmail = firstNonEmptyString(
+    emailFromRecord,
+    dto.clienteCorreo,
+    dto.emailCliente,
+    dto.clienteEmail,
+    dto.clientEmail,
+    dto.correoCliente,
+    dto.correoUsuario,
+    dto.usuarioCorreo,
+    dto.compradorCorreo
+  );
 
   return {
     id: idCandidate,
-    name: nameFromRecord || fallbackName,
-    email: emailFromRecord || fallbackEmail,
+    name: fallbackName,
+    email: fallbackEmail,
   };
 };
 
@@ -1376,9 +1462,10 @@ export const updateOrderStatus = async (
   }
 
   try {
+    const normalizedStatus = status.toUpperCase();
     const response = await apiClient.put<BoletaDTO>(
       `boletas/${orderId}/estado`,
-      { estado: status, status }
+      { estado: normalizedStatus }
     );
     return mapBoletaDTOToOrder(response.data);
   } catch (error) {
