@@ -38,6 +38,9 @@ Thumbs.db
 docs/
 proyecto-guia/
 
+# Test coverage
+coverage/
+
 # Archivos generados de TypeScript
 **/*.d.ts
 !src/global.d.ts

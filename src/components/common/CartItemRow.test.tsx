@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
 import { CartItemRow } from './CartItemRow';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CartContext } from '../../hooks/CartContext';

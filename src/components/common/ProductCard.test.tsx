@@ -1,3 +1,4 @@
+import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { ProductCard } from './ProductCard';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
