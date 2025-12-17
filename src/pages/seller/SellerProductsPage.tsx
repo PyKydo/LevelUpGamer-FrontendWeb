@@ -283,26 +283,15 @@ export const SellerProductsPage = () => {
       return;
     }
 
-    const matchedCategory = categories.find(
-      (category) => category.id?.toString() === productFormState.categoryId
-    );
-    const selectedCategoryName =
-      productFormState.categoryName?.trim() ||
-      matchedCategory?.name?.trim() ||
-      matchedCategory?.code?.trim() ||
-      "";
-
     const commonPayload: CreateProductPayload = {
       code: productFormState.code.trim(),
       name: productFormState.name.trim(),
       description: productFormState.description.trim(),
       categoryId,
-      category: selectedCategoryName,
       price,
       stock,
       stockCritical: parseOptionalNumber(productFormState.stockCritical),
       pointsLevelUp: parseOptionalNumber(productFormState.pointsLevelUp),
-      active: productFormState.active,
     };
 
     setProductFormSubmitting(true);
@@ -320,13 +309,11 @@ export const SellerProductsPage = () => {
         const updatedProduct = await updateProduct(productFormTarget.id, {
           name: commonPayload.name,
           description: commonPayload.description,
-          category: commonPayload.category,
           categoryId: commonPayload.categoryId,
           price: commonPayload.price,
           stock: commonPayload.stock,
           stockCritical: commonPayload.stockCritical,
           pointsLevelUp: commonPayload.pointsLevelUp,
-          active: commonPayload.active,
         });
 
         if (updatedProduct) {

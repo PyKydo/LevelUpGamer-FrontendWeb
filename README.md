@@ -39,6 +39,22 @@ El servidor de desarrollo queda en `http://localhost:5173`. Cuando necesitamos d
 npm run test
 ```
 
+## Configuracion del backend (local vs produccion)
+
+- Cuando ejecutas `npm run dev` la app apunta primero a `http://localhost:8080/api/v1` y, si no responde, cambia al backend desplegado.
+- En build (`npm run build` o despliegues) el primer host es siempre el backend remoto (ngrok/IP) y se mantiene el fallback automatico.
+- Puedes sobreescribir las URLs creando un archivo `.env` o `.env.development` con estas claves:
+
+```bash
+VITE_API_LOCAL_HOST=http://localhost:8080
+VITE_API_PRIMARY_HOST=https://overintense-frederic-unpercipient.ngrok-free.dev
+VITE_API_SECONDARY_HOST=http://98.89.104.110:8081
+# Fuerza un entorno especifico sin importar el comando (local | production)
+VITE_API_ENV=local
+```
+
+- Establece `VITE_API_ENV=production` si quieres probar contra el backend remoto aun estando en modo `dev`.
+
 ## Buenas practicas aplicadas
 
 - Tipados compartidos en `src/types` para evitar any.

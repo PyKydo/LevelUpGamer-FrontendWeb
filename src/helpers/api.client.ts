@@ -2,9 +2,48 @@ import axios from "axios";
 import { getLocalStorageItem, removeLocalStorageItem } from "./storage.helper";
 
 const API_VERSION_PATH = "api/v1/";
-const PRIMARY_API_HOST =
+const DEFAULT_PRIMARY_API_HOST =
   "https://overintense-frederic-unpercipient.ngrok-free.dev";
-const SECONDARY_API_HOST = "http://98.89.104.110:8081";
+const DEFAULT_SECONDARY_API_HOST = "http://98.89.104.110:8081";
+const DEFAULT_LOCAL_API_HOST = "http://localhost:8080";
+
+type EnvRecord = Record<string, string | boolean | undefined>;
+export type ApiEnvironment = "local" | "production";
+
+const importMetaEnv: EnvRecord = (
+  typeof import.meta !== "undefined" && import.meta.env
+    ? (import.meta.env as EnvRecord)
+    : {}
+) as EnvRecord;
+
+const readEnvString = (key: string, fallback = ""): string => {
+  const fromImportMeta = importMetaEnv?.[key];
+  if (typeof fromImportMeta === "string" && fromImportMeta.trim().length > 0) {
+    return fromImportMeta.trim();
+  }
+  return fallback;
+};
+
+const normalizeHost = (host?: string): string | null => {
+  if (!host?.trim()) {
+    return null;
+  }
+  return host.trim().replace(/\/+$/, "");
+};
+
+const normalizeEnvironment = (value?: string): ApiEnvironment | null => {
+  if (!value?.trim()) {
+    return null;
+  }
+  const normalized = value.trim().toLowerCase();
+  if (["local", "development", "dev", "test"].includes(normalized)) {
+    return "local";
+  }
+  if (["production", "prod"].includes(normalized)) {
+    return "production";
+  }
+  return null;
+};
 
 const ensureTrailingSlash = (value: string): string =>
   value.endsWith("/") ? value : `${value}/`;
@@ -15,10 +54,37 @@ const buildBaseUrl = (host: string): string =>
 const deriveRootUrl = (baseUrl: string): string =>
   baseUrl.replace(/\/api\/v1\/?$/, "/");
 
-export const API_BASE_URLS = Object.freeze([
-  buildBaseUrl(PRIMARY_API_HOST),
-  buildBaseUrl(SECONDARY_API_HOST),
-]);
+const primaryHost =
+  normalizeHost(
+    readEnvString("VITE_API_PRIMARY_HOST", DEFAULT_PRIMARY_API_HOST)
+  ) ?? DEFAULT_PRIMARY_API_HOST;
+const secondaryHost = normalizeHost(
+  readEnvString("VITE_API_SECONDARY_HOST", DEFAULT_SECONDARY_API_HOST)
+);
+const localHost =
+  normalizeHost(readEnvString("VITE_API_LOCAL_HOST", DEFAULT_LOCAL_API_HOST)) ??
+  DEFAULT_LOCAL_API_HOST;
+
+const explicitEnv = normalizeEnvironment(readEnvString("VITE_API_ENV"));
+const nodeEnv = normalizeEnvironment(readEnvString("NODE_ENV"));
+const modeEnv = normalizeEnvironment(readEnvString("MODE"));
+const resolvedApiEnvironment: ApiEnvironment =
+  explicitEnv ??
+  (Boolean(importMetaEnv?.DEV) || nodeEnv === "local" || modeEnv === "local"
+    ? "local"
+    : "production");
+
+const prioritizedHosts =
+  resolvedApiEnvironment === "local"
+    ? [localHost, primaryHost, secondaryHost]
+    : [primaryHost, secondaryHost];
+
+const API_HOSTS = Array.from(
+  new Set(prioritizedHosts.filter((host): host is string => Boolean(host)))
+);
+
+export const API_BASE_URLS = Object.freeze(API_HOSTS.map(buildBaseUrl));
+export const getApiEnvironment = (): ApiEnvironment => resolvedApiEnvironment;
 
 let activeBaseIndex = 0;
 let activeBaseUrl = API_BASE_URLS[activeBaseIndex];

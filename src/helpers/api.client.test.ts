@@ -11,6 +11,7 @@ import {
   resolveApiUrl,
   getActiveApiBaseUrl,
   getActiveApiRootUrl,
+  getApiEnvironment,
   API_BASE_URLS,
   resetActiveApiBaseUrl,
 } from "./api.client";
@@ -34,6 +35,10 @@ describe("api.client helpers", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     resetActiveApiBaseUrl();
+  });
+
+  it("expone el entorno activo configurado", () => {
+    expect(["local", "production"]).toContain(getApiEnvironment());
   });
 
   it("resolveApiUrl devuelve una cadena vacía cuando no hay ruta", () => {

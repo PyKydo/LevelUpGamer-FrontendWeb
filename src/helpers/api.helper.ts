@@ -64,13 +64,12 @@ export interface CreateProductPayload {
   code: string;
   name: string;
   description: string;
-  category?: string;
-  categoryId?: number;
+  categoryId: number;
   price: number;
   stock: number;
   stockCritical?: number;
   pointsLevelUp?: number;
-  active?: boolean;
+  images?: string[];
 }
 
 export interface ProductCategory {
@@ -148,8 +147,6 @@ export interface CreateOrderPayload {
   clientId: number;
   total: number;
   details: CreateOrderDetailPayload[];
-  couponId?: number;
-  couponCode?: string;
 }
 
 export interface UserSummary {
@@ -157,6 +154,7 @@ export interface UserSummary {
   fullName: string;
   email: string;
   role: string;
+  roles: string[];
 }
 
 export interface UserDetail {
@@ -171,6 +169,7 @@ export interface UserDetail {
   region?: string;
   commune?: string;
   role: string;
+  roles: string[];
 }
 
 export interface CreateUserPayload {
@@ -183,30 +182,28 @@ export interface CreateUserPayload {
   region: string;
   commune: string;
   address: string;
-  role: string;
   referralCode?: string;
 }
 
 export interface UpdateUserPayload {
   name?: string;
   lastName?: string;
+  email?: string;
   region?: string;
   commune?: string;
   address?: string;
 }
 
 export interface ProductUpdatePayload {
+  code?: string;
   name?: string;
   description?: string;
   price?: number;
   stock?: number;
   stockCritical?: number;
-  category?: string;
   categoryId?: number;
-  image?: string;
   pointsLevelUp?: number;
-  active?: boolean;
-  sellerId?: number | null;
+  images?: string[];
 }
 
 export interface Blog {
@@ -436,6 +433,8 @@ interface UserDTO {
 interface LoginResponseDTO {
   accessToken: string;
   refreshToken?: string;
+  preAuthToken?: string;
+  roles?: string[];
   usuarioId: number;
 }
 
@@ -492,6 +491,16 @@ const normalizeBlogAssetPath = (
   return `${blogFolder}${fileName}`;
 };
 
+const isServerRelativeBlogAsset = (path: string): boolean => {
+  if (!path) {
+    return false;
+  }
+  return path.startsWith("/") || path.toLowerCase().startsWith("uploads/");
+};
+
+const toServerRelativePath = (path: string): string =>
+  path.startsWith("/") ? path : `/${path}`;
+
 const resolveBlogAssetUrl = (
   rawPath: string,
   blogId: number,
@@ -504,6 +513,9 @@ const resolveBlogAssetUrl = (
   try {
     return new URL(rawPath).toString();
   } catch {
+    if (isServerRelativeBlogAsset(rawPath)) {
+      return resolveApiUrl(toServerRelativePath(rawPath));
+    }
     const normalizedPath = normalizeBlogAssetPath(rawPath, blogId, type);
     if (!normalizedPath) {
       return "";
@@ -714,6 +726,8 @@ const normalizeRole = (role?: string): string => {
   }
 
   const cleaned = role
+    .replace(/^[\[\]]+/g, "")
+    .replace(/[\[\]]+$/g, "")
     .replace(/^ROL(?:E)?[_-]?/i, "")
     .replace(/^ROLE[_-]?/i, "")
     .trim();
@@ -734,6 +748,39 @@ const normalizeRole = (role?: string): string => {
   return upper || "CLIENTE";
 };
 
+const normalizeRoles = (roles?: string | string[] | null): string[] => {
+  if (Array.isArray(roles)) {
+    return roles.map(normalizeRole).filter(Boolean);
+  }
+
+  if (!roles) {
+    return [];
+  }
+
+  const flattened = roles
+    .replace(/[\[\]]/g, "")
+    .split(/[;,]/)
+    .flatMap((chunk) => chunk.split(/\s+/))
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  const normalized = flattened.map(normalizeRole).filter(Boolean);
+  return normalized.length ? Array.from(new Set(normalized)) : [];
+};
+
+const derivePrimaryRole = (roles: string[], fallback?: string): string => {
+  if (roles.includes("ADMINISTRADOR")) {
+    return "ADMINISTRADOR";
+  }
+  if (roles.includes("VENDEDOR")) {
+    return "VENDEDOR";
+  }
+  if (roles.includes("CLIENTE")) {
+    return "CLIENTE";
+  }
+  return normalizeRole(fallback);
+};
+
 const mapUserDTOToSummary = (dto: UserDTO): UserSummary => ({
   id: Number(dto.id ?? dto.usuarioId ?? 0),
   fullName: buildFullName(
@@ -741,7 +788,19 @@ const mapUserDTOToSummary = (dto: UserDTO): UserSummary => ({
     dto.apellidos ?? dto.lastName
   ),
   email: dto.correo ?? dto.email ?? "",
-  role: normalizeRole(dto.rol ?? dto.role ?? "CLIENTE"),
+  role: (() => {
+    const normalizedRoles = normalizeRoles(
+      (dto as unknown as { roles?: string[] }).roles ?? dto.rol ?? dto.role
+    );
+    return derivePrimaryRole(normalizedRoles, "CLIENTE");
+  })(),
+  roles: (() => {
+    const normalizedRoles = normalizeRoles(
+      (dto as unknown as { roles?: string[] }).roles ?? dto.rol ?? dto.role
+    );
+    const primary = derivePrimaryRole(normalizedRoles, "CLIENTE");
+    return normalizedRoles.length ? normalizedRoles : [primary];
+  })(),
 });
 
 const mapUserProfileDTOToDetail = (
@@ -758,13 +817,35 @@ const mapUserProfileDTOToDetail = (
   address: dto.direccion,
   region: dto.region,
   commune: dto.comuna,
-  role: normalizeRole(overrides?.role ?? dto.rol ?? dto.role ?? "CLIENTE"),
+  role: (() => {
+    const normalizedRoles = normalizeRoles(
+      overrides?.roles ?? overrides?.role ?? dto.rol ?? dto.role
+    );
+    return derivePrimaryRole(
+      normalizedRoles,
+      overrides?.role ?? dto.rol ?? dto.role ?? "CLIENTE"
+    );
+  })(),
+  roles: (() => {
+    const normalizedRoles = normalizeRoles(
+      overrides?.roles ?? overrides?.role ?? dto.rol ?? dto.role
+    );
+    const primary = derivePrimaryRole(
+      normalizedRoles,
+      overrides?.role ?? dto.rol ?? dto.role ?? "CLIENTE"
+    );
+    return normalizedRoles.length ? normalizedRoles : [primary];
+  })(),
 });
 
 const serializeProductUpdatePayload = (
   payload: ProductUpdatePayload
 ): Record<string, unknown> => {
   const body: Record<string, unknown> = {};
+
+  if (payload.code !== undefined) {
+    body.codigo = payload.code;
+  }
 
   if (payload.name !== undefined) {
     body.nombre = payload.name;
@@ -786,28 +867,16 @@ const serializeProductUpdatePayload = (
     body.stockCritico = payload.stockCritical;
   }
 
-  if (payload.category !== undefined) {
-    body.categoria = payload.category;
-  }
-
   if (payload.categoryId !== undefined) {
     body.categoriaId = payload.categoryId;
-  }
-
-  if (payload.image !== undefined) {
-    body.imagenPrincipal = payload.image;
   }
 
   if (payload.pointsLevelUp !== undefined) {
     body.puntosLevelUp = payload.pointsLevelUp;
   }
 
-  if (payload.active !== undefined) {
-    body.activo = payload.active;
-  }
-
-  if (payload.sellerId !== undefined) {
-    body.vendedorId = payload.sellerId;
+  if (payload.images !== undefined) {
+    body.imagenes = payload.images;
   }
 
   return body;
@@ -888,16 +957,8 @@ const mapCreateProductPayloadToRequest = (
     descripcion: payload.description,
     precio: payload.price,
     stock: payload.stock,
-    activo: payload.active ?? true,
+    categoriaId: payload.categoryId,
   };
-
-  if (payload.categoryId !== undefined) {
-    body.categoriaId = payload.categoryId;
-  }
-
-  if (payload.category !== undefined) {
-    body.categoria = payload.category;
-  }
 
   if (payload.stockCritical !== undefined) {
     body.stockCritico = payload.stockCritical;
@@ -905,6 +966,10 @@ const mapCreateProductPayloadToRequest = (
 
   if (payload.pointsLevelUp !== undefined) {
     body.puntosLevelUp = payload.pointsLevelUp;
+  }
+
+  if (payload.images !== undefined) {
+    body.imagenes = payload.images;
   }
 
   return body;
@@ -1360,14 +1425,6 @@ const serializeBoletaPayload = (payload: CreateOrderPayload) => {
     })),
   };
 
-  if (payload.couponId !== undefined) {
-    body.cuponId = payload.couponId;
-  }
-
-  if (payload.couponCode) {
-    body.codigoCupon = payload.couponCode;
-  }
-
   return body;
 };
 
@@ -1452,7 +1509,6 @@ const serializeCreateUserPayload = (
   region: payload.region,
   comuna: payload.commune,
   direccion: payload.address,
-  rol: payload.role,
   codigoReferido: payload.referralCode?.trim() || undefined,
 });
 
@@ -1467,6 +1523,10 @@ const serializeUpdateUserPayload = (
 
   if (payload.lastName !== undefined) {
     body.apellidos = payload.lastName;
+  }
+
+  if (payload.email !== undefined) {
+    body.correo = payload.email;
   }
 
   if (payload.region !== undefined) {
@@ -1542,6 +1602,20 @@ export const getUserById = async (
   }
 };
 
+const serializeRegisterUserPayload = (
+  payload: CreateUserPayload
+): Record<string, unknown> => serializeCreateUserPayload(payload);
+
+export const registerUser = async (
+  payload: CreateUserPayload
+): Promise<UserDetail> => {
+  const response = await apiClient.post<UserProfileDTO>(
+    "users/register",
+    serializeRegisterUserPayload(payload)
+  );
+  return mapUserProfileDTOToDetail(response.data);
+};
+
 export const createUser = async (
   payload: CreateUserPayload
 ): Promise<UserDetail> => {
@@ -1549,7 +1623,7 @@ export const createUser = async (
     "users/admin",
     serializeCreateUserPayload(payload)
   );
-  return mapUserProfileDTOToDetail(response.data, { role: payload.role });
+  return mapUserProfileDTOToDetail(response.data);
 };
 
 export const updateUser = async (
@@ -1701,7 +1775,11 @@ export const authenticateUser = async (
       "auth/login",
       loginPayload
     );
-    const { accessToken, usuarioId } = loginResponse.data;
+    const { accessToken, refreshToken, preAuthToken, roles, usuarioId } =
+      loginResponse.data;
+
+    const normalizedRoles = normalizeRoles(roles ?? role);
+    const primaryRole = derivePrimaryRole(normalizedRoles, role);
 
     const userResponse = await apiClient.get<UserProfileDTO>(
       `users/${usuarioId}`,
@@ -1709,23 +1787,27 @@ export const authenticateUser = async (
         headers: { Authorization: `Bearer ${accessToken}` },
       }
     );
-    const userData = userResponse.data;
+    const userData = mapUserProfileDTOToDetail(userResponse.data, {
+      role: primaryRole,
+      roles: normalizedRoles,
+    });
 
-    const user: User = {
+    return {
       id: usuarioId.toString(),
-      name: userData.nombre,
-      lastName: userData.apellidos,
-      email: userData.correo,
-      run: userData.run,
-      birthdate: userData.fechaNacimiento,
-      address: userData.direccion,
-      region: userData.region,
-      commune: userData.comuna,
-      role: role,
+      name: userData.name,
+      lastName: userData.lastName,
+      email: userData.email,
+      run: userData.run ?? "",
+      birthdate: userData.birthdate ?? "",
+      address: userData.address ?? "",
+      region: userData.region ?? "",
+      commune: userData.commune ?? "",
+      role: userData.role,
+      roles: userData.roles,
       token: accessToken,
+      refreshToken,
+      preAuthToken,
     };
-
-    return user;
   } catch (error: unknown) {
     if (
       typeof error === "object" &&

@@ -1,41 +1,58 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+﻿import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   validateEmail,
   validateAge,
   validateRun,
   validateLength,
   validatePassword,
-} from '../helpers/validation.helper';
-import { getRegions, getCommunesByRegion, type Region, type Commune, } from '../helpers/api.helper';
-import { useNotification } from '../hooks/useNotification';
-import { getLocalStorageItem, setLocalStorageItem } from '../helpers/storage.helper';
-import { simpleHash } from '../helpers/security.helper';
-import type { UserWithPassword } from '../hooks/AuthContext';
-import { FormFloating } from '../components/common/FormFloating';
-import { FormSelect } from '../components/common/FormSelect';
-import { reportError } from '../helpers/logging.helper';
+} from "../helpers/validation.helper";
+import {
+  getRegions,
+  getCommunesByRegion,
+  registerUser,
+} from "../helpers/api.helper";
+import type { Region, Commune } from "../helpers/api.helper";
+import { useNotification } from "../hooks/useNotification";
+import { FormFloating } from "../components/common/FormFloating";
+import { FormSelect } from "../components/common/FormSelect";
+import { reportError } from "../helpers/logging.helper";
+
+interface RegisterFormState {
+  name: string;
+  lastName: string;
+  run: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  birthdate: string;
+  address: string;
+  region: string;
+  commune: string;
+}
+
+const INITIAL_FORM_STATE: RegisterFormState = {
+  name: "",
+  lastName: "",
+  run: "",
+  email: "",
+  password: "",
+  confirmPassword: "",
+  birthdate: "",
+  address: "",
+  region: "",
+  commune: "",
+};
 
 export const RegisterPage = () => {
   const navigate = useNavigate();
   const { showNotification } = useNotification();
 
-  const [formData, setFormData] = useState({
-    name: '',
-    lastName: '',
-    run: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    birthdate: '',
-    address: '',
-    region: '',
-    commune: '',
-  });
-
+  const [formData, setFormData] = useState<RegisterFormState>(INITIAL_FORM_STATE);
   const [regions, setRegions] = useState<Region[]>([]);
   const [communes, setCommunes] = useState<Commune[]>([]);
   const [loadingCommunes, setLoadingCommunes] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchRegions = async () => {
@@ -43,107 +60,139 @@ export const RegisterPage = () => {
         const data = await getRegions();
         setRegions(data);
       } catch (error) {
-        reportError('RegisterPage:fetchRegions', error);
-        showNotification('Error al cargar las regiones.', 'error');
+        reportError("RegisterPage:fetchRegions", error);
+        showNotification("Error al cargar las regiones.", "error");
       }
     };
-    fetchRegions();
+
+    void fetchRegions();
   }, [showNotification]);
 
   useEffect(() => {
-    if (formData.region) {
-      const fetchCommunes = async () => {
-        setLoadingCommunes(true);
-        setCommunes([]);
-        setFormData((prev) => ({ ...prev, commune: '' }));
-        try {
-          const data = await getCommunesByRegion(formData.region);
-          setCommunes(data);
-        } catch (error) {
-          reportError('RegisterPage:fetchCommunes', error);
-          showNotification('Error al cargar las comunas.', 'error');
-        } finally {
-          setLoadingCommunes(false);
-        }
-      };
-      fetchCommunes();
+    if (!formData.region) {
+      setCommunes([]);
+      setFormData((prev) => ({ ...prev, commune: "" }));
+      return;
     }
+
+    const fetchCommunes = async () => {
+      setLoadingCommunes(true);
+      setCommunes([]);
+      setFormData((prev) => ({ ...prev, commune: "" }));
+      try {
+        const data = await getCommunesByRegion(formData.region);
+        setCommunes(data);
+      } catch (error) {
+        reportError("RegisterPage:fetchCommunes", error);
+        showNotification("Error al cargar las comunas.", "error");
+      } finally {
+        setLoadingCommunes(false);
+      }
+    };
+
+    void fetchCommunes();
   }, [formData.region, showNotification]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value } = e.target;
+    const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
     if (!validateLength(formData.name, { min: 1, max: 50 })) {
-      showNotification('El nombre es requerido y no debe exceder los 50 caracteres.', 'error');
-      return;
-    }
-    if (!validateLength(formData.lastName, { min: 1, max: 100 })) {
-      showNotification('Los apellidos son requeridos y no deben exceder los 100 caracteres.', 'error');
-      return;
-    }
-    if (!validateRun(formData.run)) {
-      showNotification('El RUN ingresado no es válido.', 'error');
-      return;
-    }
-    if (!validateEmail(formData.email)) {
       showNotification(
-        'Correo inválido. Solo se permiten correos de @duoc.cl, @profesor.duoc.cl o @gmail.com.',
-        'error'
+        "El nombre es requerido y no debe exceder los 50 caracteres.",
+        "error"
       );
       return;
     }
+
+    if (!validateLength(formData.lastName, { min: 1, max: 100 })) {
+      showNotification(
+        "Los apellidos son requeridos y no deben exceder los 100 caracteres.",
+        "error"
+      );
+      return;
+    }
+
+    if (!validateRun(formData.run)) {
+      showNotification("El RUN ingresado no es válido.", "error");
+      return;
+    }
+
+    if (!validateEmail(formData.email)) {
+      showNotification(
+        "Correo inválido. Solo se permiten correos de @duoc.cl, @profesor.duoc.cl o @gmail.com.",
+        "error"
+      );
+      return;
+    }
+
     if (!validatePassword(formData.password, { min: 8, strict: true })) {
-      showNotification('La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas y números.', 'error');
+      showNotification(
+        "La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas y números.",
+        "error"
+      );
       return;
     }
+
     if (formData.password !== formData.confirmPassword) {
-      showNotification('Las contraseñas no coinciden.', 'error');
+      showNotification("Las contraseñas no coinciden.", "error");
       return;
     }
+
     if (!validateAge(formData.birthdate)) {
-      showNotification('Debes ser mayor de 18 años para registrarte.', 'error');
+      showNotification("Debes ser mayor de 18 años para registrarte.", "error");
       return;
     }
+
     if (!formData.region) {
-      showNotification('Debe seleccionar una región.', 'error');
+      showNotification("Debe seleccionar una región.", "error");
       return;
     }
+
     if (!formData.commune) {
-      showNotification('Debe seleccionar una comuna.', 'error');
+      showNotification("Debe seleccionar una comuna.", "error");
       return;
     }
+
     if (!validateLength(formData.address, { min: 1, max: 300 })) {
-      showNotification('La dirección es requerida y no debe exceder los 300 caracteres.', 'error');
+      showNotification(
+        "La dirección es requerida y no debe exceder los 300 caracteres.",
+        "error"
+      );
       return;
     }
 
-    const users = getLocalStorageItem<UserWithPassword[]>('users') || [];
-    const newUser: UserWithPassword = {
-      id: `user${Date.now()}`,
-      name: formData.name,
-      lastName: formData.lastName,
-      email: formData.email,
-      run: formData.run,
-      birthdate: formData.birthdate,
-      address: formData.address,
-      region: formData.region,
-      commune: formData.commune,
-      password: simpleHash(formData.password),
-      role: 'customer',
-    };
+    setSubmitting(true);
+    try {
+      await registerUser({
+        run: formData.run.trim(),
+        name: formData.name.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
+        birthdate: formData.birthdate,
+        address: formData.address.trim(),
+        region: formData.region,
+        commune: formData.commune,
+      });
 
-    users.push(newUser);
-    setLocalStorageItem('users', users);
-
-    showNotification('Registro exitoso.', 'success');
-    navigate('/login');
+      showNotification("Registro exitoso. Ahora puedes iniciar sesión.", "success");
+      navigate("/login");
+    } catch (error) {
+      reportError("RegisterPage:submit", error);
+      showNotification(
+        "No se pudo completar el registro. Inténtalo nuevamente.",
+        "error"
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -252,8 +301,11 @@ export const RegisterPage = () => {
                   onChange={handleChange}
                   value={formData.region}
                   options={[
-                    { value: '', label: 'Seleccione Región' },
-                    ...regions.map((r) => ({ value: r.codigo, label: r.nombre })),
+                    { value: "", label: "Seleccione Región" },
+                    ...regions.map((region) => ({
+                      value: region.codigo,
+                      label: region.nombre,
+                    })),
                   ]}
                   floating
                 />
@@ -266,8 +318,11 @@ export const RegisterPage = () => {
                   value={formData.commune}
                   disabled={!formData.region || loadingCommunes}
                   options={[
-                    { value: '', label: 'Seleccione Comuna' },
-                    ...communes.map((c) => ({ value: c.codigo, label: c.nombre })),
+                    { value: "", label: "Seleccione Comuna" },
+                    ...communes.map((commune) => ({
+                      value: commune.codigo,
+                      label: commune.nombre,
+                    })),
                   ]}
                   floating
                 />
@@ -275,8 +330,9 @@ export const RegisterPage = () => {
                 <button
                   className="btn btn-primary w-100 py-2 my-3"
                   type="submit"
+                  disabled={submitting}
                 >
-                  Registrarse
+                  {submitting ? "Registrando..." : "Registrarse"}
                 </button>
 
                 <p className="mt-4 text-center">
@@ -285,7 +341,9 @@ export const RegisterPage = () => {
                     Inicia sesión aquí
                   </Link>
                 </p>
-                <p className="mt-4 mb-3 text-center copyright-text">© 2025</p>
+                <p className="mt-4 mb-3 text-center copyright-text">
+                  Copyright 2025
+                </p>
               </form>
             </div>
           </div>

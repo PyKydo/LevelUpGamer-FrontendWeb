@@ -262,7 +262,6 @@ export const AdminUsersPage = () => {
           region: userFormState.region.trim(),
           commune: userFormState.commune.trim(),
           address: userFormState.address.trim(),
-          role: userFormState.role,
           referralCode: userFormState.referralCode.trim() || undefined,
         };
 

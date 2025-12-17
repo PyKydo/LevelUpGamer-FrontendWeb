@@ -1,5 +1,5 @@
-import { createContext } from 'react';
-import type { ReactNode } from 'react';
+import { createContext } from "react";
+import type { ReactNode } from "react";
 
 export interface User {
   id: string;
@@ -13,6 +13,9 @@ export interface User {
   commune: string;
   role: string;
   token?: string;
+  roles?: string[];
+  refreshToken?: string;
+  preAuthToken?: string;
 }
 
 export interface UserWithPassword extends User {
@@ -32,4 +35,6 @@ export interface AuthProviderProps {
   children: ReactNode;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);

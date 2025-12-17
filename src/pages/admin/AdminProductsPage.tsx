@@ -215,26 +215,15 @@ export const AdminProductsPage = () => {
       return;
     }
 
-    const matchedCategory = categories.find(
-      (category) => category.id?.toString() === productFormState.categoryId
-    );
-    const selectedCategoryName =
-      productFormState.categoryName?.trim() ||
-      matchedCategory?.name?.trim() ||
-      matchedCategory?.code?.trim() ||
-      "";
-
     const commonPayload: CreateProductPayload = {
       code: productFormState.code.trim(),
       name: productFormState.name.trim(),
       description: productFormState.description.trim(),
       categoryId,
-      category: selectedCategoryName,
       price,
       stock,
       stockCritical: parseOptionalNumber(productFormState.stockCritical),
       pointsLevelUp: parseOptionalNumber(productFormState.pointsLevelUp),
-      active: productFormState.active,
     };
 
     setProductFormSubmitting(true);
@@ -252,13 +241,11 @@ export const AdminProductsPage = () => {
         const updatedProduct = await updateProduct(productFormTarget.id, {
           name: commonPayload.name,
           description: commonPayload.description,
-          category: commonPayload.category,
           categoryId: commonPayload.categoryId,
           price: commonPayload.price,
           stock: commonPayload.stock,
           stockCritical: commonPayload.stockCritical,
           pointsLevelUp: commonPayload.pointsLevelUp,
-          active: commonPayload.active,
         });
 
         if (updatedProduct) {
@@ -399,34 +386,13 @@ export const AdminProductsPage = () => {
       return;
     }
 
-    const sellerId =
-      selectedSellerValue === CORPORATE_OWNER_VALUE
-        ? null
-        : Number(selectedSellerValue);
-
     setSavingOwner(true);
     try {
-      const updatedProduct = await updateProduct(selectedProduct.id, {
-        sellerId,
-      });
-
-      if (!updatedProduct) {
-        showNotification("No se pudo actualizar el producto.", "error");
-        return;
-      }
-
-      setProducts((current) =>
-        sortProductsByIdAndName(
-          current.map((product) =>
-            product.id === updatedProduct.id ? updatedProduct : product
-          )
-        )
+      showNotification(
+        "La API actual no permite reasignar propietarios. Ingresa con la cuenta correspondiente para modificarlo.",
+        "error"
       );
-      showNotification("Producto actualizado correctamente.", "success");
       closeOwnerModal();
-    } catch (error) {
-      reportError("AdminProductsPage:updateOwner", error);
-      showNotification("No se pudo actualizar el dueño del producto.", "error");
     } finally {
       setSavingOwner(false);
     }

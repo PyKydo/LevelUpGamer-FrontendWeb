@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type HTMLAttributes, type ReactNode } from 'react';
 import { useParams } from 'react-router-dom';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown, { type Components } from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import styles from './BlogDetailPage.module.css';
 import {
   getBlogPostById,
@@ -10,6 +11,11 @@ import {
 import { formatDate } from '../helpers/formatting.helper';
 import { reportError } from '../helpers/logging.helper';
 
+type MarkdownCodeProps = HTMLAttributes<HTMLElement> & {
+  inline?: boolean;
+  children?: ReactNode;
+};
+
 export const BlogDetailPage = () => {
   const { blogId } = useParams<{ blogId: string }>();
   const [post, setPost] = useState<Blog | null>(null);
@@ -18,6 +24,46 @@ export const BlogDetailPage = () => {
   const [contentError, setContentError] = useState<string | null>(null);
   const [loadingPost, setLoadingPost] = useState(true);
   const [loadingContent, setLoadingContent] = useState(false);
+
+  const markdownComponents: Components = {
+    table: (props) => (
+      <div className={styles.tableWrapper}>
+        <table className={styles.table} {...props} />
+      </div>
+    ),
+    th: (props) => <th {...props} />,
+    td: (props) => <td {...props} />,
+    blockquote: (props) => <blockquote className={styles.blockquote} {...props} />,
+    code: ({ inline, className, children, ...rest }: MarkdownCodeProps) => {
+      if (inline) {
+        return (
+          <code className={styles.inlineCode} {...rest}>
+            {children}
+          </code>
+        );
+      }
+      return (
+        <pre className={styles.codeBlock}>
+          <code className={className} {...rest}>
+            {children}
+          </code>
+        </pre>
+      );
+    },
+    img: ({ alt, ...props }) => (
+      <img className={styles.contentImage} alt={alt} loading="lazy" {...props} />
+    ),
+    a: ({ children, ...props }) => (
+      <a
+        className={styles.link}
+        target="_blank"
+        rel="noopener noreferrer"
+        {...props}
+      >
+        {children}
+      </a>
+    ),
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -137,7 +183,14 @@ export const BlogDetailPage = () => {
               <p className="text-danger">{contentError}</p>
             )}
             {!loadingContent && !contentError && (
-              <ReactMarkdown>{markdownContent}</ReactMarkdown>
+              <div className={styles.blogContent}>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={markdownComponents}
+                >
+                  {markdownContent}
+                </ReactMarkdown>
+              </div>
             )}
           </div>
         </div>
